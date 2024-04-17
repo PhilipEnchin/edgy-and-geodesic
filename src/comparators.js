@@ -1,5 +1,18 @@
+/** @typedef {import('./Vector.js').default} Vector3 */
 /** @typedef {import('./Vertex.js').default} Vertex */
 /** @typedef {import('./Vertex.js').Triangle} Triangle */
+
+/**
+ * Compare vectors by ordered triple, left to right
+ * @param {Vector3} a
+ * @param {Vector3} b
+ * @returns {number}
+ */
+export const vectorCompare = (a, b) => {
+  if (a.x !== b.x) { return a.x - b.x; }
+  if (a.y !== b.y) { return a.y - b.y; }
+  return a.z - b.z;
+};
 
 /**
  * Compare vertices by key, then ordered triple, left to right
@@ -10,9 +23,7 @@
 export const vertexCompare = ({ key: aKey, vector3: a }, { key: bKey, vector3: b }) => {
   if (aKey < bKey) return -1;
   if (aKey > bKey) return 1;
-  if (a.x !== b.x) { return a.x - b.x; }
-  if (a.y !== b.y) { return a.y - b.y; }
-  return a.z - b.z;
+  return vectorCompare(a, b);
 };
 
 /**

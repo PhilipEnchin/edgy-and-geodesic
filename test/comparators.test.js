@@ -1,13 +1,70 @@
 import { expect } from 'chai';
 import Vector3 from '../src/Vector.js';
 import Vertex from '../src/Vertex.js';
-import { triangleCompare, vertexCompare } from '../src/comparators.js';
+import { vectorCompare, vertexCompare, triangleCompare } from '../src/comparators.js';
 
 /** @typedef {import('../src/Vertex.js').Triangle} Triangle */
 
 describe('Compatators', () => {
+  describe('vectorCompare', () => {
+    it('should return 0 when comparing the vector3 object against itself', () => {
+      const vector = new Vector3(1, 2, 3);
+
+      expect(vectorCompare(vector, vector)).to.equal(0);
+    });
+
+    it('should return 0 when comparing against an equivalent vector', () => {
+      const a = new Vector3(1, 2, 3);
+      const b = new Vector3(1, 2, 3);
+
+      expect(vectorCompare(a, b)).to.equal(0);
+    });
+
+    it('should return negative when comparing two vectors with x coordinates ascending', () => {
+      const a = new Vector3(1, 2, 3);
+      const b = new Vector3(2, 2, 3);
+
+      expect(vectorCompare(a, b)).to.be.lessThan(0);
+    });
+
+    it('should return negative when comparing two vectors with y coordinates ascending', () => {
+      const a = new Vector3(1, 2, 3);
+      const b = new Vector3(1, 3, 3);
+
+      expect(vectorCompare(a, b)).to.be.lessThan(0);
+    });
+
+    it('should return negative when comparing two vectors with z coordinates ascending', () => {
+      const a = new Vector3(1, 2, 3);
+      const b = new Vector3(1, 2, 4);
+
+      expect(vectorCompare(a, b)).to.be.lessThan(0);
+    });
+
+    it('should return positive when comparing two vectors with x coordinates descending', () => {
+      const a = new Vector3(1, 2, 3);
+      const b = new Vector3(0, 2, 3);
+
+      expect(vectorCompare(a, b)).to.be.greaterThan(0);
+    });
+
+    it('should return positive when comparing two vectors with y coordinates descending', () => {
+      const a = new Vector3(1, 2, 3);
+      const b = new Vector3(1, 0, 3);
+
+      expect(vectorCompare(a, b)).to.be.greaterThan(0);
+    });
+
+    it('should return positive when comparing two vectors with z coordinates descending', () => {
+      const a = new Vector3(1, 2, 3);
+      const b = new Vector3(1, 2, 0);
+
+      expect(vectorCompare(a, b)).to.be.greaterThan(0);
+    });
+  });
+
   describe('vertexCompare', () => {
-    it('should return 0 when comparing the vertex object', () => {
+    it('should return 0 when comparing the vertex object against itself', () => {
       const vertex = new Vertex('key', new Vector3(1, 2, 3));
 
       expect(vertexCompare(vertex, vertex)).to.equal(0);
