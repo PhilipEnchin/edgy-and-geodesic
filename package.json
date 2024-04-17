@@ -1,0 +1,16 @@
+{
+  "devDependencies": {
+    "chai": "^5.1.0",
+    "eslint": "^8.57.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-plugin-import": "^2.29.1",
+    "eslint-plugin-mocha": "^10.4.2",
+    "mocha": "^10.4.0",
+    "nodemon": "^3.1.0"
+  },
+  "scripts": {
+    "start": "nodemon .",
+    "test": "nodemon -x 'mocha --recursive'"
+  },
+  "type": "module"
+}

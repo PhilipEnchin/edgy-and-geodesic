@@ -1,0 +1,31 @@
+{
+  "extends": [
+    "airbnb-base",
+    "plugin:mocha/recommended"
+  ],
+  "parserOptions": {
+    "ecmaVersion": "latest"
+  },
+  "plugins": [
+    "mocha"
+  ],
+  "overrides": [
+    {
+      "files": [
+        "*.test.js"
+      ],
+      "rules": {
+        "no-unused-expressions": "off"
+      }
+    }
+  ],
+  "rules": {
+    "import/extensions": [
+      "error",
+      "always"
+    ],
+    "max-len": "off",
+    "mocha/no-mocha-arrows": "off",
+    "no-plusplus": "off"
+  }
+}
