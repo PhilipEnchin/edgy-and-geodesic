@@ -1,3 +1,12 @@
+/**
+ * Helper function for testing Vector3 equality
+ * @param {number} a
+ * @param {number} b
+ * @param {number} tolerance
+ * @returns {boolean}
+ */
+const areEqual = (a, b, tolerance) => Math.abs(a - b) <= Math.abs(tolerance);
+
 class Vector3 {
   /** @type {number} */ #x;
 
@@ -53,6 +62,16 @@ class Vector3 {
    */
   get magnitude() {
     return Math.sqrt(this.#x ** 2 + this.#y ** 2 + this.#z ** 2);
+  }
+
+  /**
+   * Return equality, within an optional tolerance for each vector component
+   * @param {Vector3} that
+   * @param {number} [tolerance]
+   * @returns {boolean}
+   */
+  isEqualTo(that, tolerance = 0) {
+    return areEqual(this.#x, that.#x, tolerance) && areEqual(this.#y, that.#y, tolerance) && areEqual(this.#z, that.#z, tolerance);
   }
 
   /**

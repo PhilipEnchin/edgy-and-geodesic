@@ -112,6 +112,100 @@ describe('Vector', () => {
     });
   });
 
+  describe('Vector3.prototype.isEqualTo', () => {
+    const vector = new Vector3(1, 2, 3);
+    const equalVector = new Vector3(1, 2, 3);
+    const slightlyGreaterVectorX = new Vector3(((0.1 + 0.2) * 10) - 2, 2, 3);
+    const slightlyGreaterVectorY = new Vector3(1, ((0.1 + 0.2) * 10) - 1, 3);
+    const slightlyGreaterVectorZ = new Vector3(1, 2, (0.1 + 0.2) * 10);
+    const slightlyLessVectorX = new Vector3(4 - (0.1 + 0.2) * 10, 2, 3);
+    const slightlyLessVectorY = new Vector3(1, 5 - (0.1 + 0.2) * 10, 3);
+    const slightlyLessVectorZ = new Vector3(1, 2, 6 - (0.1 + 0.2) * 10);
+    const slightlyLessPositiveTolerance = 1 / 2 ** 52;
+    const exactPositiveTolerance = 1 / 2 ** 51;
+    const slightlyGreaterPositiveTolerance = 1 / 2 ** 50;
+    const slightlyLessNegativeTolerance = -slightlyLessPositiveTolerance;
+    const exactNegativeTolerance = -exactPositiveTolerance;
+    const slightlyGreaterNegativeTolerance = -slightlyGreaterPositiveTolerance;
+
+    it('should return true with an exact match with no tolerance', () => {
+      expect(vector.isEqualTo(equalVector)).to.be.true;
+    });
+
+    it('should return false with a nearly exact match with no tolerance', () => {
+      expect(vector.isEqualTo(slightlyGreaterVectorX)).to.be.false;
+      expect(vector.isEqualTo(slightlyGreaterVectorY)).to.be.false;
+      expect(vector.isEqualTo(slightlyGreaterVectorZ)).to.be.false;
+      expect(vector.isEqualTo(slightlyLessVectorX)).to.be.false;
+      expect(vector.isEqualTo(slightlyLessVectorY)).to.be.false;
+      expect(vector.isEqualTo(slightlyLessVectorZ)).to.be.false;
+    });
+
+    it('should return true with an exact match with any tolerance', () => {
+      expect(vector.isEqualTo(equalVector, 0)).to.be.true;
+      expect(vector.isEqualTo(equalVector, slightlyLessPositiveTolerance)).to.be.true;
+      expect(vector.isEqualTo(equalVector, exactPositiveTolerance)).to.be.true;
+      expect(vector.isEqualTo(equalVector, slightlyGreaterPositiveTolerance)).to.be.true;
+      expect(vector.isEqualTo(equalVector, slightlyLessNegativeTolerance)).to.be.true;
+      expect(vector.isEqualTo(equalVector, exactNegativeTolerance)).to.be.true;
+      expect(vector.isEqualTo(equalVector, slightlyGreaterNegativeTolerance)).to.be.true;
+    });
+
+    it('should return false with a nearly exact match with tolerance of zero', () => {
+      expect(vector.isEqualTo(slightlyGreaterVectorX, 0)).to.be.false;
+      expect(vector.isEqualTo(slightlyGreaterVectorY, 0)).to.be.false;
+      expect(vector.isEqualTo(slightlyGreaterVectorZ, 0)).to.be.false;
+      expect(vector.isEqualTo(slightlyLessVectorX, 0)).to.be.false;
+      expect(vector.isEqualTo(slightlyLessVectorY, 0)).to.be.false;
+      expect(vector.isEqualTo(slightlyLessVectorZ, 0)).to.be.false;
+    });
+
+    it('should return false with a nearly exact match with too-small tolerance', () => {
+      expect(vector.isEqualTo(slightlyGreaterVectorX, slightlyLessPositiveTolerance)).to.be.false;
+      expect(vector.isEqualTo(slightlyGreaterVectorX, slightlyLessNegativeTolerance)).to.be.false;
+      expect(vector.isEqualTo(slightlyGreaterVectorY, slightlyLessPositiveTolerance)).to.be.false;
+      expect(vector.isEqualTo(slightlyGreaterVectorY, slightlyLessNegativeTolerance)).to.be.false;
+      expect(vector.isEqualTo(slightlyGreaterVectorZ, slightlyLessPositiveTolerance)).to.be.false;
+      expect(vector.isEqualTo(slightlyGreaterVectorZ, slightlyLessNegativeTolerance)).to.be.false;
+      expect(vector.isEqualTo(slightlyLessVectorX, slightlyLessPositiveTolerance)).to.be.false;
+      expect(vector.isEqualTo(slightlyLessVectorX, slightlyLessNegativeTolerance)).to.be.false;
+      expect(vector.isEqualTo(slightlyLessVectorY, slightlyLessPositiveTolerance)).to.be.false;
+      expect(vector.isEqualTo(slightlyLessVectorY, slightlyLessNegativeTolerance)).to.be.false;
+      expect(vector.isEqualTo(slightlyLessVectorZ, slightlyLessPositiveTolerance)).to.be.false;
+      expect(vector.isEqualTo(slightlyLessVectorZ, slightlyLessNegativeTolerance)).to.be.false;
+    });
+
+    it('should return true with a nearly exact match with exact tolerance', () => {
+      expect(vector.isEqualTo(slightlyGreaterVectorX, exactPositiveTolerance)).to.be.true;
+      expect(vector.isEqualTo(slightlyGreaterVectorX, exactNegativeTolerance)).to.be.true;
+      expect(vector.isEqualTo(slightlyGreaterVectorY, exactPositiveTolerance)).to.be.true;
+      expect(vector.isEqualTo(slightlyGreaterVectorY, exactNegativeTolerance)).to.be.true;
+      expect(vector.isEqualTo(slightlyGreaterVectorZ, exactPositiveTolerance)).to.be.true;
+      expect(vector.isEqualTo(slightlyGreaterVectorZ, exactNegativeTolerance)).to.be.true;
+      expect(vector.isEqualTo(slightlyLessVectorX, exactPositiveTolerance)).to.be.true;
+      expect(vector.isEqualTo(slightlyLessVectorX, exactNegativeTolerance)).to.be.true;
+      expect(vector.isEqualTo(slightlyLessVectorY, exactPositiveTolerance)).to.be.true;
+      expect(vector.isEqualTo(slightlyLessVectorY, exactNegativeTolerance)).to.be.true;
+      expect(vector.isEqualTo(slightlyLessVectorZ, exactPositiveTolerance)).to.be.true;
+      expect(vector.isEqualTo(slightlyLessVectorZ, exactNegativeTolerance)).to.be.true;
+    });
+
+    it('should return true with a nearly exact match with greater tolerance', () => {
+      expect(vector.isEqualTo(slightlyGreaterVectorX, slightlyGreaterPositiveTolerance)).to.be.true;
+      expect(vector.isEqualTo(slightlyGreaterVectorX, slightlyGreaterNegativeTolerance)).to.be.true;
+      expect(vector.isEqualTo(slightlyGreaterVectorY, slightlyGreaterPositiveTolerance)).to.be.true;
+      expect(vector.isEqualTo(slightlyGreaterVectorY, slightlyGreaterNegativeTolerance)).to.be.true;
+      expect(vector.isEqualTo(slightlyGreaterVectorZ, slightlyGreaterPositiveTolerance)).to.be.true;
+      expect(vector.isEqualTo(slightlyGreaterVectorZ, slightlyGreaterNegativeTolerance)).to.be.true;
+      expect(vector.isEqualTo(slightlyLessVectorX, slightlyGreaterPositiveTolerance)).to.be.true;
+      expect(vector.isEqualTo(slightlyLessVectorX, slightlyGreaterNegativeTolerance)).to.be.true;
+      expect(vector.isEqualTo(slightlyLessVectorY, slightlyGreaterPositiveTolerance)).to.be.true;
+      expect(vector.isEqualTo(slightlyLessVectorY, slightlyGreaterNegativeTolerance)).to.be.true;
+      expect(vector.isEqualTo(slightlyLessVectorZ, slightlyGreaterPositiveTolerance)).to.be.true;
+      expect(vector.isEqualTo(slightlyLessVectorZ, slightlyGreaterNegativeTolerance)).to.be.true;
+    });
+  });
+
   describe('Vector3.prototype.magnitude', () => {
     it('should calculate the magnitude of a vector', () => {
       const vector = new Vector3(-4, 6, -7);
