@@ -84,6 +84,34 @@ describe('Vector', () => {
     });
   });
 
+  describe('Vector3.prototype.dividedBy', () => {
+    it('should calculate a quotient when divided by a scalar', () => {
+      const vector = new Vector3(36, -48, 51);
+
+      const quotient = vector.dividedBy(6);
+
+      expect(quotient.x).to.equal(6);
+      expect(quotient.y).to.equal(-8);
+      expect(quotient.z).to.equal(8.5);
+    });
+
+    it('should return a new Vector3', () => {
+      const a = new Vector3(7, 8, 9);
+      const quotient = a.dividedBy(5);
+
+      expect(quotient).to.not.equal(a);
+    });
+
+    it('should not mutate original Vector3 object', () => {
+      const a = new Vector3(7, 8, 9);
+      const quotient = a.dividedBy(5);
+
+      expect(quotient.x).to.not.equal(a.x);
+      expect(quotient.y).to.not.equal(a.y);
+      expect(quotient.z).to.not.equal(a.z);
+    });
+  });
+
   describe('Vector3.prototype.magnitude', () => {
     it('should calculate the magnitude of a vector', () => {
       const vector = new Vector3(-4, 6, -7);
@@ -124,6 +152,68 @@ describe('Vector', () => {
       expect(difference.x).to.not.equal(b.x);
       expect(difference.y).to.not.equal(b.y);
       expect(difference.z).to.not.equal(b.z);
+    });
+  });
+
+  describe('Vector3.prototype.plus', () => {
+    it('should calculate a sum of two vectors', () => {
+      const a = new Vector3(7, 8, 9);
+      const b = new Vector3(3, 20, -1);
+      const sum = a.plus(b);
+
+      expect(sum.x).to.equal(10);
+      expect(sum.y).to.equal(28);
+      expect(sum.z).to.equal(8);
+    });
+
+    it('should return a new Vector3', () => {
+      const a = new Vector3(7, 8, 9);
+      const b = new Vector3(3, 2, -1);
+      const sum = a.plus(b);
+
+      expect(sum).to.not.equal(a);
+      expect(sum).to.not.equal(b);
+    });
+
+    it('should not mutate original Vector3 objects', () => {
+      const a = new Vector3(7, 8, 9);
+      const b = new Vector3(3, 2, -1);
+      const sum = a.plus(b);
+
+      expect(sum.x).to.not.equal(a.x);
+      expect(sum.y).to.not.equal(a.y);
+      expect(sum.z).to.not.equal(a.z);
+      expect(sum.x).to.not.equal(b.x);
+      expect(sum.y).to.not.equal(b.y);
+      expect(sum.z).to.not.equal(b.z);
+    });
+  });
+
+  describe('Vector3.prototype.times', () => {
+    it('should calculate a product when multiplied by a scalar', () => {
+      const vector = new Vector3(36, -48, 51);
+
+      const product = vector.times(6);
+
+      expect(product.x).to.equal(216);
+      expect(product.y).to.equal(-288);
+      expect(product.z).to.equal(306);
+    });
+
+    it('should return a new Vector3', () => {
+      const a = new Vector3(7, 8, 9);
+      const product = a.times(5);
+
+      expect(product).to.not.equal(a);
+    });
+
+    it('should not mutate original Vector3 object', () => {
+      const a = new Vector3(7, 8, 9);
+      const quotient = a.dividedBy(5);
+
+      expect(quotient.x).to.not.equal(a.x);
+      expect(quotient.y).to.not.equal(a.y);
+      expect(quotient.z).to.not.equal(a.z);
     });
   });
 

@@ -40,6 +40,15 @@ class Vector3 {
   }
 
   /**
+   * Return quotient of this divided by a scalar
+   * @param {number} scalar
+   * @return {Vector3}
+   */
+  dividedBy(scalar) {
+    return new Vector3(this.#x / scalar, this.#y / scalar, this.#z / scalar);
+  }
+
+  /**
    * @returns {number}
    */
   get magnitude() {
@@ -53,6 +62,24 @@ class Vector3 {
    */
   minus(that) {
     return new Vector3(this.#x - that.x, this.#y - that.y, this.#z - that.z);
+  }
+
+  /**
+   * Return sum
+   * @param {Vector3} that
+   * @returns {Vector3}
+   */
+  plus(that) {
+    return new Vector3(this.#x + that.x, this.#y + that.y, this.#z + that.z);
+  }
+
+  /**
+   * Return product of this and a scalar
+   * @param {number} scalar
+   * @returns {Vector3}
+  */
+  times(scalar) {
+    return new Vector3(this.#x * scalar, this.#y * scalar, this.#z * scalar);
   }
 
   toString() {
