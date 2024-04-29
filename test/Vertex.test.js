@@ -360,12 +360,13 @@ describe('Vertex', () => {
      * @param {Map<string,Vector3[]>} expectedConnections
      */
     const verifySubdivisions = (frequency, expectedVectors, expectedConnections) => {
+      const EQUALITY_TOLERANCE = 0.000000000001;
       const expectedVectorCount = expectedVectors.length;
       const expectedEdgeCount = Array.from(expectedConnections.values()).flat().length;
 
       const subdivided = equilateralVertex0.subdivide(frequency);
       /** @type {Vector3[]} */ const actualVectors = [];
-      /** @type {Map<string,Vector3[]} */ const actualConnections = new Map();
+      /** @type {Map<string,Vector3[]>} */ const actualConnections = new Map();
       subdivided.iterate(({ connections, vector3 }) => {
         actualVectors.push(vector3);
         actualConnections.set(vector3.toString(), connections.map((connection) => connection.vector3));
@@ -377,34 +378,36 @@ describe('Vertex', () => {
       for (let i = 0; i < expectedVectorCount; i++) {
         const actualVector = actualVectors[i];
         const expectedVector = expectedVectors[i];
-        expect(actualVector.isEqualTo(expectedVector), `Expected ${actualVector} to equal ${expectedVector}`).to.be.true;
+        expect(actualVector.isEqualTo(expectedVector, EQUALITY_TOLERANCE), `Expected ${actualVector} to equal ${expectedVector}`).to.be.true;
 
         const actualConnectionsArray = /** @type {Vector3[]} */ (actualConnections.get(actualVector.toString())).sort(vectorCompare);
-        const expectedConnectionsArray = /** @type {Vector3[]} */ (expectedConnections.get(actualVector.toString())).sort(vectorCompare);
+        const expectedConnectionsArray = /** @type {Vector3[]} */ (expectedConnections.get(expectedVector.toString())).sort(vectorCompare);
         expect(actualConnectionsArray).to.have.lengthOf(expectedConnectionsArray.length);
         for (let j = 0; j < actualConnectionsArray.length; j++) {
           connectionCount++;
-          expect(actualConnectionsArray[j].isEqualTo(expectedConnectionsArray[j]), `Expected ${actualConnectionsArray[j]} to be ${expectedConnectionsArray[j]}`).to.be.true;
+          expect(actualConnectionsArray[j].isEqualTo(expectedConnectionsArray[j], EQUALITY_TOLERANCE), `Expected ${actualConnectionsArray[j]} to be ${expectedConnectionsArray[j]}`).to.be.true;
         }
       }
       expect(connectionCount).to.equal(expectedEdgeCount);
     };
 
     it('should subdivide a single triangle when frequency is 2', () => {
+      // next variables are numbered by row, then column, from bottom left
       const v01 = new Vector3(30, 0, 0);
-      const v02 = new Vector3(15, 15 * ROOT_3, 0);
-      const v12 = new Vector3(45, 15 * ROOT_3, 0);
+      const v10 = new Vector3(15, 15 * ROOT_3, 0);
+      const v11 = new Vector3(45, 15 * ROOT_3, 0);
       /** @type {Vector3[]} */ const expectedVectors = [
-        EQUILATERAL_VECTOR_0, EQUILATERAL_VECTOR_1, EQUILATERAL_VECTOR_2,
-        v01, v02, v12,
+        EQUILATERAL_VECTOR_0, v01, EQUILATERAL_VECTOR_1,
+        v10, v11,
+        EQUILATERAL_VECTOR_2,
       ].sort(vectorCompare);
       /** @type {Map<string,Vector3[]>} */ const expectedConnections = new Map([
-        [EQUILATERAL_VECTOR_0.toString(), [v01, v02]],
-        [EQUILATERAL_VECTOR_1.toString(), [v01, v12]],
-        [EQUILATERAL_VECTOR_2.toString(), [v02, v12]],
-        [v01.toString(), [EQUILATERAL_VECTOR_0, EQUILATERAL_VECTOR_1, v02, v12]],
-        [v02.toString(), [EQUILATERAL_VECTOR_0, EQUILATERAL_VECTOR_2, v01, v12]],
-        [v12.toString(), [EQUILATERAL_VECTOR_1, EQUILATERAL_VECTOR_2, v01, v02]],
+        [EQUILATERAL_VECTOR_0.toString(), [v01, v10]],
+        [v01.toString(), [EQUILATERAL_VECTOR_0, EQUILATERAL_VECTOR_1, v10, v11]],
+        [EQUILATERAL_VECTOR_1.toString(), [v01, v11]],
+        [v10.toString(), [EQUILATERAL_VECTOR_0, EQUILATERAL_VECTOR_2, v01, v11]],
+        [v11.toString(), [EQUILATERAL_VECTOR_1, EQUILATERAL_VECTOR_2, v01, v10]],
+        [EQUILATERAL_VECTOR_2.toString(), [v10, v11]],
       ]);
 
       verifySubdivisions(2, expectedVectors, expectedConnections);
@@ -412,8 +415,47 @@ describe('Vertex', () => {
     xit('should subdivide a single triangle when frequency is 3', () => {
       // Contains only one new non-edge vertex connected only to edges
     });
-    xit('should subdivide a single triangle when frequency is 4', () => {
-      // Contains 3 new non-edge vertices each connected 4 times to edges, 2 to other new vertices
+
+    it('should subdivide a single triangle when frequency is 4', () => {
+      // next variables are numbered by row, then column, from bottom left
+      const v01 = new Vector3(15, 0, 0);
+      const v02 = new Vector3(30, 0, 0);
+      const v03 = new Vector3(45, 0, 0);
+      const v10 = new Vector3(7.5, 7.5 * ROOT_3, 0);
+      const v11 = new Vector3(22.5, 7.5 * ROOT_3, 0);
+      const v12 = new Vector3(37.5, 7.5 * ROOT_3, 0);
+      const v13 = new Vector3(52.5, 7.5 * ROOT_3, 0);
+      const v20 = new Vector3(15, 15 * ROOT_3, 0);
+      const v21 = new Vector3(30, 15 * ROOT_3, 0);
+      const v22 = new Vector3(45, 15 * ROOT_3, 0);
+      const v30 = new Vector3(22.5, 22.5 * ROOT_3, 0);
+      const v31 = new Vector3(37.5, 22.5 * ROOT_3, 0);
+      /** @type {Vector3[]} */ const expectedVectors = [
+        EQUILATERAL_VECTOR_0, EQUILATERAL_VECTOR_1, v01, v02, v03,
+        v10, v11, v12, v13,
+        v20, v21, v22,
+        v30, v31,
+        EQUILATERAL_VECTOR_2,
+      ].sort(vectorCompare);
+      /** @type {Map<string,Vector3[]>} */ const expectedConnections = new Map([
+        [EQUILATERAL_VECTOR_0.toString(), [v01, v10]],
+        [v01.toString(), [EQUILATERAL_VECTOR_0, v02, v10, v11]],
+        [v02.toString(), [v01, v03, v11, v12]],
+        [v03.toString(), [v02, EQUILATERAL_VECTOR_1, v12, v13]],
+        [EQUILATERAL_VECTOR_1.toString(), [v03, v13]],
+        [v10.toString(), [EQUILATERAL_VECTOR_0, v01, v11, v20]],
+        [v11.toString(), [v01, v02, v10, v12, v20, v21]],
+        [v12.toString(), [v02, v03, v11, v13, v21, v22]],
+        [v13.toString(), [v03, EQUILATERAL_VECTOR_1, v12, v22]],
+        [v20.toString(), [v10, v11, v21, v30]],
+        [v21.toString(), [v11, v12, v20, v22, v30, v31]],
+        [v22.toString(), [v12, v13, v21, v31]],
+        [v30.toString(), [v20, v21, v31, EQUILATERAL_VECTOR_2]],
+        [v31.toString(), [v21, v22, v30, EQUILATERAL_VECTOR_2]],
+        [EQUILATERAL_VECTOR_2.toString(), [v30, v31]],
+      ]);
+
+      verifySubdivisions(4, expectedVectors, expectedConnections);
     });
     xit('should subdivide a single triangle when frequency is 5', () => {
       // Contains 3 new non-edge vertices connected 4 times to edges, 2 to other new vertices, and 3 with 2 and 4 respectively

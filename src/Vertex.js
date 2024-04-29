@@ -115,14 +115,18 @@ class Vertex {
       /** @type {Vertex[]} */ let edge;
       if (from.isConnectedTo(to)) {
         if (!edgeMap.has(from)) edgeMap.set(from, new Map());
-        const edgesFrom = /** @type {Map<Vertex,Vertex[]} */ (edgeMap.get(from));
+        const edgesFrom = /** @type {Map<Vertex,Vertex[]>} */ (edgeMap.get(from));
         edgesFrom.set(to, edge = [from, ...Array(frequency - 1), to]);
+
+        if (!edgeMap.has(to)) edgeMap.set(to, new Map());
+        const edgesFromReverse = /** @type {Map<Vertex,Vertex[]>} */ (edgeMap.get(to));
+        edgesFromReverse.set(from, [...edge].reverse());
       }
       return edge;
     };
 
-    /** @type {(row: number, col: number, A: Vertex, B: Vertex, C: Vertex) => Vertex} */
-    const makeVertexInTriangle = (row, col, { vector3: A }, { vector3: B }, { vector3: C }) => new Vertex('', A
+    /** @type {(A: Vertex, B: Vertex, C: Vertex) => (row: number, col: number) => Vertex} */
+    const getVertexMaker = ({ vector3: A }, { vector3: B }, { vector3: C }) => (row, col) => new Vertex('', A
       .plus(B.minus(A).times(row).dividedBy(frequency))
       .plus(C.minus(B).times(col).dividedBy(frequency)));
 
@@ -132,6 +136,7 @@ class Vertex {
       const edgeAC = getEdge(A, C);
       const edgeBC = getEdge(B, C);
       A.disconnect(B.disconnect(C)).disconnect(C);
+      const makeVertex = getVertexMaker(A, B, C);
       /** @type {Vertex[]} */ let previousRow = [];
       for (let r = 0; r <= frequency; r++) {
         /** @type {Vertex[]} */ const currentRow = [];
@@ -139,13 +144,13 @@ class Vertex {
         for (let c = 0; c <= r; c++) {
           /** @type {Vertex} */ let currentVertex;
           if (c === 0) { // Left leg
-            currentVertex = edgeAB[r] || (edgeAB[r] = makeVertexInTriangle(r, c, A, B, C));
+            currentVertex = edgeAB[r] || (edgeAB[r] = makeVertex(r, c));
           } else if (c === r) { // Right leg
-            currentVertex = edgeAC[r] || (edgeAC[r] = makeVertexInTriangle(r, c, A, B, C));
+            currentVertex = edgeAC[r] || (edgeAC[r] = makeVertex(r, c));
           } else if (r === frequency) { // Top leg
-            currentVertex = edgeBC[c] || (edgeBC[c] = makeVertexInTriangle(r, c, A, B, C));
+            currentVertex = edgeBC[c] || (edgeBC[c] = makeVertex(r, c));
           } else {
-            currentVertex = makeVertexInTriangle(r, c, A, B, C);
+            currentVertex = makeVertex(r, c);
           }
 
           if (r > 0) {
