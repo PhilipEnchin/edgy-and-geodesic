@@ -106,7 +106,59 @@ class Vertex {
    * @returns {Vertex}
    */
   subdivide(frequency) {
-    return this.copy();
+    const copy = this.copy();
+    const { triangles } = copy;
+    /** @type {Map<Vertex,Map<Vertex,(Vertex|undefined)[]>>} */ const edgeMap = new Map();
+
+    /** @type {(from: Vertex, to: Vertex) => (Vertex|undefined)[]} */
+    const getEdge = (from, to) => {
+      /** @type {Vertex[]} */ let edge;
+      if (from.isConnectedTo(to)) {
+        if (!edgeMap.has(from)) edgeMap.set(from, new Map());
+        const edgesFrom = /** @type {Map<Vertex,Vertex[]} */ (edgeMap.get(from));
+        edgesFrom.set(to, edge = [from, ...Array(frequency - 1), to]);
+      }
+      return edge;
+    };
+
+    /** @type {(row: number, col: number, A: Vertex, B: Vertex, C: Vertex) => Vertex} */
+    const makeVertexInTriangle = (row, col, { vector3: A }, { vector3: B }, { vector3: C }) => new Vertex('', A
+      .plus(B.minus(A).times(row).dividedBy(frequency))
+      .plus(C.minus(B).times(col).dividedBy(frequency)));
+
+    triangles.forEach(([A, B, C]) => {
+      // Treat triangle ABC as though A is on the bottom, B is top left, C is top right
+      const edgeAB = getEdge(A, B);
+      const edgeAC = getEdge(A, C);
+      const edgeBC = getEdge(B, C);
+      A.disconnect(B.disconnect(C)).disconnect(C);
+      /** @type {Vertex[]} */ let previousRow = [];
+      for (let r = 0; r <= frequency; r++) {
+        /** @type {Vertex[]} */ const currentRow = [];
+        /** @type {?Vertex} */ let previousVertex = null;
+        for (let c = 0; c <= r; c++) {
+          /** @type {Vertex} */ let currentVertex;
+          if (c === 0) { // Left leg
+            currentVertex = edgeAB[r] || (edgeAB[r] = makeVertexInTriangle(r, c, A, B, C));
+          } else if (c === r) { // Right leg
+            currentVertex = edgeAC[r] || (edgeAC[r] = makeVertexInTriangle(r, c, A, B, C));
+          } else if (r === frequency) { // Top leg
+            currentVertex = edgeBC[c] || (edgeBC[c] = makeVertexInTriangle(r, c, A, B, C));
+          } else {
+            currentVertex = makeVertexInTriangle(r, c, A, B, C);
+          }
+
+          if (r > 0) {
+            if (c > 0) { currentVertex.connect(previousRow[c - 1]); }
+            if (c < r) { currentVertex.connect(previousRow[c]); }
+          }
+          if (previousVertex) { currentVertex.connect(previousVertex); }
+          currentRow.push(previousVertex = currentVertex);
+        }
+        previousRow = currentRow;
+      }
+    });
+    return copy;
   }
 
   /**

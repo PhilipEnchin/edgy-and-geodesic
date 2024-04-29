@@ -1,6 +1,7 @@
 import { expect } from 'chai';
 import Vector3 from '../src/Vector.js';
 import Vertex from '../src/Vertex.js';
+import { vectorCompare } from '../src/comparators.js';
 
 const ROOT_3 = Math.sqrt(3);
 
@@ -314,8 +315,8 @@ describe('Vertex', () => {
 
   describe('Vertex.prototype.subdivide', () => {
     const EQUILATERAL_VECTOR_0 = new Vector3(0, 0, 0);
-    const EQUILATERAL_VECTOR_1 = new Vector3(6, 0, 0);
-    const EQUILATERAL_VECTOR_2 = new Vector3(3, 3 * ROOT_3, 0);
+    const EQUILATERAL_VECTOR_1 = new Vector3(60, 0, 0);
+    const EQUILATERAL_VECTOR_2 = new Vector3(30, 30 * ROOT_3, 0);
 
     /** @type {Vertex} */ let equilateralVertex0;
     /** @type {Vertex} */ let equilateralVertex1;
@@ -351,9 +352,74 @@ describe('Vertex', () => {
       expect(copiedVertexObjects).to.have.lengthOf(3);
       expect(copiedVertexObjects.map(({ vector3 }) => vector3.toString())).to.deep.equal([EQUILATERAL_VECTOR_0, EQUILATERAL_VECTOR_2, EQUILATERAL_VECTOR_1].map(String));
     });
-    xit('should subdivide a single triangle when frequency is 2', () => {
+
+    /**
+     * Run assertions against subdivided structures
+     * @param {number} frequency
+     * @param {Vector3[]} expectedVectors
+     * @param {Map<string,Vector3[]>} expectedConnections
+     */
+    const verifySubdivisions = (frequency, expectedVectors, expectedConnections) => {
+      const expectedVectorCount = expectedVectors.length;
+      const expectedEdgeCount = Array.from(expectedConnections.values()).flat().length;
+
+      const subdivided = equilateralVertex0.subdivide(frequency);
+      /** @type {Vector3[]} */ const actualVectors = [];
+      /** @type {Map<string,Vector3[]} */ const actualConnections = new Map();
+      subdivided.iterate(({ connections, vector3 }) => {
+        actualVectors.push(vector3);
+        actualConnections.set(vector3.toString(), connections.map((connection) => connection.vector3));
+      });
+      actualVectors.sort(vectorCompare);
+
+      expect(actualVectors).to.have.lengthOf(expectedVectorCount, 'Count of vectors in the structure is incorrect');
+      let connectionCount = 0;
+      for (let i = 0; i < expectedVectorCount; i++) {
+        const actualVector = actualVectors[i];
+        const expectedVector = expectedVectors[i];
+        expect(actualVector.isEqualTo(expectedVector), `Expected ${actualVector} to equal ${expectedVector}`).to.be.true;
+
+        const actualConnectionsArray = /** @type {Vector3[]} */ (actualConnections.get(actualVector.toString())).sort(vectorCompare);
+        const expectedConnectionsArray = /** @type {Vector3[]} */ (expectedConnections.get(actualVector.toString())).sort(vectorCompare);
+        expect(actualConnectionsArray).to.have.lengthOf(expectedConnectionsArray.length);
+        for (let j = 0; j < actualConnectionsArray.length; j++) {
+          connectionCount++;
+          expect(actualConnectionsArray[j].isEqualTo(expectedConnectionsArray[j]), `Expected ${actualConnectionsArray[j]} to be ${expectedConnectionsArray[j]}`).to.be.true;
+        }
+      }
+      expect(connectionCount).to.equal(expectedEdgeCount);
+    };
+
+    it('should subdivide a single triangle when frequency is 2', () => {
+      const v01 = new Vector3(30, 0, 0);
+      const v02 = new Vector3(15, 15 * ROOT_3, 0);
+      const v12 = new Vector3(45, 15 * ROOT_3, 0);
+      /** @type {Vector3[]} */ const expectedVectors = [
+        EQUILATERAL_VECTOR_0, EQUILATERAL_VECTOR_1, EQUILATERAL_VECTOR_2,
+        v01, v02, v12,
+      ].sort(vectorCompare);
+      /** @type {Map<string,Vector3[]>} */ const expectedConnections = new Map([
+        [EQUILATERAL_VECTOR_0.toString(), [v01, v02]],
+        [EQUILATERAL_VECTOR_1.toString(), [v01, v12]],
+        [EQUILATERAL_VECTOR_2.toString(), [v02, v12]],
+        [v01.toString(), [EQUILATERAL_VECTOR_0, EQUILATERAL_VECTOR_1, v02, v12]],
+        [v02.toString(), [EQUILATERAL_VECTOR_0, EQUILATERAL_VECTOR_2, v01, v12]],
+        [v12.toString(), [EQUILATERAL_VECTOR_1, EQUILATERAL_VECTOR_2, v01, v02]],
+      ]);
+
+      verifySubdivisions(2, expectedVectors, expectedConnections);
     });
     xit('should subdivide a single triangle when frequency is 3', () => {
+      // Contains only one new non-edge vertex connected only to edges
+    });
+    xit('should subdivide a single triangle when frequency is 4', () => {
+      // Contains 3 new non-edge vertices each connected 4 times to edges, 2 to other new vertices
+    });
+    xit('should subdivide a single triangle when frequency is 5', () => {
+      // Contains 3 new non-edge vertices connected 4 times to edges, 2 to other new vertices, and 3 with 2 and 4 respectively
+    });
+    xit('should subdivide a single triangle when frequency is 6', () => {
+      // Contains 9 new non-edge vertices connected to edges, and 1 connected *only* to other new non-edge vertices
     });
     xit('should subdivide two triangles sharing a single vertex', () => {
     });
