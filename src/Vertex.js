@@ -112,16 +112,14 @@ class Vertex {
 
     /** @type {(from: Vertex, to: Vertex) => (Vertex|undefined)[]} */
     const getEdge = (from, to) => {
-      /** @type {Vertex[]} */ let edge;
-      if (from.isConnectedTo(to)) {
-        if (!edgeMap.has(from)) edgeMap.set(from, new Map());
-        const edgesFrom = /** @type {Map<Vertex,Vertex[]>} */ (edgeMap.get(from));
-        edgesFrom.set(to, edge = [from, ...Array(frequency - 1), to]);
+      if (!edgeMap.has(from)) edgeMap.set(from, new Map());
+      const edgesFrom = /** @type {Map<Vertex,Vertex[]>} */ (edgeMap.get(from));
+      if (!edgesFrom.has(to)) edgesFrom.set(to, [from, ...Array(frequency - 1), to]);
+      const edge = /** @type {Vertex[]} */ (edgesFrom.get(to));
 
-        if (!edgeMap.has(to)) edgeMap.set(to, new Map());
-        const edgesFromReverse = /** @type {Map<Vertex,Vertex[]>} */ (edgeMap.get(to));
-        edgesFromReverse.set(from, [...edge].reverse());
-      }
+      if (!edgeMap.has(to)) edgeMap.set(to, new Map());
+      const edgesFromReverse = /** @type {Map<Vertex,Vertex[]>} */ (edgeMap.get(to));
+      edgesFromReverse.set(from, [...edge].reverse());
       return edge;
     };
 
