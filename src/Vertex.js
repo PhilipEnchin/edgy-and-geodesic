@@ -123,10 +123,19 @@ class Vertex {
       return edge;
     };
 
-    /** @type {(A: Vertex, B: Vertex, C: Vertex) => (row: number, col: number) => Vertex} */
-    const getVertexMaker = ({ vector3: A }, { vector3: B }, { vector3: C }) => (row, col) => new Vertex('', A
-      .plus(B.minus(A).times(row).dividedBy(frequency))
-      .plus(C.minus(B).times(col).dividedBy(frequency)));
+    /** Return label for a vertex as follows:
+     *    - On an edge? "edge [from-vertex]-[to-vertex] [index]" (zero-indexed from from-vertex)
+     *    - Internal? "internal [left-vertex]-[from-vertex]-[right-vertex] [row],[col]"
+     * @type {(A: Vertex, B: Vertex, C: Vertex) => (row: number, col: number) => Vertex}
+     */
+    const getVertexMaker = ({ vector3: A, key: keyA }, { vector3: B, key: keyB }, { vector3: C, key: keyC }) => (row, col) => new Vertex(
+      col === 0 ? `edge ${keyA}-${keyB} ${row}`
+        : col === row ? `edge ${keyA}-${keyC} ${row}`
+          : row === frequency ? `edge ${keyB}-${keyC} ${col}`
+            : `internal ${keyB}-${keyA}-${keyC} ${row},${col}`,
+      A.plus(B.minus(A).times(row).dividedBy(frequency))
+        .plus(C.minus(B).times(col).dividedBy(frequency)),
+    );
 
     triangles.forEach(([A, B, C]) => {
       // Treat triangle ABC as though A is on the bottom, B is top left, C is top right

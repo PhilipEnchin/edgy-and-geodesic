@@ -715,7 +715,36 @@ describe('Vertex', () => {
 
       verifySubdivisions(3, expectedVectors, expectedConnections);
     });
-    xit('should format keys in resulting shape based on location', () => {
+
+    it('should format keys in resulting shape based on location', () => {
+      const subdivided = equilateralVertex1.subdivide(4);
+      /** @type {{vector3:Vector3, key:string}[]} */ const expectedKeys = [
+        { vector3: EQUILATERAL_VECTOR_0, key: 'zero' },
+        { vector3: EQUILATERAL_VECTOR_1, key: 'one' },
+        { vector3: EQUILATERAL_VECTOR_2, key: 'two' },
+        { vector3: new Vector3(15, 0, 0), key: 'edge one-zero 3' },
+        { vector3: new Vector3(30, 0, 0), key: 'edge one-zero 2' },
+        { vector3: new Vector3(45, 0, 0), key: 'edge one-zero 1' },
+        { vector3: new Vector3(7.5, 7.5 * ROOT_3, 0), key: 'edge two-zero 3' },
+        { vector3: new Vector3(22.5, 7.5 * ROOT_3, 0), key: 'internal two-one-zero 3,2' },
+        { vector3: new Vector3(37.5, 7.5 * ROOT_3, 0), key: 'internal two-one-zero 2,1' },
+        { vector3: new Vector3(52.5, 7.5 * ROOT_3, 0), key: 'edge one-two 1' },
+        { vector3: new Vector3(15, 15 * ROOT_3, 0), key: 'edge two-zero 2' },
+        { vector3: new Vector3(30, 15 * ROOT_3, 0), key: 'internal two-one-zero 3,1' },
+        { vector3: new Vector3(45, 15 * ROOT_3, 0), key: 'edge one-two 2' },
+        { vector3: new Vector3(22.5, 22.5 * ROOT_3, 0), key: 'edge two-zero 1' },
+        { vector3: new Vector3(37.5, 22.5 * ROOT_3, 0), key: 'edge one-two 3' },
+      ].sort(({ vector3: vectorA }, { vector3: vectorB }) => vectorCompare(vectorA, vectorB));
+
+      /** @type {{vector3:Vector3, key:string}[]} */ const actualKeys = [];
+      subdivided.iterate(({ vector3, key }) => actualKeys.push({ vector3, key }));
+      actualKeys.sort(({ vector3: vectorA }, { vector3: vectorB }) => vectorCompare(vectorA, vectorB));
+
+      expect(actualKeys).to.have.lengthOf(expectedKeys.length);
+      for (let i = 0; i < actualKeys.length; i++) {
+        expect(actualKeys[i].key).to.equal(expectedKeys[i].key);
+        expect(actualKeys[i].vector3.isEqualTo(expectedKeys[i].vector3, 0.000000000001), `Expect ${actualKeys[i].vector3} to equal ${expectedKeys[i].vector3}`).to.be.true;
+      }
     });
   });
 
