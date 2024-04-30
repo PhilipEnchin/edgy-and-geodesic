@@ -610,7 +610,62 @@ describe('Vertex', () => {
 
       verifySubdivisions(6, expectedVectors, expectedConnections);
     });
-    xit('should subdivide two triangles sharing a single vertex', () => {
+
+    it('should subdivide two triangles sharing a single vertex', () => {
+      const EQUILATERAL_VECTOR_3 = new Vector3(120, 0, 0);
+      const EQUILATERAL_VECTOR_4 = new Vector3(90, 0, 30 * ROOT_3);
+      const equilateralVertex3 = new Vertex('three', EQUILATERAL_VECTOR_3);
+      const equilateralVertex4 = new Vertex('four', EQUILATERAL_VECTOR_4);
+      equilateralVertex1.connect(equilateralVertex3.connect(equilateralVertex4)).connect(equilateralVertex4);
+
+      // next variables are numbered by row, then column, from bottom left, L for triangle 012, R for 123
+      const vL01 = new Vector3(20, 0, 0);
+      const vL02 = new Vector3(40, 0, 0);
+      const vL10 = new Vector3(10, 10 * ROOT_3, 0);
+      const vL11 = new Vector3(30, 10 * ROOT_3, 0);
+      const vL12 = new Vector3(50, 10 * ROOT_3, 0);
+      const vL20 = new Vector3(20, 20 * ROOT_3, 0);
+      const vL21 = new Vector3(40, 20 * ROOT_3, 0);
+      const vR01 = new Vector3(80, 0, 0);
+      const vR02 = new Vector3(100, 0, 0);
+      const vR10 = new Vector3(70, 0, 10 * ROOT_3);
+      const vR11 = new Vector3(90, 0, 10 * ROOT_3);
+      const vR12 = new Vector3(110, 0, 10 * ROOT_3);
+      const vR20 = new Vector3(80, 0, 20 * ROOT_3);
+      const vR21 = new Vector3(100, 0, 20 * ROOT_3);
+      /** @type {Vector3[]} */ const expectedVectors = [
+        EQUILATERAL_VECTOR_0, vL01, vL02, EQUILATERAL_VECTOR_1,
+        vL10, vL11, vL12,
+        vL20, vL21,
+        EQUILATERAL_VECTOR_2, vR01, vR02, EQUILATERAL_VECTOR_3,
+        vR10, vR11, vR12,
+        vR20, vR21,
+        EQUILATERAL_VECTOR_4,
+      ].sort(vectorCompare);
+      /** @type {Map<string,Vector3[]>} */ const expectedConnections = new Map([
+        [EQUILATERAL_VECTOR_0.toString(), [vL01, vL10]],
+        [vL01.toString(), [EQUILATERAL_VECTOR_0, vL02, vL10, vL11]],
+        [vL02.toString(), [vL01, EQUILATERAL_VECTOR_1, vL11, vL12]],
+        [EQUILATERAL_VECTOR_1.toString(), [vL02, vL12, vR01, vR10]],
+        [vL10.toString(), [EQUILATERAL_VECTOR_0, vL01, vL11, vL20]],
+        [vL11.toString(), [vL01, vL02, vL10, vL12, vL20, vL21]],
+        [vL12.toString(), [vL02, EQUILATERAL_VECTOR_1, vL11, vL21]],
+        [vL20.toString(), [vL10, vL11, vL21, EQUILATERAL_VECTOR_2]],
+        [vL21.toString(), [vL11, vL12, vL20, EQUILATERAL_VECTOR_2]],
+        [EQUILATERAL_VECTOR_2.toString(), [vL20, vL21]],
+        [vR01.toString(), [EQUILATERAL_VECTOR_1, vR02, vR10, vR11]],
+        [vR02.toString(), [vR01, EQUILATERAL_VECTOR_3, vR11, vR12]],
+        [EQUILATERAL_VECTOR_3.toString(), [vR02, vR12]],
+        [vR10.toString(), [EQUILATERAL_VECTOR_1, vR01, vR11, vR20]],
+        [vR11.toString(), [vR01, vR02, vR10, vR12, vR20, vR21]],
+        [vR12.toString(), [vR02, EQUILATERAL_VECTOR_3, vR11, vR21]],
+        [vR20.toString(), [vR10, vR11, vR21, EQUILATERAL_VECTOR_4]],
+        [vR21.toString(), [vR11, vR12, vR20, EQUILATERAL_VECTOR_4]],
+        [EQUILATERAL_VECTOR_4.toString(), [vR20, vR21]],
+
+      ]);
+
+      verifySubdivisions(3, expectedVectors, expectedConnections);
     });
     xit('should subdivide two triangles sharing an edge', () => {
     });
