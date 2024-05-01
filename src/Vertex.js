@@ -1,7 +1,7 @@
 /** @typedef {import('./Vector.js').default} Vector3 */
 /** @typedef {[Vertex, Vertex, Vertex]} Triangle */
 
-import { triangleCompare, vertexCompare } from './comparators.js';
+import { triangleCompare, vectorCompare, vertexCompare } from './comparators.js';
 
 class Vertex {
   /** @type {Vector3} */ #vector3;
@@ -171,6 +171,28 @@ class Vertex {
       }
     });
     return copy;
+  }
+
+  /**
+   * Optional mode parameter to format output:
+   *   - key: include key - eg. "edge a-b 3: (1,2,3)\n..."
+   *   - keyless: omit key - eg. "(1,2,3)\n..."
+   *   - desmos: format for desmos - eg. [(1,2,3),...]
+   * @param {'key'|'keyless'|'desmos'} [mode='key']
+   */
+  toString(mode = 'key') {
+    const sorter = mode === 'key' ? vertexCompare : (a, b) => vectorCompare(a.vector3, b.vector3);
+
+    /** @type {Vertex[]} */ const vertices = [];
+    this.iterate((v) => { vertices.push(v); });
+
+    vertices.sort(sorter);
+    switch (mode) {
+      case 'key': return vertices.map(({ key, vector3 }) => `${key}: ${vector3}`).join('\n');
+      case 'keyless': return vertices.map(({ vector3 }) => `${vector3}`).join('\n');
+      case 'desmos': return `[${vertices.map(({ vector3 }) => `${vector3}`.replace(/\s/g, '')).join(',')}]`;
+      default: throw new Error(`Unknown toString mode, "${mode}"`);
+    }
   }
 
   /**

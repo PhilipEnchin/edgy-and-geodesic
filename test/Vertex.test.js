@@ -748,6 +748,45 @@ describe('Vertex', () => {
     });
   });
 
+  describe('Vertex.prototype.toString', () => {
+    beforeEach(() => {
+      vertex0.connect(vertex1).connect(vertex2);
+    });
+
+    it('should return correct output in "key" mode', () => {
+      const expectedOutput = 'one: (1, 2, 3)\ntwo: (2, 3, 4)\nzero: (0, 1, 2)';
+      const actualOutput = vertex0.toString('key');
+
+      expect(actualOutput).to.equal(expectedOutput);
+    });
+
+    it('should return correct output in "keyless" mode', () => {
+      const expectedOutput = '(0, 1, 2)\n(1, 2, 3)\n(2, 3, 4)';
+      const actualOutput = vertex0.toString('keyless');
+
+      expect(actualOutput).to.equal(expectedOutput);
+    });
+
+    it('should return correct output in "desmos" mode', () => {
+      const expectedOutput = '[(0,1,2),(1,2,3),(2,3,4)]';
+      const actualOutput = vertex0.toString('desmos');
+
+      expect(actualOutput).to.equal(expectedOutput);
+    });
+
+    it('should return output in "key" mode when mode is omitted', () => {
+      const expectedOutput = 'one: (1, 2, 3)\ntwo: (2, 3, 4)\nzero: (0, 1, 2)';
+      const actualOutput = vertex0.toString();
+
+      expect(actualOutput).to.equal(expectedOutput);
+    });
+
+    it('should throw an error when an unknown mode is specified', () => {
+      // @ts-ignore
+      expect(() => vertex0.toString('definitley a known mode')).to.throw();
+    });
+  });
+
   describe('Vertex.prototype.triangles', () => {
     it('should return empty array if no connections exist', () => {
       expect(vertex0.triangles).to.be.an('array').that.is.empty;
