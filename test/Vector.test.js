@@ -321,6 +321,20 @@ describe('Vector', () => {
       expect(negative.toString()).to.equal('(-1, -2, -3)');
       expect(decimal.toString()).to.equal('(-1.5, -2.25, 3.125)');
     });
+
+    it('should not include any exponential notation', () => {
+      const tinyPositive = new Vector3(2 ** -500, 0, 0).toString();
+      const hugePositive = new Vector3(2 ** 500, 0, 0).toString();
+      const tinyNegative = new Vector3(-(2 ** -500), 0, 0).toString();
+      const hugeNegative = new Vector3(-(2 ** 500), 0, 0).toString();
+
+      const exponentialRegex = /e[-+]?\d+/;
+
+      expect(exponentialRegex.test(tinyPositive)).to.be.false;
+      expect(exponentialRegex.test(hugePositive)).to.be.false;
+      expect(exponentialRegex.test(tinyNegative)).to.be.false;
+      expect(exponentialRegex.test(hugeNegative)).to.be.false;
+    });
   });
 
   describe('Vector3.prototype.x/y/z', () => {
