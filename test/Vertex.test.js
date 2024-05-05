@@ -799,8 +799,15 @@ describe('Vertex', () => {
       expect(actualOutput).to.equal(expectedOutput);
     });
 
-    it('should return output in "key" mode when mode is omitted', () => {
-      const expectedOutput = 'one: (1, 2, 3)\ntwo: (2, 3, 4)\nzero: (0, 1, 2)';
+    it('should return correct output in "single" mode', () => {
+      const expectedOutput = 'zero: (0, 1, 2)';
+      const actualOutput = vertex0.toString('single');
+
+      expect(actualOutput).to.equal(expectedOutput);
+    });
+
+    it('should return output in "single" mode when mode is omitted', () => {
+      const expectedOutput = 'zero: (0, 1, 2)';
       const actualOutput = vertex0.toString();
 
       expect(actualOutput).to.equal(expectedOutput);

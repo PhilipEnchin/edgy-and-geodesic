@@ -179,9 +179,11 @@ class Vertex {
    *   - key: include key - eg. "edge a-b 3: (1,2,3)\n..."
    *   - keyless: omit key - eg. "(1,2,3)\n..."
    *   - desmos: format for desmos - eg. [(1,2,3),...]
-   * @param {'key'|'keyless'|'desmos'} [mode='key']
+   *   - single: "key" format, but only this vertex
+   * @param {'key'|'keyless'|'desmos'|'single'} [mode='single']
    */
-  toString(mode = 'key') {
+  toString(mode = 'single') {
+    if (mode === 'single') return `${this.key}: ${this.vector3}`;
     const sorter = mode === 'key' ? vertexCompare : (a, b) => vectorCompare(a.vector3, b.vector3);
 
     /** @type {Vertex[]} */ const vertices = [];
