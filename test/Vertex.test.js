@@ -112,7 +112,7 @@ describe('Vertex', () => {
 
       const copy = vertex0.copy();
 
-      copy.iterate(({ key }) => { copiedKeys.push(key); });
+      copy.forEach(({ key }) => { copiedKeys.push(key); });
 
       expect(copiedKeys).to.deep.equal(['zero', 'one', 'two']);
     });
@@ -123,7 +123,7 @@ describe('Vertex', () => {
 
       const copy = vertex0.copy();
 
-      copy.iterate(({ vector3 }) => { copiedVectorStrings.push(vector3.toString()); });
+      copy.forEach(({ vector3 }) => { copiedVectorStrings.push(vector3.toString()); });
 
       expect(copiedVectorStrings).to.deep.equal([VECTOR_0, VECTOR_1, VECTOR_2].map(String));
     });
@@ -134,7 +134,7 @@ describe('Vertex', () => {
 
       const copy = vertex0.copy();
 
-      copy.iterate((vertex) => { copiedVertexObjects.push(vertex); });
+      copy.forEach((vertex) => { copiedVertexObjects.push(vertex); });
 
       expect(copiedVertexObjects).to.have.lengthOf(3);
       expect(copiedVertexObjects).to.not.include(vertex0);
@@ -148,7 +148,7 @@ describe('Vertex', () => {
 
       const copy = vertex0.copy();
 
-      copy.iterate(({ vector3 }) => { copiedVector3Objects.push(vector3); });
+      copy.forEach(({ vector3 }) => { copiedVector3Objects.push(vector3); });
 
       expect(copiedVector3Objects).to.have.lengthOf(3);
       expect(copiedVector3Objects).to.not.include(VECTOR_0);
@@ -162,7 +162,7 @@ describe('Vertex', () => {
       const copy = vertex0.copy();
 
       /** @type {Object<string,string[]>} */ const vMap = {};
-      copy.iterate(({ connections, key }) => {
+      copy.forEach(({ connections, key }) => {
         vMap[key] = connections.map(({ key: connectionKey }) => connectionKey);
       });
 
@@ -214,6 +214,80 @@ describe('Vertex', () => {
     });
   });
 
+  describe('Vertex.prototype.forEach', () => {
+    /** @type {number} */ let count;
+    const inc = () => { count++; };
+
+    beforeEach(() => {
+      count = 0;
+    });
+
+    it('should call callback once when there are no connections', () => {
+      vertex0.forEach(inc);
+
+      expect(count).to.equal(1);
+    });
+
+    it('should call callback twice when a single connection exists', () => {
+      vertex0.connect(vertex1);
+
+      vertex0.forEach(inc);
+
+      expect(count).to.equal(2);
+    });
+
+    it('should call callback once per directly-connected vertex', () => {
+      vertex0.connect(vertex1).connect(vertex2);
+
+      vertex0.forEach(inc);
+
+      expect(count).to.equal(3);
+    });
+
+    it('should call callback once per directly- or indirectly-connected vertex', () => {
+      vertex0.connect(vertex1);
+      vertex1.connect(vertex2);
+
+      vertex0.forEach(inc);
+
+      expect(count).to.equal(3);
+    });
+
+    it('should call callback once per connected vertex in a loop', () => {
+      vertex0.connect(vertex1).connect(vertex2);
+      vertex1.connect(vertex2);
+
+      vertex0.forEach(inc);
+
+      expect(count).to.equal(3);
+    });
+
+    it('should call callback with exactly two arguments', () => {
+      vertex0.forEach((...args) => { expect(args).to.have.lengthOf(2); });
+    });
+
+    it('should call callback with vertices as the first argument', () => {
+      vertex0.connect(vertex1).connect(vertex2);
+
+      const expectedVertices = new Set([vertex0, vertex1, vertex2]);
+
+      vertex0.forEach((actualVertex) => {
+        expect(expectedVertices).to.contain(actualVertex);
+        expectedVertices.delete(actualVertex);
+      });
+      expect(expectedVertices).to.be.empty; // Double check that we've checked three args
+    });
+
+    it('should call callback with an incrementing index as the second argument', () => {
+      vertex0.connect(vertex1).connect(vertex2);
+
+      let expectedIndex = 0;
+
+      vertex0.forEach((_, actualIndex) => expect(actualIndex).to.equal(expectedIndex++));
+      expect(expectedIndex).to.equal(3); // Double check that we've checked three args
+    });
+  });
+
   describe('Vertex.prototype.isConnectedTo', () => {
     it('should return false when there are no connections', () => {
       expect(vertex0.isConnectedTo(vertex1)).to.be.false;
@@ -252,80 +326,6 @@ describe('Vertex', () => {
     });
   });
 
-  describe('Vertex.prototype.iterate', () => {
-    /** @type {number} */ let count;
-    const inc = () => { count++; };
-
-    beforeEach(() => {
-      count = 0;
-    });
-
-    it('should call callback once when there are no connections', () => {
-      vertex0.iterate(inc);
-
-      expect(count).to.equal(1);
-    });
-
-    it('should call callback twice when a single connection exists', () => {
-      vertex0.connect(vertex1);
-
-      vertex0.iterate(inc);
-
-      expect(count).to.equal(2);
-    });
-
-    it('should call callback once per directly-connected vertex', () => {
-      vertex0.connect(vertex1).connect(vertex2);
-
-      vertex0.iterate(inc);
-
-      expect(count).to.equal(3);
-    });
-
-    it('should call callback once per directly- or indirectly-connected vertex', () => {
-      vertex0.connect(vertex1);
-      vertex1.connect(vertex2);
-
-      vertex0.iterate(inc);
-
-      expect(count).to.equal(3);
-    });
-
-    it('should call callback once per connected vertex in a loop', () => {
-      vertex0.connect(vertex1).connect(vertex2);
-      vertex1.connect(vertex2);
-
-      vertex0.iterate(inc);
-
-      expect(count).to.equal(3);
-    });
-
-    it('should call callback with exactly two arguments', () => {
-      vertex0.iterate((...args) => { expect(args).to.have.lengthOf(2); });
-    });
-
-    it('should call callback with vertices as the first argument', () => {
-      vertex0.connect(vertex1).connect(vertex2);
-
-      const expectedVertices = new Set([vertex0, vertex1, vertex2]);
-
-      vertex0.iterate((actualVertex) => {
-        expect(expectedVertices).to.contain(actualVertex);
-        expectedVertices.delete(actualVertex);
-      });
-      expect(expectedVertices).to.be.empty; // Double check that we've checked three args
-    });
-
-    it('should call callback with an incrementing index as the second argument', () => {
-      vertex0.connect(vertex1).connect(vertex2);
-
-      let expectedIndex = 0;
-
-      vertex0.iterate((_, actualIndex) => expect(actualIndex).to.equal(expectedIndex++));
-      expect(expectedIndex).to.equal(3); // Double check that we've checked three args
-    });
-  });
-
   describe('Vertex.prototype.key', () => {
     it('should return key', () => {
       expect(vertex0.key).to.equal('zero');
@@ -359,7 +359,7 @@ describe('Vertex', () => {
 
       const copy = equilateralVertex0.subdivide(1);
 
-      copy.iterate((vertex) => { copiedVertexObjects.push(vertex); });
+      copy.forEach((vertex) => { copiedVertexObjects.push(vertex); });
 
       expect(copiedVertexObjects).to.have.lengthOf(3);
       expect(copiedVertexObjects).to.not.include(equilateralVertex0);
@@ -372,7 +372,7 @@ describe('Vertex', () => {
 
       const copy = equilateralVertex0.subdivide(1);
 
-      copy.iterate((vertex) => { copiedVertexObjects.push(vertex); });
+      copy.forEach((vertex) => { copiedVertexObjects.push(vertex); });
 
       expect(copiedVertexObjects).to.have.lengthOf(3);
       expect(copiedVertexObjects.map(({ vector3 }) => vector3.toString())).to.deep.equal([EQUILATERAL_VECTOR_0, EQUILATERAL_VECTOR_2, EQUILATERAL_VECTOR_1].map(String));
@@ -392,7 +392,7 @@ describe('Vertex', () => {
       const subdivided = equilateralVertex0.subdivide(frequency);
       /** @type {Vector3[]} */ const actualVectors = [];
       /** @type {Map<string,Vector3[]>} */ const actualConnections = new Map();
-      subdivided.iterate(({ connections, vector3 }) => {
+      subdivided.forEach(({ connections, vector3 }) => {
         actualVectors.push(vector3);
         actualConnections.set(vector3.toString(), connections.map((connection) => connection.vector3));
       });
@@ -762,7 +762,7 @@ describe('Vertex', () => {
       ].sort(({ vector3: vectorA }, { vector3: vectorB }) => vectorCompare(vectorA, vectorB));
 
       /** @type {{vector3:Vector3, key:string}[]} */ const actualKeys = [];
-      subdivided.iterate(({ vector3, key }) => actualKeys.push({ vector3, key }));
+      subdivided.forEach(({ vector3, key }) => actualKeys.push({ vector3, key }));
       actualKeys.sort(({ vector3: vectorA }, { vector3: vectorB }) => vectorCompare(vectorA, vectorB));
 
       expect(actualKeys).to.have.lengthOf(expectedKeys.length);

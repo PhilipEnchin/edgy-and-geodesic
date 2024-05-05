@@ -43,7 +43,7 @@ class Vertex {
   copy() {
     /** @type {Map<Vertex,Vertex>} */ const vMap = new Map();
 
-    this.iterate((vertex) => { vMap.set(vertex, new Vertex(vertex.key, vertex.vector3.copy())); });
+    this.forEach((vertex) => { vMap.set(vertex, new Vertex(vertex.key, vertex.vector3.copy())); });
 
     vMap.forEach((copy, original) => {
       original.connections.forEach((originalConnection) => {
@@ -66,18 +66,10 @@ class Vertex {
   }
 
   /**
-   * @param {Vertex} that
-   * @returns {boolean}
-   */
-  isConnectedTo(that) {
-    return this.#connections.has(that);
-  }
-
-  /**
-   *
+   * Run a function on each vertex in the connected structure
    * @param {(vertex: Vertex, index: number) => void} func
    */
-  iterate(func) {
+  forEach(func) {
     /** @type {Vertex[]} */ const stack = [];
     /** @type {Set<Vertex>} */ const seen = new Set();
 
@@ -95,6 +87,14 @@ class Vertex {
         }
       });
     }
+  }
+
+  /**
+   * @param {Vertex} that
+   * @returns {boolean}
+   */
+  isConnectedTo(that) {
+    return this.#connections.has(that);
   }
 
   /**
@@ -187,7 +187,7 @@ class Vertex {
     const sorter = mode === 'key' ? vertexCompare : (a, b) => vectorCompare(a.vector3, b.vector3);
 
     /** @type {Vertex[]} */ const vertices = [];
-    this.iterate((v) => { vertices.push(v); });
+    this.forEach((v) => { vertices.push(v); });
 
     vertices.sort(sorter);
     switch (mode) {
@@ -204,7 +204,7 @@ class Vertex {
   get triangles() {
     /** @type {Triangle[]} */ const triangles = [];
 
-    this.iterate((vertex) => {
+    this.forEach((vertex) => {
       const { connections } = vertex;
       for (let i = connections.length - 1; i >= 0; i--) {
         for (let j = i - 1; j >= 0; j--) {

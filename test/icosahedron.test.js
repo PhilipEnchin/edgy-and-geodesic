@@ -14,21 +14,21 @@ describe('makeIcosahedron', () => {
   });
 
   it('should create a connected structure with 12 vertices', () => {
-    icosahedron.iterate(inc);
+    icosahedron.forEach(inc);
 
     expect(count).to.equal(12);
   });
 
   it('should create consecutive (and therefore, unique), numerical keys for vertices', () => {
     /** @type {Set<number>} */ const keys = new Set();
-    icosahedron.iterate(({ key }) => { keys.add(Number(key)); });
+    icosahedron.forEach(({ key }) => { keys.add(Number(key)); });
 
     expect(keys).to.have.lengthOf(12);
     for (let i = 0; i < 12; i++) { expect(keys).to.include(i); }
   });
 
   it('should create 5 connections per vertex', () => {
-    icosahedron.iterate(({ connections }) => {
+    icosahedron.forEach(({ connections }) => {
       connections.forEach(inc);
       expect(connections).to.have.lengthOf(5);
     });
@@ -40,7 +40,7 @@ describe('makeIcosahedron', () => {
     const expectedDistance = icosahedron.vector3.magnitude;
     /** @type {number[]} */ const actualDistances = [];
 
-    icosahedron.iterate((vertex) => { actualDistances.push(vertex.vector3.magnitude); });
+    icosahedron.forEach((vertex) => { actualDistances.push(vertex.vector3.magnitude); });
 
     expect(expectedDistance).to.be.greaterThan(0);
     expect(actualDistances).to.deep.equal(Array(12).fill(expectedDistance));
@@ -50,7 +50,7 @@ describe('makeIcosahedron', () => {
     const expectedLength = icosahedron.vector3.distanceTo(icosahedron.connections[0].vector3);
     /** @type {number[]} */ const actualLenghts = [];
 
-    icosahedron.iterate((vertex) => {
+    icosahedron.forEach((vertex) => {
       const a = vertex.vector3;
       vertex.connections.forEach((connectedVertex) => {
         const b = connectedVertex.vector3;
