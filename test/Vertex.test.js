@@ -299,6 +299,31 @@ describe('Vertex', () => {
 
       expect(count).to.equal(3);
     });
+
+    it('should call callback with exactly two arguments', () => {
+      vertex0.iterate((...args) => { expect(args).to.have.lengthOf(2); });
+    });
+
+    it('should call callback with vertices as the first argument', () => {
+      vertex0.connect(vertex1).connect(vertex2);
+
+      const expectedVertices = new Set([vertex0, vertex1, vertex2]);
+
+      vertex0.iterate((actualVertex) => {
+        expect(expectedVertices).to.contain(actualVertex);
+        expectedVertices.delete(actualVertex);
+      });
+      expect(expectedVertices).to.be.empty; // Double check that we've checked three args
+    });
+
+    it('should call callback with an incrementing index as the second argument', () => {
+      vertex0.connect(vertex1).connect(vertex2);
+
+      let expectedIndex = 0;
+
+      vertex0.iterate((_, actualIndex) => expect(actualIndex).to.equal(expectedIndex++));
+      expect(expectedIndex).to.equal(3); // Double check that we've checked three args
+    });
   });
 
   describe('Vertex.prototype.key', () => {

@@ -75,7 +75,7 @@ class Vertex {
 
   /**
    *
-   * @param {(vertex: Vertex) => void} func
+   * @param {(vertex: Vertex, index: number) => void} func
    */
   iterate(func) {
     /** @type {Vertex[]} */ const stack = [];
@@ -84,9 +84,10 @@ class Vertex {
     stack.push(this);
     seen.add(this);
 
+    let i = 0;
     while (stack.length) {
       const vertex = /** @type {Vertex} */ (stack.pop());
-      func(vertex);
+      func(vertex, i++);
       vertex.#connections.forEach((connectedVertex) => {
         if (!seen.has(connectedVertex)) {
           stack.push(connectedVertex);
