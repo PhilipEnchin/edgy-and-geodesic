@@ -20,6 +20,80 @@ describe('Vertex', () => {
     vertex2 = new Vertex('two', VECTOR_2);
   });
 
+  const testArrayLikeMethods = (method) => {
+    /** @type {number} */ let count;
+    const inc = () => { count++; };
+
+    beforeEach(() => {
+      count = 0;
+    });
+
+    it('should call callback once when there are no connections', () => {
+      vertex0[method](inc);
+
+      expect(count).to.equal(1);
+    });
+
+    it('should call callback twice when a single connection exists', () => {
+      vertex0.connect(vertex1);
+
+      vertex0[method](inc);
+
+      expect(count).to.equal(2);
+    });
+
+    it('should call callback once per directly-connected vertex', () => {
+      vertex0.connect(vertex1).connect(vertex2);
+
+      vertex0[method](inc);
+
+      expect(count).to.equal(3);
+    });
+
+    it('should call callback once per directly- or indirectly-connected vertex', () => {
+      vertex0.connect(vertex1);
+      vertex1.connect(vertex2);
+
+      vertex0[method](inc);
+
+      expect(count).to.equal(3);
+    });
+
+    it('should call callback once per connected vertex in a loop', () => {
+      vertex0.connect(vertex1).connect(vertex2);
+      vertex1.connect(vertex2);
+
+      vertex0[method](inc);
+
+      expect(count).to.equal(3);
+    });
+
+    it('should call callback with exactly two arguments', () => {
+      vertex0[method]((...args) => { expect(args).to.have.lengthOf(2); });
+    });
+
+    it('should call callback with vertices as the first argument', () => {
+      vertex0.connect(vertex1).connect(vertex2);
+
+      const expectedVertices = new Set([vertex0, vertex1, vertex2]);
+
+      vertex0[method]((actualVertex) => {
+        expect(expectedVertices).to.contain(actualVertex);
+        expectedVertices.delete(actualVertex);
+      });
+      expect(expectedVertices).to.be.empty; // Double check that we've checked three args
+    });
+
+    it('should call callback with an incrementing index as the second argument', () => {
+      vertex0.connect(vertex1).connect(vertex2);
+
+      let expectedIndex = 0;
+
+      vertex0[method]((_, actualIndex) => expect(actualIndex).to.equal(expectedIndex++));
+      expect(expectedIndex).to.equal(3); // Double check that we've checked three args
+    });
+  };
+
   describe('Constructor', () => {
     it('should create a vertex with a key, vector, and no connections', () => {
       const vector = new Vector3(0, 0, 0);
@@ -253,77 +327,7 @@ describe('Vertex', () => {
   });
 
   describe('Vertex.prototype.forEach', () => {
-    /** @type {number} */ let count;
-    const inc = () => { count++; };
-
-    beforeEach(() => {
-      count = 0;
-    });
-
-    it('should call callback once when there are no connections', () => {
-      vertex0.forEach(inc);
-
-      expect(count).to.equal(1);
-    });
-
-    it('should call callback twice when a single connection exists', () => {
-      vertex0.connect(vertex1);
-
-      vertex0.forEach(inc);
-
-      expect(count).to.equal(2);
-    });
-
-    it('should call callback once per directly-connected vertex', () => {
-      vertex0.connect(vertex1).connect(vertex2);
-
-      vertex0.forEach(inc);
-
-      expect(count).to.equal(3);
-    });
-
-    it('should call callback once per directly- or indirectly-connected vertex', () => {
-      vertex0.connect(vertex1);
-      vertex1.connect(vertex2);
-
-      vertex0.forEach(inc);
-
-      expect(count).to.equal(3);
-    });
-
-    it('should call callback once per connected vertex in a loop', () => {
-      vertex0.connect(vertex1).connect(vertex2);
-      vertex1.connect(vertex2);
-
-      vertex0.forEach(inc);
-
-      expect(count).to.equal(3);
-    });
-
-    it('should call callback with exactly two arguments', () => {
-      vertex0.forEach((...args) => { expect(args).to.have.lengthOf(2); });
-    });
-
-    it('should call callback with vertices as the first argument', () => {
-      vertex0.connect(vertex1).connect(vertex2);
-
-      const expectedVertices = new Set([vertex0, vertex1, vertex2]);
-
-      vertex0.forEach((actualVertex) => {
-        expect(expectedVertices).to.contain(actualVertex);
-        expectedVertices.delete(actualVertex);
-      });
-      expect(expectedVertices).to.be.empty; // Double check that we've checked three args
-    });
-
-    it('should call callback with an incrementing index as the second argument', () => {
-      vertex0.connect(vertex1).connect(vertex2);
-
-      let expectedIndex = 0;
-
-      vertex0.forEach((_, actualIndex) => expect(actualIndex).to.equal(expectedIndex++));
-      expect(expectedIndex).to.equal(3); // Double check that we've checked three args
-    });
+    testArrayLikeMethods('forEach');
   });
 
   describe('Vertex.prototype.isConnectedTo', () => {

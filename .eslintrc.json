@@ -26,6 +26,8 @@
     ],
     "max-len": "off",
     "mocha/no-mocha-arrows": "off",
+    "mocha/no-setup-in-describe": "off",
+    "mocha/no-sibling-hooks": "off",
     "no-nested-ternary": "off",
     "no-plusplus": "off"
   }
