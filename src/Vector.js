@@ -48,11 +48,11 @@ class Vector3 {
   }
 
   /**
-   * @param {Vector3TransformerFunction} [transformer] Transformer function: Return any/all of x, y, z
+   * @param {Vector3TransformerFunction | TransformedVector} [transformer] Transformer: Return/include any/all of x, y, z
    * @returns {Vector3}
    */
   copy(transformer = () => ({})) {
-    const transformed = transformer(this);
+    const transformed = typeof transformer === 'function' ? transformer(this) : { ...transformer };
     return new Vector3(
       'x' in transformed && transformed.x !== undefined ? transformed.x : this.#x,
       'y' in transformed && transformed.y !== undefined ? transformed.y : this.#y,

@@ -192,7 +192,7 @@ describe('Vertex', () => {
       });
     });
 
-    it('should apply transformer if specified', () => {
+    it('should apply transformer function if specified', () => {
       vertex0.connect(vertex1).connect(vertex2);
 
       const copy = vertex0.copy((v) => {
