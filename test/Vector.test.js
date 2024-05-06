@@ -71,6 +71,41 @@ describe('Vector', () => {
       expect(copy.y).to.equal(original.y);
       expect(copy.z).to.equal(original.z);
     });
+
+    it('should pass original vector to transformer function', () => {
+      const original = new Vector3(1, 2, 3);
+
+      let actualArgs;
+      original.copy((...args) => {
+        actualArgs = args;
+        return {};
+      });
+
+      expect(actualArgs).to.deep.equal([original]);
+    });
+
+    it('should apply transformer if specified', () => {
+      const originalNoChange = new Vector3(1, 1, 2);
+      const originalX = new Vector3(1, 2, 3);
+      const originalY = new Vector3(2, 3, 5);
+      const originalZ = new Vector3(3, 5, 8);
+      const originalXZ = new Vector3(5, 8, 13);
+      const originalAll = new Vector3(8, 13, 21);
+
+      const copyNoChange = originalNoChange.copy(() => ({}));
+      const copyX = originalX.copy(() => ({ x: 0 }));
+      const copyY = originalY.copy(() => ({ y: 0 }));
+      const copyZ = originalZ.copy(() => ({ z: 0 }));
+      const copyXZ = originalXZ.copy(() => ({ x: 0, z: -1 }));
+      const copyAll = originalAll.copy(() => ({ x: 0, y: -1, z: -2 }));
+
+      expect(copyNoChange.isEqualTo(originalNoChange)).to.be.true;
+      expect(copyX.isEqualTo(new Vector3(0, 2, 3))).to.be.true;
+      expect(copyY.isEqualTo(new Vector3(2, 0, 5))).to.be.true;
+      expect(copyZ.isEqualTo(new Vector3(3, 5, 0))).to.be.true;
+      expect(copyXZ.isEqualTo(new Vector3(0, 8, -1))).to.be.true;
+      expect(copyAll.isEqualTo(new Vector3(0, -1, -2))).to.be.true;
+    });
   });
 
   describe('Vector3.prototype.distanceTo', () => {

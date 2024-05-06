@@ -1,4 +1,13 @@
 /**
+ * @typedef {object} TransformedVector
+ * @property {number} [x]
+ * @property {number} [y]
+ * @property {number} [z]
+ */
+
+/** @typedef {(vector3:Vector3) => TransformedVector} Vector3TransformerFunction */
+
+/**
  * Helper function for testing Vector3 equality
  * @param {number} a
  * @param {number} b
@@ -39,10 +48,16 @@ class Vector3 {
   }
 
   /**
+   * @param {Vector3TransformerFunction} [transformer] Transformer function: Return any/all of x, y, z
    * @returns {Vector3}
    */
-  copy() {
-    return new Vector3(this.#x, this.#y, this.#z);
+  copy(transformer = () => ({})) {
+    const transformed = transformer(this);
+    return new Vector3(
+      'x' in transformed && transformed.x !== undefined ? transformed.x : this.#x,
+      'y' in transformed && transformed.y !== undefined ? transformed.y : this.#y,
+      'z' in transformed && transformed.z !== undefined ? transformed.z : this.#z,
+    );
   }
 
   /**
