@@ -21,6 +21,7 @@ describe('Vertex', () => {
   });
 
   const testArrayLikeMethods = (method) => {
+    const reduce = method === 'reduce';
     /** @type {number} */ let count;
     const inc = () => { count++; };
 
@@ -68,28 +69,29 @@ describe('Vertex', () => {
       expect(count).to.equal(3);
     });
 
-    it('should call callback with exactly two arguments', () => {
-      vertex0[method]((...args) => { expect(args).to.have.lengthOf(2); });
+    it(`should call callback with exactly ${reduce ? 'three' : 'two'} arguments`, () => {
+      vertex0[method]((...args) => { expect(args).to.have.lengthOf(reduce ? 3 : 2); });
     });
 
-    it('should call callback with vertices as the first argument', () => {
+    it(`should call callback with vertices as the ${reduce ? 'second' : 'first'} argument`, () => {
       vertex0.connect(vertex1).connect(vertex2);
 
       const expectedVertices = new Set([vertex0, vertex1, vertex2]);
 
-      vertex0[method]((actualVertex) => {
+      vertex0[method]((actualVertexNoReduce, actualVertexReduce) => {
+        const actualVertex = reduce ? actualVertexReduce : actualVertexNoReduce;
         expect(expectedVertices).to.contain(actualVertex);
         expectedVertices.delete(actualVertex);
       });
       expect(expectedVertices).to.be.empty; // Double check that we've checked three args
     });
 
-    it('should call callback with an incrementing index as the second argument', () => {
+    it(`should call callback with an incrementing index as the ${reduce ? 'third' : 'second'} argument`, () => {
       vertex0.connect(vertex1).connect(vertex2);
 
       let expectedIndex = 0;
 
-      vertex0[method]((_, actualIndex) => expect(actualIndex).to.equal(expectedIndex++));
+      vertex0[method]((_, actualIndexNoReduce, actualIndexReduce) => expect(reduce ? actualIndexReduce : actualIndexNoReduce).to.equal(expectedIndex++));
       expect(expectedIndex).to.equal(3); // Double check that we've checked three args
     });
   };
@@ -384,6 +386,36 @@ describe('Vertex', () => {
     testArrayLikeMethods('map');
 
     it('should return a mapped array result', () => {
+      vertex0.connect(vertex1.connect(vertex2));
+
+      const expectedResult = ['ZERO', 'ONE', 'TWO'];
+
+      const actualResult = vertex0.map(({ key }) => key.toUpperCase());
+
+      expect(actualResult).to.deep.equal(expectedResult);
+    });
+  });
+
+  describe('Vertex.prototype.reduce', () => {
+    testArrayLikeMethods('reduce');
+
+    it('should call callback with initialValue/accumulator as the first argument', () => {
+      vertex0.connect(vertex1.connect(vertex2));
+
+      const expectedFirstArgValuesStack = [
+        'initialValue',
+        'initialValue zero',
+        'initialValue zero one',
+      ].reverse();
+
+      vertex0.reduce((acc, { key }) => {
+        expect(acc).to.equal(expectedFirstArgValuesStack.pop());
+        return `${acc} ${key}`;
+      }, 'initialValue');
+      expect(expectedFirstArgValuesStack).to.have.lengthOf(0);
+    });
+
+    it('should return an accumulated value as result', () => {
       vertex0.connect(vertex1.connect(vertex2));
 
       const expectedResult = ['ZERO', 'ONE', 'TWO'];

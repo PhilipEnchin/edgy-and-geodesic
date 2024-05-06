@@ -133,6 +133,18 @@ class Vertex {
     this.forEach((...args) => { result.push(func(...args)); });
     return result;
   }
+
+  /**
+   * Reduce vertices to a value, à la Array.prototype.reduce
+   * @param {(acc: any, vertex: Vertex, index: number) => void} func
+   * @param {any} initialValue
+   */
+  reduce(func, initialValue) {
+    let acc = initialValue;
+    this.forEach((...args) => { acc = func(acc, ...args); });
+    return acc;
+  }
+
   /**
    * @param {number} frequency
    * @returns {Vertex}
