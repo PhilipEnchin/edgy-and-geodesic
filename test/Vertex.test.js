@@ -184,47 +184,35 @@ describe('Vertex', () => {
   describe('Vertex.prototype.copy', () => {
     it('should return a copy with same Vertex keys', () => {
       vertex0.connect(vertex1.connect(vertex2));
-      /** @type {string[]} */ const copiedKeys = [];
 
-      const copy = vertex0.copy();
-
-      copy.forEach(({ key }) => { copiedKeys.push(key); });
+      const copiedKeys = vertex0.copy().map(({ key }) => key);
 
       expect(copiedKeys).to.deep.equal(['zero', 'one', 'two']);
     });
 
     it('should return a copy with same Vector3 values', () => {
       vertex0.connect(vertex1.connect(vertex2));
-      /** @type {string[]} */ const copiedVectorStrings = [];
 
-      const copy = vertex0.copy();
-
-      copy.forEach(({ vector3 }) => { copiedVectorStrings.push(vector3.toString()); });
+      const copiedVectorStrings = vertex0.copy().map(({ vector3 }) => vector3.toString());
 
       expect(copiedVectorStrings).to.deep.equal([VECTOR_0, VECTOR_1, VECTOR_2].map(String));
     });
 
     it('should return a copy of every Vertex object', () => {
       vertex0.connect(vertex1.connect(vertex2));
-      /** @type {Vertex[]} */ const copiedVertexObjects = [];
 
-      const copy = vertex0.copy();
+      const copiedVertices = vertex0.copy().toArray();
 
-      copy.forEach((vertex) => { copiedVertexObjects.push(vertex); });
-
-      expect(copiedVertexObjects).to.have.lengthOf(3);
-      expect(copiedVertexObjects).to.not.include(vertex0);
-      expect(copiedVertexObjects).to.not.include(vertex1);
-      expect(copiedVertexObjects).to.not.include(vertex2);
+      expect(copiedVertices).to.have.lengthOf(3);
+      expect(copiedVertices).to.not.include(vertex0);
+      expect(copiedVertices).to.not.include(vertex1);
+      expect(copiedVertices).to.not.include(vertex2);
     });
 
     it('should return vertex objects with new Vector3 objects', () => {
       vertex0.connect(vertex1.connect(vertex2));
-      /** @type {Vector3[]} */ const copiedVector3Objects = [];
 
-      const copy = vertex0.copy();
-
-      copy.forEach(({ vector3 }) => { copiedVector3Objects.push(vector3); });
+      const copiedVector3Objects = vertex0.copy().map(({ vector3 }) => vector3);
 
       expect(copiedVector3Objects).to.have.lengthOf(3);
       expect(copiedVector3Objects).to.not.include(VECTOR_0);
@@ -235,12 +223,11 @@ describe('Vertex', () => {
     it('should maintain all connections from original structure', () => {
       vertex0.connect(vertex1.connect(vertex2));
 
-      const copy = vertex0.copy();
-
-      /** @type {Object<string,string[]>} */ const vMap = {};
-      copy.forEach(({ connections, key }) => {
-        vMap[key] = connections.map(({ key: connectionKey }) => connectionKey);
-      });
+      const vMap = vertex0.copy()
+        .reduce((acc, { connections, key }) => ({
+          ...acc,
+          [key]: connections.map(({ key: connectionKey }) => connectionKey),
+        }), {});
 
       expect(vMap).to.deep.equal({
         zero: ['one'],
@@ -443,11 +430,7 @@ describe('Vertex', () => {
     });
 
     it('should return new set of vertices, not alter the original structure', () => {
-      /** @type {Vertex[]} */ const copiedVertexObjects = [];
-
-      const copy = equilateralVertex0.subdivide(1);
-
-      copy.forEach((vertex) => { copiedVertexObjects.push(vertex); });
+      const copiedVertexObjects = equilateralVertex0.subdivide(1).map((vertex) => vertex);
 
       expect(copiedVertexObjects).to.have.lengthOf(3);
       expect(copiedVertexObjects).to.not.include(equilateralVertex0);
@@ -456,11 +439,7 @@ describe('Vertex', () => {
     });
 
     it('should return an unaltered single triangle when frequency is 1', () => {
-      /** @type {Vertex[]} */ const copiedVertexObjects = [];
-
-      const copy = equilateralVertex0.subdivide(1);
-
-      copy.forEach((vertex) => { copiedVertexObjects.push(vertex); });
+      /** @type {Vertex[]} */ const copiedVertexObjects = equilateralVertex0.subdivide(1).map((vertex) => vertex);
 
       expect(copiedVertexObjects).to.have.lengthOf(3);
       expect(copiedVertexObjects.map(({ vector3 }) => vector3.toString())).to.deep.equal([EQUILATERAL_VECTOR_0, EQUILATERAL_VECTOR_2, EQUILATERAL_VECTOR_1].map(String));
@@ -478,12 +457,11 @@ describe('Vertex', () => {
       const expectedEdgeCount = Array.from(expectedConnections.values()).flat().length;
 
       const subdivided = equilateralVertex0.subdivide(frequency);
-      /** @type {Vector3[]} */ const actualVectors = [];
-      /** @type {Map<string,Vector3[]>} */ const actualConnections = new Map();
-      subdivided.forEach(({ connections, vector3 }) => {
-        actualVectors.push(vector3);
-        actualConnections.set(vector3.toString(), connections.map((connection) => connection.vector3));
-      });
+      const actualVectors = subdivided.map(({ vector3 }) => vector3);
+      const actualConnections = subdivided.reduce((acc, { connections, vector3 }) => acc.set(
+        vector3.toString(),
+        connections.map((connection) => connection.vector3),
+      ), new Map());
       actualVectors.sort(vectorCompare);
 
       expect(actualVectors).to.have.lengthOf(expectedVectorCount, 'Count of vectors in the structure is incorrect');
@@ -849,8 +827,7 @@ describe('Vertex', () => {
         { vector3: new Vector3(37.5, 22.5 * ROOT_3, 0), key: 'edge one-two 3' },
       ].sort(({ vector3: vectorA }, { vector3: vectorB }) => vectorCompare(vectorA, vectorB));
 
-      /** @type {{vector3:Vector3, key:string}[]} */ const actualKeys = [];
-      subdivided.forEach(({ vector3, key }) => actualKeys.push({ vector3, key }));
+      /** @type {{vector3:Vector3, key:string}[]} */ const actualKeys = subdivided.map(({ vector3, key }) => ({ vector3, key }));
       actualKeys.sort(({ vector3: vectorA }, { vector3: vectorB }) => vectorCompare(vectorA, vectorB));
 
       expect(actualKeys).to.have.lengthOf(expectedKeys.length);

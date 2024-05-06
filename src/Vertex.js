@@ -53,11 +53,9 @@ class Vertex {
    * @returns {Vertex} Deep copy of original
    */
   copy(transformer = () => ({})) {
-    /** @type {Map<Vertex,Vertex>} */ const vMap = new Map();
-
-    this.forEach((vertex, index) => {
+    /** @type {Map<Vertex,Vertex>} */ const vMap = this.reduce((acc, vertex, index) => {
       const transformed = transformer(vertex, index);
-      vMap.set(vertex, new Vertex(
+      return acc.set(vertex, new Vertex(
         'key' in transformed && transformed.key !== undefined ? transformed.key : vertex.key,
         new Vector3(
           'x' in transformed && transformed.x !== undefined ? transformed.x : vertex.vector3.x,
@@ -65,7 +63,7 @@ class Vertex {
           'z' in transformed && transformed.z !== undefined ? transformed.z : vertex.vector3.z,
         ),
       ));
-    });
+    }, new Map());
 
     vMap.forEach((copy, original) => {
       original.connections.forEach((originalConnection) => {
@@ -235,10 +233,7 @@ class Vertex {
     if (mode === 'single') return `${this.key}: ${this.vector3}`;
     const sorter = mode === 'key' ? vertexCompare : (a, b) => vectorCompare(a.vector3, b.vector3);
 
-    /** @type {Vertex[]} */ const vertices = [];
-    this.forEach((v) => { vertices.push(v); });
-
-    vertices.sort(sorter);
+    const vertices = this.toArray().sort(sorter);
     switch (mode) {
       case 'key': return vertices.map(({ key, vector3 }) => `${key}: ${vector3}`).join('\n');
       case 'keyless': return vertices.map(({ vector3 }) => `${vector3}`).join('\n');
@@ -251,22 +246,23 @@ class Vertex {
    * @returns {Triangle[]}
    */
   get triangles() {
-    /** @type {Triangle[]} */ const triangles = [];
-
-    this.forEach((vertex) => {
+    /** @type {Triangle[][]} */ const triangles = this.map((vertex) => {
+      /** @type {Triangle[]} */ const trianglesFromHere = [];
       const { connections } = vertex;
-      for (let i = connections.length - 1; i >= 0; i--) {
-        for (let j = i - 1; j >= 0; j--) {
-          if (connections[i].isConnectedTo(connections[j])) {
-            /** @type {Triangle} */ const newTriangle = [vertex, connections[i], connections[j]];
+      connections.forEach((outerConnection, i) => {
+        for (let j = 0; j < i; j++) {
+          const innerConnection = connections[j];
+          if (outerConnection.isConnectedTo(innerConnection)) {
+            /** @type {Triangle} */ const newTriangle = [vertex, outerConnection, innerConnection];
             newTriangle.sort(vertexCompare);
-            triangles.push(newTriangle);
+            trianglesFromHere.push(newTriangle);
           }
         }
-      }
+      });
+      return trianglesFromHere;
     });
 
-    return triangles.sort(triangleCompare).filter((_, i) => i % 3 === 0);
+    return triangles.flat().sort(triangleCompare).filter((_, i) => i % 3 === 0);
   }
 
   get vector3() { return this.#vector3; }
