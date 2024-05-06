@@ -1,6 +1,16 @@
-/** @typedef {import('./Vector.js').default} Vector3 */
 /** @typedef {[Vertex, Vertex, Vertex]} Triangle */
 
+/**
+ * @typedef {object} TransformedVertex
+ * @property {number} [x]
+ * @property {number} [y]
+ * @property {number} [z]
+ * @property {string} [key]
+ */
+
+/** @typedef {(vertex:Vertex, index:number) => TransformedVertex} VertexTransformerFunction */
+
+import Vector3 from './Vector.js';
 import { triangleCompare, vectorCompare, vertexCompare } from './comparators.js';
 
 class Vertex {
@@ -38,12 +48,24 @@ class Vertex {
   }
 
   /**
+   * Returns a deep copy of the original, with optional transformed parameters
+   * @param {VertexTransformerFunction} [transformer] Transformer function: Return any/all of x, y, z, key
    * @returns {Vertex} Deep copy of original
    */
-  copy() {
+  copy(transformer = () => ({})) {
     /** @type {Map<Vertex,Vertex>} */ const vMap = new Map();
 
-    this.forEach((vertex) => { vMap.set(vertex, new Vertex(vertex.key, vertex.vector3.copy())); });
+    this.forEach((vertex, index) => {
+      const transformed = transformer(vertex, index);
+      vMap.set(vertex, new Vertex(
+        'key' in transformed && transformed.key !== undefined ? transformed.key : vertex.key,
+        new Vector3(
+          'x' in transformed && transformed.x !== undefined ? transformed.x : vertex.vector3.x,
+          'y' in transformed && transformed.y !== undefined ? transformed.y : vertex.vector3.y,
+          'z' in transformed && transformed.z !== undefined ? transformed.z : vertex.vector3.z,
+        ),
+      ));
+    });
 
     vMap.forEach((copy, original) => {
       original.connections.forEach((originalConnection) => {

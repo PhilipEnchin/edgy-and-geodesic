@@ -172,6 +172,44 @@ describe('Vertex', () => {
         two: ['one'],
       });
     });
+
+    it('should pass original vertex and index to transformer function', () => {
+      vertex0.connect(vertex1.connect(vertex2));
+
+      const actualArgs = [];
+      vertex0.copy((...args) => {
+        actualArgs.push(args);
+        return {};
+      });
+
+      [
+        { vertex: vertex0, index: 0 },
+        { vertex: vertex1, index: 1 },
+        { vertex: vertex2, index: 2 },
+      ].forEach(({ vertex, index }, i) => {
+        expect(actualArgs[i][0]).to.equal(vertex);
+        expect(actualArgs[i][1]).to.equal(index);
+      });
+    });
+
+    it('should apply transformer if specified', () => {
+      vertex0.connect(vertex1).connect(vertex2);
+
+      const copy = vertex0.copy((v) => {
+        if (v === vertex0) return { x: 100, y: 200, z: 300 };
+        if (v === vertex1) return { key: 'Wow, vertex 1!' };
+        return {};
+      });
+
+      expect(copy.vector3.isEqualTo(new Vector3(100, 200, 300))).to.be.true;
+      expect(copy.key).to.equal('zero');
+
+      expect(copy.connections[0].vector3.isEqualTo(new Vector3(1, 2, 3))).to.be.true;
+      expect(copy.connections[0].key).to.equal('Wow, vertex 1!');
+
+      expect(copy.connections[1].vector3.isEqualTo(new Vector3(2, 3, 4))).to.be.true;
+      expect(copy.connections[1].key).to.equal('two');
+    });
   });
 
   describe('Vertex.prototype.disconnect', () => {
