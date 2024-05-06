@@ -125,6 +125,15 @@ class Vertex {
   get key() { return this.#key; }
 
   /**
+   * Map vertices to an array, à la Array.prototype.map
+   * @param {(vertex: Vertex, index: number) => void} func
+   */
+  map(func) {
+    const result = [];
+    this.forEach((...args) => { result.push(func(...args)); });
+    return result;
+  }
+  /**
    * @param {number} frequency
    * @returns {Vertex}
    */

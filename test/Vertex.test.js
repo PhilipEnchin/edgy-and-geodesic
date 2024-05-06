@@ -380,6 +380,20 @@ describe('Vertex', () => {
     });
   });
 
+  describe('Vertex.prototype.map', () => {
+    testArrayLikeMethods('map');
+
+    it('should return a mapped array result', () => {
+      vertex0.connect(vertex1.connect(vertex2));
+
+      const expectedResult = ['ZERO', 'ONE', 'TWO'];
+
+      const actualResult = vertex0.map(({ key }) => key.toUpperCase());
+
+      expect(actualResult).to.deep.equal(expectedResult);
+    });
+  });
+
   describe('Vertex.prototype.subdivide', () => {
     const EQUILATERAL_VECTOR_0 = new Vector3(0, 0, 0);
     const EQUILATERAL_VECTOR_1 = new Vector3(60, 0, 0);
