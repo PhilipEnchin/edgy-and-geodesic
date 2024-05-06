@@ -218,6 +218,12 @@ class Vertex {
   }
 
   /**
+   * Map vertices to an array
+   * @returns {Vertex[]}
+   */
+  toArray() { return this.map((v) => v); }
+
+  /**
    * Optional mode parameter to format output:
    *   - key: include key - eg. "edge a-b 3: (1,2,3)\n..."
    *   - keyless: omit key - eg. "(1,2,3)\n..."

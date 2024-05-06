@@ -861,6 +861,34 @@ describe('Vertex', () => {
     });
   });
 
+  describe('Vertex.prototype.toArray', () => {
+    it('should map single vertex to array of length 1', () => {
+      const expectedVertices = new Set([vertex0]);
+      const result = vertex0.toArray();
+
+      expect(result).to.have.lengthOf(1);
+      result.forEach((vertex) => {
+        expect(expectedVertices).to.contain(vertex);
+        expectedVertices.delete(vertex);
+      });
+      expect(expectedVertices).to.be.empty;
+    });
+
+    it('should map structure of multiple vertices to array', () => {
+      vertex0.connect(vertex1.connect(vertex2));
+
+      const expectedVertices = new Set([vertex0, vertex1, vertex2]);
+      const result = vertex0.toArray();
+
+      expect(result).to.have.lengthOf(3);
+      result.forEach((vertex) => {
+        expect(expectedVertices).to.contain(vertex);
+        expectedVertices.delete(vertex);
+      });
+      expect(expectedVertices).to.be.empty;
+    });
+  });
+
   describe('Vertex.prototype.toString', () => {
     beforeEach(() => {
       vertex0.connect(vertex1).connect(vertex2);
