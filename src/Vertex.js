@@ -144,6 +144,35 @@ class Vertex {
   }
 
   /**
+   * Project points outward from origin onto the surface of a sphere. Specify either the radius of
+   * the sphere, or the minimum of maximum lengths of all edges.
+   * @param {'radius'|'minLength'|'maxLength'} [mode=radius]
+   * @param {number} [modeValue=1]
+   * @returns {Vertex}
+   */
+  sphereify(mode = 'radius', modeValue = 1) {
+    /** @type {number} */ let projectedRadius;
+    switch (mode) {
+      case 'radius': projectedRadius = modeValue; break;
+      case 'minLength':
+      case 'maxLength': {
+        const spherified = this.sphereify();
+        const edgeLengths = spherified.map(({ vector3: a, connections }) => connections.map(({ vector3: b }) => b.minus(a).magnitude)).flat();
+        projectedRadius = modeValue / Math[mode === 'minLength' ? 'min' : 'max'](...edgeLengths);
+        break;
+      }
+      default: throw new Error(`Unknown spherify mode, "${mode}"`);
+    }
+
+    return this.copy(({ key, vector3 }) => {
+      const { x, y, z } = vector3.times(projectedRadius).dividedBy(vector3.magnitude);
+      return {
+        key, x, y, z,
+      };
+    });
+  }
+
+  /**
    * @param {number} frequency
    * @returns {Vertex}
    */

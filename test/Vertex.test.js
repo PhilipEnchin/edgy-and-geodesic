@@ -1,7 +1,11 @@
-import { expect } from 'chai';
+import * as chai from 'chai';
+import deepEqualInAnyOrder from 'deep-equal-in-any-order';
 import Vector3 from '../src/Vector.js';
 import Vertex from '../src/Vertex.js';
 import { vectorCompare } from '../src/comparators.js';
+
+const { expect } = chai;
+chai.use(deepEqualInAnyOrder);
 
 const ROOT_3 = Math.sqrt(3);
 
@@ -410,6 +414,132 @@ describe('Vertex', () => {
       const actualResult = vertex0.map(({ key }) => key.toUpperCase());
 
       expect(actualResult).to.deep.equal(expectedResult);
+    });
+  });
+
+  describe('Vertex.prototype.Spherify', () => {
+    /**
+     * @param {Vertex} vertex
+     * @param {number} expectedMagnitude
+     * @returns {void}
+     */
+    const expectAllMagnitudesEqualTo = (vertex, expectedMagnitude) => {
+      const actualMagnitudes = vertex.map((v) => v.vector3.magnitude);
+
+      actualMagnitudes.forEach((actualMagnitude) => {
+        expect(actualMagnitude).to.be.closeTo(expectedMagnitude, 2 ** -40);
+      });
+    };
+
+    /**
+     * @param {Vertex} originalVertex
+     * @param {Vertex} spherifiedVertex
+     * @returns {void}
+     */
+    const expectEqualDirectionVectors = (originalVertex, spherifiedVertex) => {
+      const originalVertices = originalVertex.toArray();
+      const spherifiedVertices = spherifiedVertex.toArray();
+      const originalDirections = originalVertices.map(({ vector3 }, i) => vector3.times(spherifiedVertices[i].vector3.magnitude));
+      const spherifiedDirections = spherifiedVertices.map(({ vector3 }, i) => vector3.times(originalVertices[i].vector3.magnitude));
+
+      spherifiedDirections.forEach((spherifiedDirection, i) => {
+        expect(spherifiedDirection.isEqualTo(originalDirections[i], 2 ** -40), `expected ${spherifiedDirection} to equal ${originalDirections[i]}`).to.be.true;
+      });
+    };
+
+    /** @type {Vertex} */ let spherifiable;
+    /** @type {Vertex} */ let sv1;
+    /** @type {Vertex} */ let sv2;
+    /** @type {Vertex} */ let sv3;
+
+    beforeEach(() => {
+      spherifiable = new Vertex('spherifiable 0', new Vector3(1, 2, 3));
+      sv1 = new Vertex('spherifiable 1', new Vector3(-3, -5, 7));
+      sv2 = new Vertex('spherifiable 2', new Vector3(4, -13, -1));
+      sv3 = new Vertex('spherifiable 2', new Vector3(-8, 4, -6));
+
+      spherifiable.connect(sv1.connect(sv2).connect(sv3)).connect(sv2.connect(sv3)).connect(sv3);
+    });
+
+    it('should leave original structure unmodified', () => {
+      vertex0.connect(vertex1.connect(vertex2));
+
+      const setOfOriginal = new Set(vertex0.toArray());
+      const copyOfOriginal = vertex0.copy();
+      const connectionsOfOriginal = copyOfOriginal.map(({ key, connections }) => [key, connections.map((v) => v.key)]);
+
+      vertex0.sphereify();
+
+      const setAfterSpherification = new Set(vertex0.toArray());
+      const copyAfterSpherification = vertex0.copy();
+      const connectionsAfterSpherification = copyAfterSpherification.map(({ key, connections }) => [key, connections.map((v) => v.key)]);
+
+      expect(setAfterSpherification).to.have.lengthOf(setOfOriginal.size);
+      expect(new Set([...setOfOriginal, ...setAfterSpherification])).to.have.lengthOf(setOfOriginal.size);
+
+      expect(copyAfterSpherification.map((v) => v.key)).to.deep.equal(copyOfOriginal.map((v) => v.key));
+      expect(copyAfterSpherification.map((v) => String(v.vector3))).to.deep.equal(copyOfOriginal.map((v) => String(v.vector3)));
+
+      expect(connectionsAfterSpherification).to.deep.equal(connectionsOfOriginal);
+    });
+
+    it('should return a structure with all new vertices', () => {
+      vertex0.connect(vertex1.connect(vertex2));
+
+      const setOfOriginal = new Set(vertex0.toArray());
+      const setAfterSpherification = new Set(vertex0.sphereify().toArray());
+
+      expect(setAfterSpherification).to.have.lengthOf(setOfOriginal.size);
+      expect(new Set([...setOfOriginal, ...setAfterSpherification])).to.have.lengthOf(2 * setOfOriginal.size);
+    });
+
+    it('should return a structure with equivalent connections', () => {
+      vertex0.connect(vertex1.connect(vertex2));
+
+      const originalConnections = vertex0.map(({ key, connections }) => [key, [connections.map((v) => v.key)]]);
+      const connectionsAfterSpherification = vertex0.sphereify().map(({ key, connections }) => [key, [connections.map((v) => v.key)]]);
+
+      expect(connectionsAfterSpherification).to.deep.equalInAnyOrder(originalConnections);
+    });
+
+    it('should calculate correctly in "radius" mode', () => {
+      const spherified = spherifiable.sphereify('radius', 42);
+
+      expectAllMagnitudesEqualTo(spherified, 42);
+      expectEqualDirectionVectors(spherifiable, spherified);
+    });
+
+    it('should calculate correctly in "minLength" mode', () => {
+      const spherified = spherifiable.sphereify('minLength', 42);
+
+      const edgeLengths = spherified.map(({ vector3: a, connections }) => connections.map(({ vector3: b }) => b.minus(a).magnitude)).flat();
+
+      expect(Math.min(...edgeLengths)).to.be.closeTo(42, 2 ** -40);
+      expectEqualDirectionVectors(spherifiable, spherified);
+    });
+
+    it('should calculate correctly in "maxLength" mode', () => {
+      const spherified = spherifiable.sphereify('maxLength', 42);
+
+      const edgeLengths = spherified.map(({ vector3: a, connections }) => connections.map(({ vector3: b }) => b.minus(a).magnitude)).flat();
+
+      expect(Math.max(...edgeLengths)).to.be.closeTo(42, 2 ** -40);
+      expectEqualDirectionVectors(spherifiable, spherified);
+    });
+
+    it('should assume radius mode with value of 1 by default', () => {
+      const spherifiedWithMode = spherifiable.sphereify('radius');
+      const spherifiedWithoutMode = spherifiable.sphereify();
+
+      expectAllMagnitudesEqualTo(spherifiedWithMode, 1);
+      expectEqualDirectionVectors(spherifiable, spherifiedWithMode);
+      expectAllMagnitudesEqualTo(spherifiedWithoutMode, 1);
+      expectEqualDirectionVectors(spherifiable, spherifiedWithoutMode);
+    });
+
+    it('should throw an error when an unknown mode is specified', () => {
+      // @ts-ignore
+      expect(() => vertex0.sphereify('definitely a known mode')).to.throw();
     });
   });
 
