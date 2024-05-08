@@ -5,18 +5,17 @@ import makeIcosahedron from '../src/icosahedron.js';
 
 describe('makeIcosahedron', () => {
   /** @type {Vertex} */ let icosahedron;
-  /** @type {number} */ let count;
-  const inc = () => { count += 1; };
 
   beforeEach(() => {
-    count = 0;
     icosahedron = makeIcosahedron();
   });
 
   it('should create a connected structure with 12 vertices', () => {
-    icosahedron.forEach(inc);
+    expect(icosahedron.toArray()).to.have.lengthOf(12);
+  });
 
-    expect(count).to.equal(12);
+  it('should create a structure with 30 edges', () => {
+    expect(icosahedron.edges).to.have.lengthOf(30);
   });
 
   it('should create consecutive (and therefore, unique), numerical keys for vertices', () => {
@@ -27,12 +26,12 @@ describe('makeIcosahedron', () => {
   });
 
   it('should create 5 connections per vertex', () => {
-    icosahedron.forEach(({ connections }) => {
-      connections.forEach(inc);
+    const connectionsCount = icosahedron.reduce((count, { connections }) => {
       expect(connections).to.have.lengthOf(5);
-    });
+      return count + connections.length;
+    }, 0);
 
-    expect(count).to.equal(60);
+    expect(connectionsCount).to.equal(60);
   });
 
   it('should create vertices that are equidistant from origin', () => {
