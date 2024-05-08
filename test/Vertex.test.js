@@ -166,6 +166,8 @@ describe('Vertex', () => {
       expect(() => { vertex0.connections = [vertex1]; }).to.throw();
       expect(vertex0.connections).to.be.empty;
       expect(vertex1.connections).to.be.empty;
+      expect(vertex0.edges).to.be.empty;
+      expect(vertex1.edges).to.be.empty;
     });
 
     it('should not be affected by array mutations', () => {
@@ -173,6 +175,8 @@ describe('Vertex', () => {
 
       expect(vertex0.connections).to.be.empty;
       expect(vertex1.connections).to.be.empty;
+      expect(vertex0.edges).to.be.empty;
+      expect(vertex1.edges).to.be.empty;
     });
 
     it('should only include direct connections', () => {
@@ -316,6 +320,50 @@ describe('Vertex', () => {
       vertex0.connect(vertex1).disconnect(vertex1).connect(vertex1).disconnect(vertex1);
       expect(vertex0.connections).to.be.empty;
       expect(vertex1.connections).to.be.empty;
+    });
+  });
+
+  describe('Vertex.prototype.edges', () => {
+    it('should be an array', () => {
+      expect(vertex0.edges).to.be.an('array').that.has.lengthOf(0);
+    });
+
+    it('should contain original Vertex objects', () => {
+      vertex0.connect(vertex1);
+      const [edge] = vertex0.edges;
+      expect(edge[0]).to.equal(vertex0);
+      expect(edge[1]).to.equal(vertex1);
+    });
+
+    it('should not set edges array', () => {
+      // @ts-ignore
+      expect(() => { vertex0.edges = [[vertex0, vertex1]]; }).to.throw();
+      expect(vertex0.connections).to.be.empty;
+      expect(vertex1.connections).to.be.empty;
+      expect(vertex0.edges).to.be.empty;
+      expect(vertex1.edges).to.be.empty;
+    });
+
+    it('should not be affected by array mutations', () => {
+      vertex0.edges.push([vertex0, vertex1]);
+
+      expect(vertex0.connections).to.be.empty;
+      expect(vertex1.connections).to.be.empty;
+      expect(vertex0.edges).to.be.empty;
+      expect(vertex1.edges).to.be.empty;
+    });
+
+    it('should return edges of a structure', () => {
+      vertex0.connect(vertex1.connect(vertex2));
+      vertex0.connect(vertex1.connect(vertex0).connect(vertex2)); // Redundant connections
+      const { edges } = vertex0;
+      const [[v0, v1a], [v1b, v2]] = edges; // Expected edges returned
+
+      expect(edges).to.have.lengthOf(2);
+      expect(v0).to.equal(vertex0);
+      expect(v1a).to.equal(vertex1);
+      expect(v1b).to.equal(vertex1);
+      expect(v2).to.equal(vertex2);
     });
   });
 

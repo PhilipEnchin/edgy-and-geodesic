@@ -1,3 +1,4 @@
+/** @typedef {[Vertex, Vertex]} Edge */
 /** @typedef {[Vertex, Vertex, Vertex]} Triangle */
 
 /**
@@ -107,6 +108,22 @@ class Vertex {
         }
       });
     }
+  }
+
+  /**
+   * @returns {Edge[]}
+   */
+  get edges() {
+    /** @type {Map<Vertex,Set<Vertex>>} */ const seen = new Map();
+    return this.map((vertex) => vertex.connections
+      .map((connection) => {
+        if (!seen.get(vertex)?.has(connection)) {
+          if (!seen.get(vertex)?.add(connection)) seen.set(vertex, new Set([connection]));
+          if (!seen.get(connection)?.add(vertex)) seen.set(connection, new Set([vertex]));
+          return [vertex, connection];
+        }
+        return null;
+      }).filter((edge) => edge)).flat();
   }
 
   /**
