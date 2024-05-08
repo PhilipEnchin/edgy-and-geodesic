@@ -174,7 +174,7 @@ class Vertex {
       case 'minLength':
       case 'maxLength': {
         const spherified = this.sphereify();
-        const edgeLengths = spherified.map(({ vector3: a, connections }) => connections.map(({ vector3: b }) => b.minus(a).magnitude)).flat();
+        const edgeLengths = spherified.map(({ vector3: a, connections }) => connections.map(({ vector3: b }) => a.distanceTo(b))).flat();
         projectedRadius = modeValue / Math[mode === 'minLength' ? 'min' : 'max'](...edgeLengths);
         break;
       }
