@@ -28,32 +28,32 @@ describe('Number formatters', () => {
 
   describe('round', () => {
     it('should not change a number that requires no rounding', () => {
-      expect(round(42)).to.equal('42');
-      expect(round(42, 0)).to.equal('42');
-      expect(round(42000.3)).to.equal('42000');
-      expect(round(42.42, -2)).to.equal('42.42');
+      expect(round(42)).to.equal(42);
+      expect(round(42, 0)).to.equal(42);
+      expect(round(42000.3)).to.equal(42000);
+      expect(round(42.42, -2)).to.equal(42.42);
     });
 
     it('should round to a whole number', () => {
-      expect(round(42.42)).to.equal('42');
-      expect(round(-42.42)).to.equal('-42');
-      expect(round(41.5)).to.equal('42');
-      expect(round(-42.5)).to.equal('-42');
-      expect(round(42.42, 0)).to.equal('42');
-      expect(round(-42.42, 0)).to.equal('-42');
-      expect(round(41.5, 0)).to.equal('42');
-      expect(round(-42.5, 0)).to.equal('-42');
+      expect(round(42.42)).to.equal(42);
+      expect(round(-42.42)).to.equal(-42);
+      expect(round(41.5)).to.equal(42);
+      expect(round(-42.5)).to.equal(-42);
+      expect(round(42.42, 0)).to.equal(42);
+      expect(round(-42.42, 0)).to.equal(-42);
+      expect(round(41.5, 0)).to.equal(42);
+      expect(round(-42.5, 0)).to.equal(-42);
     });
 
     it('should round to nearest 10, 100, etc.', () => {
-      expect(round(42, 1)).to.equal('40');
-      expect(round(45, 1)).to.equal('50');
-      expect(round(149, 2)).to.equal('100');
-      expect(round(150, 2)).to.equal('200');
-      expect(round(-150, 2)).to.equal('-100');
-      expect(round(-151, 2)).to.equal('-200');
-      expect(round(35000, 4)).to.equal('40000');
-      expect(round(95000, 4)).to.equal('100000');
+      expect(round(42, 1)).to.equal(40);
+      expect(round(45, 1)).to.equal(50);
+      expect(round(149, 2)).to.equal(100);
+      expect(round(150, 2)).to.equal(200);
+      expect(round(-150, 2)).to.equal(-100);
+      expect(round(-151, 2)).to.equal(-200);
+      expect(round(35000, 4)).to.equal(40000);
+      expect(round(95000, 4)).to.equal(100000);
     });
   });
 });
