@@ -45,7 +45,7 @@ describe('Number formatters', () => {
       expect(round(-42.5, 0)).to.equal(-42);
     });
 
-    it('should round to nearest 10, 100, etc.', () => {
+    it('should round to the nearest 10, 100, etc.', () => {
       expect(round(42, 1)).to.equal(40);
       expect(round(45, 1)).to.equal(50);
       expect(round(149, 2)).to.equal(100);
@@ -54,6 +54,13 @@ describe('Number formatters', () => {
       expect(round(-151, 2)).to.equal(-200);
       expect(round(35000, 4)).to.equal(40000);
       expect(round(95000, 4)).to.equal(100000);
+    });
+
+    it('should round to the nearest 10th, 100th, etc.', () => {
+      expect(round(0.425, -1)).to.equal(0.4);
+      expect(round(0.425, -2)).to.equal(0.43);
+      expect(round(0.0000425, -5)).to.equal(0.00004);
+      expect(round(0.0000425, -6)).to.equal(0.000043);
     });
   });
 });
