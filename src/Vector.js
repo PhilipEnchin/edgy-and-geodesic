@@ -1,3 +1,5 @@
+import { fullDigits } from './numberFormatters.js';
+
 /**
  * @typedef {object} TransformedVector
  * @property {number} [x]
@@ -15,11 +17,6 @@
  * @returns {boolean}
  */
 const areEqual = (a, b, tolerance) => Math.abs(a - b) <= Math.abs(tolerance);
-
-const numberFormatter = new Intl.NumberFormat('en-US', {
-  notation: 'standard',
-  maximumFractionDigits: 20,
-});
 
 class Vector3 {
   /** @type {number} */ #x;
@@ -122,7 +119,7 @@ class Vector3 {
   }
 
   toString() {
-    return `(${numberFormatter.format(this.#x)}, ${numberFormatter.format(this.#y)}, ${numberFormatter.format(this.#z)})`;
+    return `(${fullDigits(this.#x)}, ${fullDigits(this.#y)}, ${fullDigits(this.#z)})`;
   }
 
   get x() { return this.#x; }
