@@ -13,6 +13,16 @@
 
 import Vector3 from './Vector.js';
 import { triangleCompare, vectorCompare, vertexCompare } from './comparators.js';
+import {
+  EDGE_PREFIX, INTERNAL_PREFIX, LABEL_COORD_SEPARATOR, VERTEX_PREFIX,
+} from './constants.js';
+
+/**
+ * Strip leading and trailing parentheses
+ * @parem {string} s
+ * @returns {string}
+ */
+const stripParens = (s) => s.replace(/^\(|\)$/g, '');
 
 class Vertex {
   /** @type {Vector3} */ #vector3;
@@ -194,7 +204,7 @@ class Vertex {
    * @returns {Vertex}
    */
   subdivide(frequency) {
-    const copy = this.copy();
+    const copy = this.copy(({ key }) => ({ key: `${VERTEX_PREFIX}(${key})` }));
     const { triangles } = copy;
     /** @type {Map<Vertex,Map<Vertex,(Vertex|undefined)[]>>} */ const edgeMap = new Map();
 
@@ -212,18 +222,22 @@ class Vertex {
     };
 
     /** Return label for a vertex as follows:
-     *    - On an edge? "edge [from-vertex]-[to-vertex] [index]" (zero-indexed from from-vertex)
-     *    - Internal? "internal [left-vertex]-[from-vertex]-[right-vertex] [row],[col]"
+     *    - A vertex? "vertex([vertex])"
+     *    - On an edge? "edge([from-vertex],[to-vertex]):[index]" (zero-indexed from from-vertex)
+     *    - Internal? "internal([left-vertex],[from-vertex],[right-vertex]):[row],[col]"
      * @type {(A: Vertex, B: Vertex, C: Vertex) => (row: number, col: number) => Vertex}
      */
-    const getVertexMaker = ({ vector3: A, key: keyA }, { vector3: B, key: keyB }, { vector3: C, key: keyC }) => (row, col) => new Vertex(
-      col === 0 ? `edge ${keyA}-${keyB} ${row}`
-        : col === row ? `edge ${keyA}-${keyC} ${row}`
-          : row === frequency ? `edge ${keyB}-${keyC} ${col}`
-            : `internal ${keyB}-${keyA}-${keyC} ${row},${col}`,
-      A.plus(B.minus(A).times(row).dividedBy(frequency))
-        .plus(C.minus(B).times(col).dividedBy(frequency)),
-    );
+    const getVertexMaker = ({ vector3: A, key: unslicedKeyA }, { vector3: B, key: unslicedKeyB }, { vector3: C, key: unslicedKeyC }) => {
+      const [keyA, keyB, keyC] = [unslicedKeyA, unslicedKeyB, unslicedKeyC].map((k) => stripParens(k.slice(VERTEX_PREFIX.length)));
+      return (row, col) => new Vertex(
+        col === 0 ? `${EDGE_PREFIX}(${keyA},${keyB})${LABEL_COORD_SEPARATOR}${row}`
+          : col === row ? `${EDGE_PREFIX}(${keyA},${keyC})${LABEL_COORD_SEPARATOR}${row}`
+            : row === frequency ? `${EDGE_PREFIX}(${keyB},${keyC})${LABEL_COORD_SEPARATOR}${col}`
+              : `${INTERNAL_PREFIX}(${keyB},${keyA},${keyC})${LABEL_COORD_SEPARATOR}${row},${col}`,
+        A.plus(B.minus(A).times(row).dividedBy(frequency))
+          .plus(C.minus(B).times(col).dividedBy(frequency)),
+      );
+    };
 
     triangles.forEach(([A, B, C]) => {
       // Treat triangle ABC as though A is on the bottom, B is top left, C is top right

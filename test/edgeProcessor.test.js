@@ -31,7 +31,7 @@ describe('Edge processor', () => {
       expect(edge.vectors[0].isEqualTo(vertex1.vector3)).to.be.true;
       expect(edge.vectors[1].isEqualTo(vertex0.vector3)).to.be.true;
       expect(edge.edgeLength).to.equal(5);
-      expect(edge.label).to.equal('one|zero');
+      expect(edge.label).to.equal('one <-> zero');
     });
 
     it('should process multiple edges', () => {
@@ -46,9 +46,9 @@ describe('Edge processor', () => {
         [vertex1, vertex2],
       ].map(([a, b]) => [String(a.vector3), String(b.vector3)]));
       expect(edges.map(({ label, edgeLength }) => ({ label, edgeLength }))).to.deep.equal([
-        { label: 'one|zero', edgeLength: 5 },
-        { label: 'two|zero', edgeLength: 7.87 },
-        { label: 'one|two', edgeLength: 7 },
+        { label: 'one <-> zero', edgeLength: 5 },
+        { label: 'two <-> zero', edgeLength: 7.87 },
+        { label: 'one <-> two', edgeLength: 7 },
       ]);
 
       // Make sure all properties are being tested
@@ -84,7 +84,7 @@ describe('Edge processor', () => {
       expect(grouped).to.have.lengthOf(1);
       expect(group.edgeLength).to.equal(5);
       expect(group.edges).to.have.lengthOf(2);
-      expect(group.edges.map((edge) => edge.label)).to.deep.equal(['one|zero', 'three|zero']);
+      expect(group.edges.map((edge) => edge.label)).to.deep.equal(['one <-> zero', 'three <-> zero']);
     });
 
     it('should return multiple groups with edges of different lengths', () => {
@@ -94,9 +94,9 @@ describe('Edge processor', () => {
       expect(grouped).to.have.lengthOf(3);
       expect(grouped.map((group) => group.edgeLength)).to.deep.equal([5, 7, 7.87]);
       expect(grouped.map((group) => group.edges.map((edge) => edge.label))).to.deep.equal([
-        ['one|zero', 'three|zero'],
-        ['one|two'],
-        ['two|zero'],
+        ['one <-> zero', 'three <-> zero'],
+        ['one <-> two'],
+        ['two <-> zero'],
       ]);
     });
   });

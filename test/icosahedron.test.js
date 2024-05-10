@@ -18,11 +18,11 @@ describe('makeIcosahedron', () => {
     expect(icosahedron.edges).to.have.lengthOf(30);
   });
 
-  it('should create consecutive (and therefore, unique), numerical keys for vertices', () => {
-    /** @type {Set<number>} */ const keys = icosahedron.reduce((acc, { key }) => acc.add(Number(key)), new Set());
+  it('should create consecutive (and therefore, unique), uppercase alphabetical keys for vertices', () => {
+    /** @type {Set<string>} */ const keys = icosahedron.reduce((acc, { key }) => acc.add(key), new Set());
 
     expect(keys).to.have.lengthOf(12);
-    for (let i = 0; i < 12; i++) { expect(keys).to.include(i); }
+    ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L'].forEach((expectedKey) => { expect(keys).to.include(expectedKey); });
   });
 
   it('should create 5 connections per vertex', () => {

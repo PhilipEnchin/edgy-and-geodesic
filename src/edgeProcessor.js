@@ -2,6 +2,7 @@
 /** @typedef {import('./Vertex.js').default} Vertex */
 
 import { vertexCompare } from './comparators.js';
+import { EDGE_SEPARATOR } from './constants.js';
 import { round } from './numberFormatters.js';
 
 /**
@@ -27,7 +28,7 @@ export const decorateEdges = (vertex, roundingPlace) => vertex.edges.map(([a, b]
   return {
     vectors: [orderedVertices[0].vector3, orderedVertices[1].vector3],
     edgeLength: round(a.vector3.distanceTo(b.vector3), roundingPlace),
-    label: orderedVertices.map((v) => v.key).join('|'),
+    label: orderedVertices.map((v) => v.key).join(EDGE_SEPARATOR),
   };
 });
 

@@ -6,14 +6,14 @@ import Vertex from './Vertex.js';
  */
 const makeIcosahedron = () => {
   const PHI = (1 + Math.sqrt(5)) / 2;
-  let key = 0;
+  let key = 10;
   const vertices = [...Array(12)].map((_, i) => {
     const A = 0;
     const B = 2 * (i % 2) - 1;
     const C = (2 * (Math.floor(i / 2) % 2) - 1) * PHI;
-    if (i < 4) return new Vertex((key++).toString(), new Vector3(A, B, C));
-    if (i < 8) return new Vertex((key++).toString(), new Vector3(B, C, A));
-    return new Vertex((key++).toString(), new Vector3(C, A, B));
+    if (i < 4) return new Vertex((key++).toString(36).toUpperCase(), new Vector3(A, B, C));
+    if (i < 8) return new Vertex((key++).toString(36).toUpperCase(), new Vector3(B, C, A));
+    return new Vertex((key++).toString(36).toUpperCase(), new Vector3(C, A, B));
   });
 
   vertices[0]
