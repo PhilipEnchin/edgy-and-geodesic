@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { fullDigits, round } from '../src/numberFormatters.js';
+import { fullDigits, round } from '../../../src/lib/util/numberFormatters.js';
 
 describe('Number formatters', () => {
   describe('fullDigits', () => {

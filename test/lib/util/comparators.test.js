@@ -1,9 +1,9 @@
 import { expect } from 'chai';
-import Vector3 from '../src/Vector.js';
-import Vertex from '../src/Vertex.js';
-import { vectorCompare, vertexCompare, triangleCompare } from '../src/comparators.js';
+import Vector3 from '../../../src/lib/models/Vector.js';
+import Vertex from '../../../src/lib/models/Vertex.js';
+import { vectorCompare, vertexCompare, triangleCompare } from '../../../src/lib/util/comparators.js';
 
-/** @typedef {import('../src/Vertex.js').Triangle} Triangle */
+/** @typedef {import('../../../src/lib/models/Vertex.js').Triangle} Triangle */
 
 describe('Compatators', () => {
   describe('vectorCompare', () => {

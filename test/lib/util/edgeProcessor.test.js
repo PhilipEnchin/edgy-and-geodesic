@@ -1,7 +1,7 @@
 import { expect } from 'chai';
-import Vertex from '../src/Vertex.js';
-import Vector3 from '../src/Vector.js';
-import { decorateEdges, groupDecoratedEdgesByLength } from '../src/edgeProcessor.js';
+import Vertex from '../../../src/lib/models/Vertex.js';
+import Vector3 from '../../../src/lib/models/Vector.js';
+import { decorateEdges, groupDecoratedEdgesByLength } from '../../../src/lib/util/edgeProcessor.js';
 
 describe('Edge processor', () => {
   /** @type {Vertex} */ let vertex0;

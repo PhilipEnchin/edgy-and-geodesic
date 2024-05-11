@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import Vector3 from '../src/Vector.js';
+import Vector3 from '../../../src/lib/models/Vector.js';
 
 describe('Vector', () => {
   describe('Constructor', () => {

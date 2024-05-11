@@ -1,5 +1,5 @@
-import Vector3 from './Vector.js';
-import Vertex from './Vertex.js';
+import Vector3 from '../models/Vector.js';
+import Vertex from '../models/Vertex.js';
 
 /**
  * @returns {Vertex}

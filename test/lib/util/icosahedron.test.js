@@ -1,7 +1,7 @@
 import { expect } from 'chai';
-import makeIcosahedron from '../src/icosahedron.js';
+import makeIcosahedron from '../../../src/lib/util/icosahedron.js';
 
-/** @typedef {import('../src/Vertex.js').default} Vertex */
+/** @typedef {import('../../../src/lib/models/Vertex.js').default} Vertex */
 
 describe('makeIcosahedron', () => {
   /** @type {Vertex} */ let icosahedron;

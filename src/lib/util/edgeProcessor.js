@@ -1,5 +1,5 @@
-/** @typedef {import('./Vector.js').default} Vector3 */
-/** @typedef {import('./Vertex.js').default} Vertex */
+/** @typedef {import('../models/Vector.js').default} Vector3 */
+/** @typedef {import('../models/Vertex.js').default} Vertex */
 
 import { vertexCompare } from './comparators.js';
 import { EDGE_SEPARATOR } from './constants.js';

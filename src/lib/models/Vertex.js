@@ -12,10 +12,10 @@
 /** @typedef {(vertex:Vertex, index:number) => TransformedVertex} VertexTransformerFunction */
 
 import Vector3 from './Vector.js';
-import { triangleCompare, vectorCompare, vertexCompare } from './comparators.js';
+import { triangleCompare, vectorCompare, vertexCompare } from '../util/comparators.js';
 import {
   EDGE_PREFIX, INTERNAL_PREFIX, LABEL_COORD_SEPARATOR, VERTEX_PREFIX,
-} from './constants.js';
+} from '../util/constants.js';
 
 /**
  * Strip leading and trailing parentheses

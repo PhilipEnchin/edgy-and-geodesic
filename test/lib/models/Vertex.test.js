@@ -1,8 +1,8 @@
 import * as chai from 'chai';
 import deepEqualInAnyOrder from 'deep-equal-in-any-order';
-import Vector3 from '../src/Vector.js';
-import Vertex from '../src/Vertex.js';
-import { vectorCompare } from '../src/comparators.js';
+import Vector3 from '../../../src/lib/models/Vector.js';
+import Vertex from '../../../src/lib/models/Vertex.js';
+import { vectorCompare } from '../../../src/lib/util/comparators.js';
 
 const { expect } = chai;
 chai.use(deepEqualInAnyOrder);

@@ -1,4 +1,4 @@
-import { fullDigits } from './numberFormatters.js';
+import { fullDigits } from '../util/numberFormatters.js';
 
 /**
  * @typedef {object} TransformedVector

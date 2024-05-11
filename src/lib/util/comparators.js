@@ -1,6 +1,6 @@
-/** @typedef {import('./Vector.js').default} Vector3 */
-/** @typedef {import('./Vertex.js').default} Vertex */
-/** @typedef {import('./Vertex.js').Triangle} Triangle */
+/** @typedef {import('../models/Vector.js').default} Vector3 */
+/** @typedef {import('../models/Vertex.js').default} Vertex */
+/** @typedef {import('../models/Vertex.js').Triangle} Triangle */
 
 /**
  * Compare vectors by ordered triple, left to right
