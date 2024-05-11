@@ -11,9 +11,13 @@
     "nodemon": "^3.1.0"
   },
   "scripts": {
-    "spellcheck": "nodemon -x cspell \"**\" --no-progress --no-summary",
+    "check": "npm run spellcheck && npm run test -- --reporter progress",
+    "check:dev": "nodemon -x npm run check",
+    "spellcheck": "cspell \"**\" --no-progress --no-summary",
+    "spellcheck:dev": "nodemon -x npm run spellcheck",
     "start": "nodemon .",
-    "test": "nodemon -x 'mocha --recursive'"
+    "test": "mocha --recursive",
+    "test:dev": "nodemon -x 'npm run test -- --reporter min'"
   },
   "type": "module"
 }
