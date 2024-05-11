@@ -1,6 +1,7 @@
 {
   "devDependencies": {
     "chai": "^5.1.0",
+    "cspell": "^8.8.1",
     "deep-equal-in-any-order": "^2.0.6",
     "eslint": "^8.57.0",
     "eslint-config-airbnb-base": "^15.0.0",
@@ -10,6 +11,7 @@
     "nodemon": "^3.1.0"
   },
   "scripts": {
+    "spellcheck": "nodemon -x cspell \"**\" --no-progress --no-summary",
     "start": "nodemon .",
     "test": "nodemon -x 'mocha --recursive'"
   },

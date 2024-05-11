@@ -19,7 +19,7 @@ import {
 
 /**
  * Strip leading and trailing parentheses
- * @parem {string} s
+ * @param {string} s
  * @returns {string}
  */
 const stripParens = (s) => s.replace(/^\(|\)$/g, '');
@@ -177,13 +177,13 @@ class Vertex {
    * @param {number} [modeValue=1]
    * @returns {Vertex}
    */
-  sphereify(mode = 'radius', modeValue = 1) {
+  spherify(mode = 'radius', modeValue = 1) {
     /** @type {number} */ let projectedRadius;
     switch (mode) {
       case 'radius': projectedRadius = modeValue; break;
       case 'minLength':
       case 'maxLength': {
-        const spherified = this.sphereify();
+        const spherified = this.spherify();
         const edgeLengths = spherified.map(({ vector3: a, connections }) => connections.map(({ vector3: b }) => a.distanceTo(b))).flat();
         projectedRadius = modeValue / Math[mode === 'minLength' ? 'min' : 'max'](...edgeLengths);
         break;

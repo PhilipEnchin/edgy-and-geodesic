@@ -5,7 +5,7 @@ import { vectorCompare, vertexCompare, triangleCompare } from '../../../src/lib/
 
 /** @typedef {import('../../../src/lib/models/Vertex.js').Triangle} Triangle */
 
-describe('Compatators', () => {
+describe('Comparators', () => {
   describe('vectorCompare', () => {
     it('should return 0 when comparing the vector3 object against itself', () => {
       const vector = new Vector3(1, 2, 3);

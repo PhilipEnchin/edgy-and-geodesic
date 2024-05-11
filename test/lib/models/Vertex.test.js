@@ -516,7 +516,7 @@ describe('Vertex', () => {
       const copyOfOriginal = vertex0.copy();
       const connectionsOfOriginal = copyOfOriginal.map(({ key, connections }) => [key, connections.map((v) => v.key)]);
 
-      vertex0.sphereify();
+      vertex0.spherify();
 
       const setAfterSpherification = new Set(vertex0.toArray());
       const copyAfterSpherification = vertex0.copy();
@@ -535,7 +535,7 @@ describe('Vertex', () => {
       vertex0.connect(vertex1.connect(vertex2));
 
       const setOfOriginal = new Set(vertex0.toArray());
-      const setAfterSpherification = new Set(vertex0.sphereify().toArray());
+      const setAfterSpherification = new Set(vertex0.spherify().toArray());
 
       expect(setAfterSpherification).to.have.lengthOf(setOfOriginal.size);
       expect(new Set([...setOfOriginal, ...setAfterSpherification])).to.have.lengthOf(2 * setOfOriginal.size);
@@ -545,20 +545,20 @@ describe('Vertex', () => {
       vertex0.connect(vertex1.connect(vertex2));
 
       const originalConnections = vertex0.map(({ key, connections }) => [key, [connections.map((v) => v.key)]]);
-      const connectionsAfterSpherification = vertex0.sphereify().map(({ key, connections }) => [key, [connections.map((v) => v.key)]]);
+      const connectionsAfterSpherification = vertex0.spherify().map(({ key, connections }) => [key, [connections.map((v) => v.key)]]);
 
       expect(connectionsAfterSpherification).to.deep.equalInAnyOrder(originalConnections);
     });
 
     it('should calculate correctly in "radius" mode', () => {
-      const spherified = spherifiable.sphereify('radius', 42);
+      const spherified = spherifiable.spherify('radius', 42);
 
       expectAllMagnitudesEqualTo(spherified, 42);
       expectEqualDirectionVectors(spherifiable, spherified);
     });
 
     it('should calculate correctly in "minLength" mode', () => {
-      const spherified = spherifiable.sphereify('minLength', 42);
+      const spherified = spherifiable.spherify('minLength', 42);
 
       const edgeLengths = spherified.map(({ vector3: a, connections }) => connections.map(({ vector3: b }) => b.minus(a).magnitude)).flat();
 
@@ -567,7 +567,7 @@ describe('Vertex', () => {
     });
 
     it('should calculate correctly in "maxLength" mode', () => {
-      const spherified = spherifiable.sphereify('maxLength', 42);
+      const spherified = spherifiable.spherify('maxLength', 42);
 
       const edgeLengths = spherified.map(({ vector3: a, connections }) => connections.map(({ vector3: b }) => b.minus(a).magnitude)).flat();
 
@@ -576,8 +576,8 @@ describe('Vertex', () => {
     });
 
     it('should assume radius mode with value of 1 by default', () => {
-      const spherifiedWithMode = spherifiable.sphereify('radius');
-      const spherifiedWithoutMode = spherifiable.sphereify();
+      const spherifiedWithMode = spherifiable.spherify('radius');
+      const spherifiedWithoutMode = spherifiable.spherify();
 
       expectAllMagnitudesEqualTo(spherifiedWithMode, 1);
       expectEqualDirectionVectors(spherifiable, spherifiedWithMode);
@@ -587,7 +587,7 @@ describe('Vertex', () => {
 
     it('should throw an error when an unknown mode is specified', () => {
       // @ts-ignore
-      expect(() => vertex0.sphereify('definitely a known mode')).to.throw();
+      expect(() => vertex0.spherify('definitely a known mode')).to.throw();
     });
   });
 
@@ -1086,7 +1086,7 @@ describe('Vertex', () => {
 
     it('should throw an error when an unknown mode is specified', () => {
       // @ts-ignore
-      expect(() => vertex0.toString('definitley a known mode')).to.throw();
+      expect(() => vertex0.toString('definitely a known mode')).to.throw();
     });
   });
 

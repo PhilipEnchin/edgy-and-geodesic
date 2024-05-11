@@ -44,16 +44,16 @@ describe('makeIcosahedron', () => {
 
   it('should create connections that are all equal in length', () => {
     const expectedLength = icosahedron.vector3.distanceTo(icosahedron.connections[0].vector3);
-    /** @type {number[]} */ const actualLenghts = icosahedron
+    /** @type {number[]} */ const actualLengths = icosahedron
       .map((vertex) => vertex.connections
         .map((connectedVertex) => vertex.vector3.distanceTo(connectedVertex.vector3)))
       .flat();
 
     expect(expectedLength).to.be.greaterThan(0);
-    expect(actualLenghts).to.deep.equal(Array(60).fill(expectedLength));
+    expect(actualLengths).to.deep.equal(Array(60).fill(expectedLength));
   });
 
-  it('should create equivalent, non-zero angles between adjascent vertices, as measured from the origin', () => {
+  it('should create equivalent, non-zero angles between adjacent vertices, as measured from the origin', () => {
     const { triangles } = icosahedron;
     const expectedAngle = triangles[0][0].vector3.angleTo(triangles[0][1].vector3);
 
