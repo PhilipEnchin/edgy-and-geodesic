@@ -41,14 +41,14 @@ describe('Edge processor', () => {
 
       expect(edges).to.be.an('array').with.lengthOf(3);
       expect(edges.map(({ vectors: [a, b] }) => [String(a), String(b)])).to.deep.equal([
+        [vertex1, vertex2],
         [vertex1, vertex0],
         [vertex2, vertex0],
-        [vertex1, vertex2],
       ].map(([a, b]) => [String(a.vector3), String(b.vector3)]));
       expect(edges.map(({ label, edgeLength }) => ({ label, edgeLength }))).to.deep.equal([
+        { label: 'one <-> two', edgeLength: 7 },
         { label: 'one <-> zero', edgeLength: 5 },
         { label: 'two <-> zero', edgeLength: 7.87 },
-        { label: 'one <-> two', edgeLength: 7 },
       ]);
 
       // Make sure all properties are being tested

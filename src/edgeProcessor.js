@@ -23,14 +23,18 @@ import { round } from './numberFormatters.js';
  * @param {number} roundingPlace
  * @returns {DecoratedEdge[]}
  */
-export const decorateEdges = (vertex, roundingPlace) => vertex.edges.map(([a, b]) => {
-  const orderedVertices = vertexCompare(a, b) < 0 ? [a, b] : [b, a];
-  return {
-    vectors: [orderedVertices[0].vector3, orderedVertices[1].vector3],
-    edgeLength: round(a.vector3.distanceTo(b.vector3), roundingPlace),
-    label: orderedVertices.map((v) => v.key).join(EDGE_SEPARATOR),
-  };
-});
+export const decorateEdges = (vertex, roundingPlace) => {
+  /** @type {DecoratedEdge[]} */ const edges = vertex.edges.map(([a, b]) => {
+    const orderedVertices = vertexCompare(a, b) < 0 ? [a, b] : [b, a];
+    return {
+      vectors: [orderedVertices[0].vector3, orderedVertices[1].vector3],
+      edgeLength: round(a.vector3.distanceTo(b.vector3), roundingPlace),
+      label: orderedVertices.map((v) => v.key).join(EDGE_SEPARATOR),
+    };
+  });
+  edges.sort((a, b) => (a.label < b.label ? -1 : 1));
+  return /** @type {DecoratedEdge[]} (Ugly cast) */ (edges);
+};
 
 /**
  * @param {DecoratedEdge[]} decoratedEdges
