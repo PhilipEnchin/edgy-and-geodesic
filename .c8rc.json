@@ -1,0 +1,8 @@
+{
+  "100": true,
+  "all": true,
+  "reporter": [
+    "text",
+    "html"
+  ]
+}

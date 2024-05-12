@@ -55,6 +55,16 @@ describe('Edge processor', () => {
       expect(edges[0]).to.have.keys(['label', 'edgeLength', 'vectors']);
       expect(edges[0].vectors).to.have.lengthOf(2);
     });
+
+    it('should return lexically-ordered pairs', () => {
+      vertex0.connect(vertex1);
+
+      const [edge01] = decorateEdges(vertex0, -2);
+      const [edge10] = decorateEdges(vertex1, -2);
+
+      expect(edge01.label).to.equal('one <-> zero');
+      expect(edge10.label).to.equal('one <-> zero');
+    });
   });
 
   describe('groupEdgesByLength', () => {

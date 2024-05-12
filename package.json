@@ -1,6 +1,7 @@
 {
   "devDependencies": {
     "@types/mocha": "^10.0.6",
+    "c8": "^9.1.0",
     "chai": "^5.1.0",
     "cspell": "^8.8.1",
     "deep-equal-in-any-order": "^2.0.6",
@@ -20,7 +21,7 @@
     "spellcheck": "cspell \"**\" --no-progress --no-summary",
     "spellcheck:dev": "nodemon -x npm run spellcheck",
     "start": "nodemon .",
-    "test": "mocha --recursive",
+    "test": "c8 --include src/ --exclude src/cli/ mocha --recursive",
     "test:dev": "nodemon -x 'npm run test -- --reporter min'",
     "typecheck": "tsc"
   },
