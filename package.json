@@ -1,5 +1,6 @@
 {
   "devDependencies": {
+    "@types/mocha": "^10.0.6",
     "chai": "^5.1.0",
     "cspell": "^8.8.1",
     "deep-equal-in-any-order": "^2.0.6",
@@ -8,16 +9,18 @@
     "eslint-plugin-import": "^2.29.1",
     "eslint-plugin-mocha": "^10.4.2",
     "mocha": "^10.4.0",
-    "nodemon": "^3.1.0"
+    "nodemon": "^3.1.0",
+    "typescript": "^5.4.5"
   },
   "scripts": {
-    "check": "npm run spellcheck && npm run test -- --reporter progress",
+    "check": "npm run spellcheck && npm run typecheck && npm run test -- --reporter progress",
     "check:dev": "nodemon -x npm run check",
     "spellcheck": "cspell \"**\" --no-progress --no-summary",
     "spellcheck:dev": "nodemon -x npm run spellcheck",
     "start": "nodemon .",
     "test": "mocha --recursive",
-    "test:dev": "nodemon -x 'npm run test -- --reporter min'"
+    "test:dev": "nodemon -x 'npm run test -- --reporter min'",
+    "typecheck": "tsc"
   },
   "type": "module"
 }

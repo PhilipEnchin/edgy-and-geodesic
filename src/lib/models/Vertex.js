@@ -217,7 +217,7 @@ class Vertex {
 
       if (!edgeMap.has(to)) edgeMap.set(to, new Map());
       const edgesFromReverse = /** @type {Map<Vertex,Vertex[]>} */ (edgeMap.get(to));
-      edgesFromReverse.set(from, [...edge].reverse());
+      edgesFromReverse.set(from, [...edge].toReversed());
       return edge;
     };
 
@@ -293,7 +293,7 @@ class Vertex {
     if (mode === 'single') return `${this.key}: ${this.vector3}`;
     const sorter = mode === 'key' ? vertexCompare : (a, b) => vectorCompare(a.vector3, b.vector3);
 
-    const vertices = this.toArray().sort(sorter);
+    const vertices = this.toArray().toSorted(sorter);
     switch (mode) {
       case 'key': return vertices.map(({ key, vector3 }) => `${key}: ${vector3}`).join('\n');
       case 'keyless': return vertices.map(({ vector3 }) => `${vector3}`).join('\n');
@@ -313,8 +313,7 @@ class Vertex {
         for (let j = 0; j < i; j++) {
           const innerConnection = connections[j];
           if (outerConnection.isConnectedTo(innerConnection)) {
-            /** @type {Triangle} */ const newTriangle = [vertex, outerConnection, innerConnection];
-            newTriangle.sort(vertexCompare);
+            const newTriangle = /** @type {Triangle} */ ([vertex, outerConnection, innerConnection].toSorted(vertexCompare));
             trianglesFromHere.push(newTriangle);
           }
         }
@@ -322,7 +321,7 @@ class Vertex {
       return trianglesFromHere;
     });
 
-    return triangles.flat().sort(triangleCompare).filter((_, i) => i % 3 === 0);
+    return triangles.flat().toSorted(triangleCompare).filter((_, i) => i % 3 === 0);
   }
 
   get vector3() { return this.#vector3; }

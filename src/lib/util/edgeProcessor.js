@@ -32,8 +32,7 @@ export const decorateEdges = (vertex, roundingPlace) => {
       label: orderedVertices.map((v) => v.key).join(EDGE_SEPARATOR),
     };
   });
-  edges.sort((a, b) => (a.label < b.label ? -1 : 1));
-  return /** @type {DecoratedEdge[]} (Ugly cast) */ (edges);
+  return edges.toSorted((a, b) => (a.label < b.label ? -1 : 1));
 };
 
 /**
@@ -43,7 +42,7 @@ export const decorateEdges = (vertex, roundingPlace) => {
 export const groupDecoratedEdgesByLength = (decoratedEdges) => {
   if (decoratedEdges.length === 0) { return []; }
 
-  const sortedEdges = [...decoratedEdges].sort(({ edgeLength: a }, { edgeLength: b }) => a - b);
+  const sortedEdges = [...decoratedEdges].toSorted(({ edgeLength: a }, { edgeLength: b }) => a - b);
 
   /** @type {GroupedEdges} */ let currentGroup = { edgeLength: sortedEdges[0]?.edgeLength, edges: [] };
   /** @type {GroupedEdges[]} */ const groups = [currentGroup];

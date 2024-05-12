@@ -445,7 +445,7 @@ describe('Vertex', () => {
         'initialValue',
         'initialValue zero',
         'initialValue zero one',
-      ].reverse();
+      ].toReversed();
 
       vertex0.reduce((acc, { key }) => {
         expect(acc).to.equal(expectedFirstArgValuesStack.pop());
@@ -635,12 +635,11 @@ describe('Vertex', () => {
       const expectedEdgeCount = Array.from(expectedConnections.values()).flat().length;
 
       const subdivided = equilateralVertex0.subdivide(frequency);
-      const actualVectors = subdivided.map(({ vector3 }) => vector3);
+      const actualVectors = subdivided.map(({ vector3 }) => vector3).toSorted(vectorCompare);
       const actualConnections = subdivided.reduce((acc, { connections, vector3 }) => acc.set(
         vector3.toString(),
         connections.map((connection) => connection.vector3),
       ), new Map());
-      actualVectors.sort(vectorCompare);
 
       expect(actualVectors).to.have.lengthOf(expectedVectorCount, 'Count of vectors in the structure is incorrect');
       let connectionCount = 0;
@@ -649,8 +648,8 @@ describe('Vertex', () => {
         const expectedVector = expectedVectors[i];
         expect(actualVector.isEqualTo(expectedVector, EQUALITY_TOLERANCE), `Expected ${actualVector} to equal ${expectedVector} (vector at index ${i})`).to.be.true;
 
-        const actualConnectionsArray = /** @type {Vector3[]} */ (actualConnections.get(actualVector.toString())).sort(vectorCompare);
-        const expectedConnectionsArray = /** @type {Vector3[]} */ (expectedConnections.get(expectedVector.toString())).sort(vectorCompare);
+        const actualConnectionsArray = /** @type {Vector3[]} */ (actualConnections.get(actualVector.toString())).toSorted(vectorCompare);
+        const expectedConnectionsArray = /** @type {Vector3[]} */ (expectedConnections.get(expectedVector.toString())).toSorted(vectorCompare);
         expect(actualConnectionsArray).to.have.lengthOf(expectedConnectionsArray.length, `Expected ${actualVector} to be connected to ${expectedConnectionsArray.length}, but got ${actualConnectionsArray.length}`);
         for (let j = 0; j < actualConnectionsArray.length; j++) {
           connectionCount++;
@@ -669,7 +668,7 @@ describe('Vertex', () => {
         EQUILATERAL_VECTOR_0, v01, EQUILATERAL_VECTOR_1,
         v10, v11,
         EQUILATERAL_VECTOR_2,
-      ].sort(vectorCompare);
+      ].toSorted(vectorCompare);
       /** @type {Map<string,Vector3[]>} */ const expectedConnections = new Map([
         [EQUILATERAL_VECTOR_0.toString(), [v01, v10]],
         [v01.toString(), [EQUILATERAL_VECTOR_0, EQUILATERAL_VECTOR_1, v10, v11]],
@@ -696,7 +695,7 @@ describe('Vertex', () => {
         v10, v11, v12,
         v20, v21,
         EQUILATERAL_VECTOR_2,
-      ].sort(vectorCompare);
+      ].toSorted(vectorCompare);
       /** @type {Map<string,Vector3[]>} */ const expectedConnections = new Map([
         [EQUILATERAL_VECTOR_0.toString(), [v01, v10]],
         [v01.toString(), [EQUILATERAL_VECTOR_0, v02, v10, v11]],
@@ -733,7 +732,7 @@ describe('Vertex', () => {
         v20, v21, v22,
         v30, v31,
         EQUILATERAL_VECTOR_2,
-      ].sort(vectorCompare);
+      ].toSorted(vectorCompare);
       /** @type {Map<string,Vector3[]>} */ const expectedConnections = new Map([
         [EQUILATERAL_VECTOR_0.toString(), [v01, v10]],
         [v01.toString(), [EQUILATERAL_VECTOR_0, v02, v10, v11]],
@@ -782,7 +781,7 @@ describe('Vertex', () => {
         v30, v31, v32,
         v40, v41,
         EQUILATERAL_VECTOR_2,
-      ].sort(vectorCompare);
+      ].toSorted(vectorCompare);
       /** @type {Map<string,Vector3[]>} */ const expectedConnections = new Map([
         [EQUILATERAL_VECTOR_0.toString(), [v01, v10]],
         [v01.toString(), [EQUILATERAL_VECTOR_0, v02, v10, v11]],
@@ -845,7 +844,7 @@ describe('Vertex', () => {
         v40, v41, v42,
         v50, v51,
         EQUILATERAL_VECTOR_2,
-      ].sort(vectorCompare);
+      ].toSorted(vectorCompare);
       /** @type {Map<string,Vector3[]>} */ const expectedConnections = new Map([
         [EQUILATERAL_VECTOR_0.toString(), [v01, v10]],
         [v01.toString(), [EQUILATERAL_VECTOR_0, v02, v10, v11]],
@@ -910,7 +909,7 @@ describe('Vertex', () => {
         vR10, vR11, vR12,
         vR20, vR21,
         EQUILATERAL_VECTOR_4,
-      ].sort(vectorCompare);
+      ].toSorted(vectorCompare);
       /** @type {Map<string,Vector3[]>} */ const expectedConnections = new Map([
         [EQUILATERAL_VECTOR_0.toString(), [vL01, vL10]],
         [vL01.toString(), [EQUILATERAL_VECTOR_0, vL02, vL10, vL11]],
@@ -962,7 +961,7 @@ describe('Vertex', () => {
         vR10, vR11, vR12,
         vR20, vR21,
         EQUILATERAL_VECTOR_3,
-      ].sort(vectorCompare);
+      ].toSorted(vectorCompare);
       /** @type {Map<string,Vector3[]>} */ const expectedConnections = new Map([
         [EQUILATERAL_VECTOR_0.toString(), [vL01, vL10, vR10]],
         [vL01.toString(), [EQUILATERAL_VECTOR_0, vL02, vL10, vL11, vR10, vR11]],
@@ -1003,10 +1002,10 @@ describe('Vertex', () => {
         { vector3: new Vector3(45, 15 * ROOT_3, 0), key: 'EDGE(one,two):2' },
         { vector3: new Vector3(22.5, 22.5 * ROOT_3, 0), key: 'EDGE(two,zero):1' },
         { vector3: new Vector3(37.5, 22.5 * ROOT_3, 0), key: 'EDGE(one,two):3' },
-      ].sort(({ vector3: vectorA }, { vector3: vectorB }) => vectorCompare(vectorA, vectorB));
+      ].toSorted(({ vector3: vectorA }, { vector3: vectorB }) => vectorCompare(vectorA, vectorB));
 
-      /** @type {{vector3:Vector3, key:string}[]} */ const actualKeys = subdivided.map(({ vector3, key }) => ({ vector3, key }));
-      actualKeys.sort(({ vector3: vectorA }, { vector3: vectorB }) => vectorCompare(vectorA, vectorB));
+      /** @type {{vector3:Vector3, key:string}[]} */ const actualKeys = subdivided.map(({ vector3, key }) => ({ vector3, key }))
+        .toSorted(({ vector3: vectorA }, { vector3: vectorB }) => vectorCompare(vectorA, vectorB));
 
       expect(actualKeys).to.have.lengthOf(expectedKeys.length);
       for (let i = 0; i < actualKeys.length; i++) {
