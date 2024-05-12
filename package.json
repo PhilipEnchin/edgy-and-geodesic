@@ -13,8 +13,10 @@
     "typescript": "^5.4.5"
   },
   "scripts": {
-    "check": "npm run spellcheck && npm run typecheck && npm run test -- --reporter progress",
+    "check": "npm run spellcheck && npm run typecheck && npm run lint && npm run test -- --reporter progress",
     "check:dev": "nodemon -x npm run check",
+    "lint": "eslint .",
+    "lint:dev": "nodemon -x npm run lint",
     "spellcheck": "cspell \"**\" --no-progress --no-summary",
     "spellcheck:dev": "nodemon -x npm run spellcheck",
     "start": "nodemon .",
