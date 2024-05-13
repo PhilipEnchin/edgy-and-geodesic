@@ -1,19 +1,26 @@
 import Vector3 from '../models/Vector.js';
 import Vertex from '../models/Vertex.js';
 
+const toSequentialLetter = (n) => {
+  const A = 65;
+  return String.fromCharCode(n + A).toUpperCase();
+};
+
+const VERTEX_COUNT = 12;
+
 /**
  * @returns {Vertex}
  */
 const makeIcosahedron = () => {
   const PHI = (1 + Math.sqrt(5)) / 2;
-  let key = 10;
-  const vertices = [...Array(12)].map((_, i) => {
+  let key = 0;
+  const vertices = [...Array(VERTEX_COUNT)].map((_, i) => {
     const A = 0;
     const B = 2 * (i % 2) - 1;
     const C = (2 * (Math.floor(i / 2) % 2) - 1) * PHI;
-    if (i < 4) return new Vertex((key++).toString(36).toUpperCase(), new Vector3(A, B, C));
-    if (i < 8) return new Vertex((key++).toString(36).toUpperCase(), new Vector3(B, C, A));
-    return new Vertex((key++).toString(36).toUpperCase(), new Vector3(C, A, B));
+    if (i < VERTEX_COUNT / 3) return new Vertex(toSequentialLetter(key++), new Vector3(A, B, C));
+    if (i < 2 * VERTEX_COUNT / 3) return new Vertex(toSequentialLetter(key++), new Vector3(B, C, A));
+    return new Vertex(toSequentialLetter(key++), new Vector3(C, A, B));
   });
 
   vertices[0]

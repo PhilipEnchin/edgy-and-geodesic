@@ -1,7 +1,7 @@
 /** @typedef {import('../models/Vector.js').default} Vector3 */
 /** @typedef {import('../models/Vertex.js').default} Vertex */
 
-import { vertexCompare } from './comparators.js';
+import { alphaCompare, vertexCompare } from './comparators.js';
 import { EDGE_SEPARATOR } from './constants.js';
 import { round } from './numberFormatters.js';
 
@@ -32,7 +32,7 @@ export const decorateEdges = (vertex, roundingPlace) => {
       label: orderedVertices.map((v) => v.key).join(EDGE_SEPARATOR),
     };
   });
-  return edges.toSorted((a, b) => (a.label < b.label ? -1 : 1));
+  return edges.toSorted((a, b) => alphaCompare(a.label, b.label));
 };
 
 /**

@@ -1,11 +1,31 @@
 import { expect } from 'chai';
 import Vector3 from '../../../src/lib/models/Vector.js';
 import Vertex from '../../../src/lib/models/Vertex.js';
-import { vectorCompare, vertexCompare, triangleCompare } from '../../../src/lib/util/comparators.js';
+import {
+  vectorCompare, vertexCompare, triangleCompare, alphaCompare,
+} from '../../../src/lib/util/comparators.js';
 
 /** @typedef {import('../../../src/lib/models/Vertex.js').Triangle} Triangle */
 
 describe('Comparators', () => {
+  describe('alphaCompare', () => {
+    it('should return 0 when comparing identical strings', () => {
+      expect(alphaCompare('identical', 'identical')).to.equal(0);
+    });
+
+    it('should return non-zero when comparing different case, otherwise identical strings', () => {
+      expect(alphaCompare('different', 'Different')).to.not.equal(0);
+    });
+
+    it('should return <0 when in order', () => {
+      expect(alphaCompare('first', 'second')).to.be.lessThan(0);
+    });
+
+    it('should return >0 when out of order', () => {
+      expect(alphaCompare('third', 'second')).to.be.greaterThan(0);
+    });
+  });
+
   describe('vectorCompare', () => {
     it('should return 0 when comparing the vector3 object against itself', () => {
       const vector = new Vector3(1, 2, 3);

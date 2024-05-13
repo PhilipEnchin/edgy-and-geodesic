@@ -1,3 +1,5 @@
+/* eslint no-magic-numbers: ["error", { "ignore": [0, 10] }] */
+
 const fullDigitsFormatter = new Intl.NumberFormat('en-US', {
   notation: 'standard',
   maximumFractionDigits: 20,

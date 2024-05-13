@@ -15,7 +15,8 @@
         "*.test.js"
       ],
       "rules": {
-        "no-unused-expressions": "off"
+        "no-unused-expressions": "off",
+        "no-magic-numbers": "off"
       }
     }
   ],
@@ -28,6 +29,21 @@
     "mocha/no-mocha-arrows": "off",
     "mocha/no-setup-in-describe": "off",
     "mocha/no-sibling-hooks": "off",
+    "no-magic-numbers": [
+      "error",
+      {
+        "ignore": [
+          0,
+          1,
+          2,
+          3,
+          5
+        ],
+        "ignoreArrayIndexes": true,
+        "ignoreDefaultValues": true
+      }
+    ],
+    "no-mixed-operators": "off",
     "no-nested-ternary": "off",
     "no-plusplus": "off"
   }

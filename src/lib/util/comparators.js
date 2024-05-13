@@ -2,6 +2,22 @@
 /** @typedef {import('../models/Vertex.js').default} Vertex */
 /** @typedef {import('../models/Vertex.js').Triangle} Triangle */
 
+const EQUAL = 0;
+const IN_ORDER = -1;
+const FLIPPED = 1;
+
+/**
+ *
+ * @param {string} a
+ * @param {string} b
+ * @returns {number}
+ */
+export const alphaCompare = (a, b) => {
+  if (a < b) return IN_ORDER;
+  if (b < a) return FLIPPED;
+  return EQUAL;
+};
+
 /**
  * Compare vectors by ordered triple, left to right
  * @param {Vector3} a
@@ -21,8 +37,8 @@ export const vectorCompare = (a, b) => {
  * @returns {number}
  */
 export const vertexCompare = ({ key: aKey, vector3: a }, { key: bKey, vector3: b }) => {
-  if (aKey < bKey) return -1;
-  if (aKey > bKey) return 1;
+  if (aKey < bKey) return IN_ORDER;
+  if (aKey > bKey) return FLIPPED;
   return vectorCompare(a, b);
 };
 
