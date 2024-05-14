@@ -92,6 +92,7 @@ const argParser = (args = process.argv.slice(2)) => {
       fullOutput: !!values.fullOutput,
     };
   } catch (error) {
+    process.exitCode = 2;
     printHelp(error.message);
   }
   return false;

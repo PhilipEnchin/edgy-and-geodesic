@@ -19,3 +19,5 @@ export const SIZE_ARG_POSITIVE_NUM = {
   minLength: 'MinLength must be a positive number.',
   maxLength: 'MaxLength must be a positive number.',
 };
+
+export const DEFAULT_PRECISION = -2;
