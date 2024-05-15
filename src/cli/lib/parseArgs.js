@@ -52,7 +52,8 @@ const PARSE_CONFIG = {
  * @param {string} [preamble]
  */
 const printHelp = (preamble = '') => {
-  console.log([...(preamble ? [preamble] : []), HELP_TEXT].join('\n'));
+  if (preamble) console.error(preamble);
+  console.log(HELP_TEXT);
 };
 
 class ArgParseError extends Error {

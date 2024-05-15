@@ -9,13 +9,16 @@ import {
 
 describe('parseArgs', () => {
   /** @type {sinon.SinonStub} */ let consoleLog;
+  /** @type {sinon.SinonStub} */ let consoleError;
 
   beforeEach(() => {
     consoleLog = sinon.stub(console, 'log');
+    consoleError = sinon.stub(console, 'error');
   });
 
   afterEach(() => {
     consoleLog.restore();
+    consoleError.restore();
   });
 
   it('should return parsed args object when help flag is absent, and there are no errors', () => {
@@ -133,7 +136,8 @@ describe('parseArgs', () => {
     ].forEach(({ args, expected }) => {
       consoleLog.resetHistory();
       parseArgs(args);
-      expect(consoleLog.calledWithExactly(`${expected}\n${HELP_TEXT}`)).to.be.true;
+      expect(consoleError.calledWithExactly(expected)).to.be.true;
+      expect(consoleLog.calledWithExactly(HELP_TEXT)).to.be.true;
     });
   });
 });
