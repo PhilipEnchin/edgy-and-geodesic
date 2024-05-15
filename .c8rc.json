@@ -1,6 +1,6 @@
 {
-  "100": true,
   "all": true,
+  "include": "src/",
   "reporter": [
     "text",
     "html"

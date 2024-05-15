@@ -1,6 +1,7 @@
 {
   "devDependencies": {
     "@types/mocha": "^10.0.6",
+    "@types/nexpect": "^0.4.34",
     "@types/node": "^20.12.11",
     "@types/sinon": "^17.0.3",
     "c8": "^9.1.0",
@@ -12,20 +13,23 @@
     "eslint-plugin-import": "^2.29.1",
     "eslint-plugin-mocha": "^10.4.2",
     "mocha": "^10.4.0",
+    "nexpect": "^0.6.0",
     "nodemon": "^3.1.0",
     "sinon": "^17.0.1",
     "typescript": "^5.4.5"
   },
   "scripts": {
-    "check": "npm run spellcheck && npm run typecheck && npm run lint && npm run test -- --reporter progress",
+    "check": "npm run spellcheck && npm run typecheck && npm run lint && npm run test -- --reporter progress && npm run test-cli -- --reporter progress",
     "check:dev": "nodemon -x npm run check",
     "lint": "eslint .",
     "lint:dev": "nodemon -x npm run lint",
     "spellcheck": "cspell \"**\" --no-progress --no-summary",
     "spellcheck:dev": "nodemon -x npm run spellcheck",
     "start": "nodemon .",
-    "test": "c8 --include src/ --exclude src/cli/cli.js mocha --recursive test/",
+    "test": "c8 --100 --exclude src/cli/cli.js mocha --recursive test/",
     "test:dev": "nodemon -x 'npm run test -- --reporter min'",
+    "test-cli": "c8 mocha test-cli/",
+    "test-cli:dev": "nodemon -x 'npm run test-cli -- --reporter min'",
     "typecheck": "tsc"
   },
   "type": "module"
