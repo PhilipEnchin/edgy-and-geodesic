@@ -34,7 +34,14 @@ describe('CLI', () => {
   const helpText = HELP_TEXT.split('\n');
 
   describe('should run via', () => {
-    xit('npm script');
+    it('npm script', (done) => {
+      spawn('npm run geodesic -- -m 42')
+        .expect('geodesic')
+        .expect('geodesic -m 42')
+        .expect('Length of 42: 30')
+        .expect('TOTAL EDGES: 30')
+        .run(callback(done, 4, 0));
+    });
 
     it('root executable', (done) => {
       spawn('./geodesic -m 42')

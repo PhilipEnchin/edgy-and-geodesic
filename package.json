@@ -21,6 +21,7 @@
   "scripts": {
     "check": "npm run spellcheck && npm run typecheck && npm run lint && npm run test -- --reporter progress && npm run test-cli -- --reporter progress",
     "check:dev": "nodemon -x npm run check",
+    "geodesic": "./geodesic",
     "lint": "eslint .",
     "lint:dev": "nodemon -x npm run lint",
     "spellcheck": "cspell \"**\" --no-progress --no-summary",
