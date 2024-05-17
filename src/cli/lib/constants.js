@@ -1,3 +1,41 @@
+/** @type {'string'} */ const STRING = 'string';
+/** @type {'boolean'} */ const BOOLEAN = 'boolean';
+
+export const PARSE_CONFIG = {
+  options: {
+    frequency: {
+      type: STRING,
+      short: 'f',
+      default: '1',
+    },
+    radius: {
+      type: STRING,
+      short: 'r',
+    },
+    minLength: {
+      type: STRING,
+      short: 'm',
+    },
+    maxLength: {
+      type: STRING,
+      short: 'M',
+    },
+    fullOutput: {
+      type: BOOLEAN,
+      short: 'F',
+    },
+    doNotSpherify: {
+      type: BOOLEAN,
+      short: 'd',
+    },
+    help: {
+      type: BOOLEAN,
+      short: 'h',
+    },
+  },
+  strict: true,
+};
+
 const COMMAND = 'PLACEHOLDER';
 
 export const HELP_TEXT = [

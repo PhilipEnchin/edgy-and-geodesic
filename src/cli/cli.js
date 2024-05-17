@@ -9,14 +9,18 @@ const main = () => {
   const args = parseArgs();
   if (!args) process.exit();
   const {
-    frequency, sizeKey, sizeValue, fullOutput,
+    frequency, sizeKey, sizeValue, fullOutput, spherify,
   } = args;
 
   const icosahedron = makeIcosahedron();
-  const subdivided = icosahedron.subdivide(frequency);
-  const sphere = subdivided.spherify(sizeKey, sizeValue);
+  const polyhedron = spherify
+    ? icosahedron.subdivide(frequency).spherify(sizeKey, sizeValue)
+    : icosahedron.spherify(
+      sizeKey,
+      sizeValue * (sizeKey === 'maxLength' || sizeKey === 'minLength' ? frequency : 1),
+    ).subdivide(frequency);
 
-  const decoratedEdges = decorateEdges(sphere, DEFAULT_PRECISION);
+  const decoratedEdges = decorateEdges(polyhedron, DEFAULT_PRECISION);
   const groupedEdges = groupDecoratedEdgesByLength(decoratedEdges);
 
   if (fullOutput) {

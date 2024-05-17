@@ -2,11 +2,8 @@
 
 import { parseArgs } from 'node:util';
 import {
-  FREQUENCY_POSITIVE_INT, HELP_TEXT, MAX_ONE_SIZE_ARG, SIZE_ARG_POSITIVE_NUM, SIZE_ARG_REQUIRED,
+  FREQUENCY_POSITIVE_INT, HELP_TEXT, MAX_ONE_SIZE_ARG, PARSE_CONFIG, SIZE_ARG_POSITIVE_NUM, SIZE_ARG_REQUIRED,
 } from './constants.js';
-
-/** @type {'string'} */ const STRING = 'string';
-/** @type {'boolean'} */ const BOOLEAN = 'boolean';
 
 /**
  * @typedef {object} ParsedArgs
@@ -14,38 +11,8 @@ import {
  * @property {'radius'|'minLength'|'maxLength'} sizeKey
  * @property {number} sizeValue
  * @property {boolean} fullOutput
+ * @property {boolean} spherify
 */
-
-const PARSE_CONFIG = {
-  options: {
-    frequency: {
-      type: STRING,
-      short: 'f',
-      default: '1',
-    },
-    radius: {
-      type: STRING,
-      short: 'r',
-    },
-    minLength: {
-      type: STRING,
-      short: 'm',
-    },
-    maxLength: {
-      type: STRING,
-      short: 'M',
-    },
-    fullOutput: {
-      type: BOOLEAN,
-      short: 'F',
-    },
-    help: {
-      type: BOOLEAN,
-      short: 'h',
-    },
-  },
-  strict: true,
-};
 
 /**
  * Print help, with an optional preamble first
@@ -82,15 +49,16 @@ const argParser = (args = process.argv.slice(2)) => {
     if (sizeArgCount === 0) throw new ArgParseError(SIZE_ARG_REQUIRED);
     if (sizeArgCount > 1) throw new ArgParseError(MAX_ONE_SIZE_ARG);
 
-    const sizeArgName = 'radius' in values ? 'radius' : ('minLength' in values ? 'minLength' : 'maxLength');
-    const sizeArg = Number(values[sizeArgName]);
-    if (Number.isNaN(sizeArg) || sizeArg <= 0) throw new ArgParseError(SIZE_ARG_POSITIVE_NUM[sizeArgName]);
+    const sizeKey = 'radius' in values ? 'radius' : ('minLength' in values ? 'minLength' : 'maxLength');
+    const sizeValue = Number(values[sizeKey]);
+    if (Number.isNaN(sizeValue) || sizeValue <= 0) throw new ArgParseError(SIZE_ARG_POSITIVE_NUM[sizeKey]);
 
     return {
       frequency,
-      sizeKey: sizeArgName,
-      sizeValue: sizeArg,
+      sizeKey,
+      sizeValue,
       fullOutput: !!values.fullOutput,
+      spherify: !values.doNotSpherify,
     };
   } catch (error) {
     process.exitCode = 2;

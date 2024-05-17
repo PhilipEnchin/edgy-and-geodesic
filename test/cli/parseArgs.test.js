@@ -27,17 +27,21 @@ describe('parseArgs', () => {
       sizeKey: 'radius',
       sizeValue: 2,
       fullOutput: false,
+      spherify: true,
     };
-    [
+    /** @type {{args: string[], expected: ParsedArgs}[]} */ const testCases = [
       { args: ['--frequency', '42', '--radius', '2'], expected },
       { args: ['--frequency', '42', '--radius', '2', '--fullOutput'], expected: { ...expected, fullOutput: true } },
       { args: ['--frequency', '42', '--radius', '2', '-F'], expected: { ...expected, fullOutput: true } },
+      { args: ['--frequency', '42', '--radius', '2', '--doNotSpherify'], expected: { ...expected, spherify: false } },
+      { args: ['--frequency', '42', '--radius', '2', '-d'], expected: { ...expected, spherify: false } },
       { args: ['-f', '42', '-r', '2'], expected },
       { args: ['-f', '42', '--minLength', '2'], expected: { ...expected, sizeKey: 'minLength' } },
       { args: ['-f', '42', '-m', '2'], expected: { ...expected, sizeKey: 'minLength' } },
       { args: ['-f', '42', '--maxLength', '2'], expected: { ...expected, sizeKey: 'maxLength' } },
       { args: ['-f', '42', '-M', '2'], expected: { ...expected, sizeKey: 'maxLength' } },
-    ].forEach(({ args, expected: expectedReturn }) => {
+    ];
+    testCases.forEach(({ args, expected: expectedReturn }) => {
       expect(parseArgs(args)).to.deep.equal(expectedReturn);
     });
   });
@@ -60,9 +64,14 @@ describe('parseArgs', () => {
   });
 
   it('should default to 1 when frequency is omitted', () => {
-    expect(parseArgs(['--radius', '42'])).to.deep.equal({
-      frequency: 1, sizeKey: 'radius', sizeValue: 42, fullOutput: false,
-    });
+    /** @type {ParsedArgs} */ const expected = {
+      frequency: 1,
+      sizeKey: 'radius',
+      sizeValue: 42,
+      fullOutput: false,
+      spherify: true,
+    };
+    expect(parseArgs(['--radius', '42'])).to.deep.equal(expected);
   });
 
   it('should require the frequency argument to be a positive whole number', () => {
@@ -110,6 +119,11 @@ describe('parseArgs', () => {
     expect(parseArgs(['-F', '-M', '1'])).to.be.an('object');
   });
 
+  it('should accept optional arg, doNotSpherify', () => {
+    expect(parseArgs(['-m', '42'])).to.be.an('object');
+    expect(parseArgs(['-m', '42', '-d'])).to.be.an('object');
+  });
+
   it('should return false on error', () => {
     expect(parseArgs([])).to.be.false;
     expect(parseArgs(['--notAnOption'])).to.be.false;
@@ -117,7 +131,7 @@ describe('parseArgs', () => {
   });
 
   it('should display message and help on error', () => {
-    [
+    /** @type {{args: string[], expected: string}[]} */ const testCases = [
       { args: [], expected: SIZE_ARG_REQUIRED },
       { args: ['--frequency=-1'], expected: FREQUENCY_POSITIVE_INT },
       { args: ['-f', '0'], expected: FREQUENCY_POSITIVE_INT },
@@ -133,7 +147,8 @@ describe('parseArgs', () => {
       { args: ['--minLength=-1'], expected: SIZE_ARG_POSITIVE_NUM.minLength },
       { args: ['-M', '0'], expected: SIZE_ARG_POSITIVE_NUM.maxLength },
       { args: ['--maxLength=-1'], expected: SIZE_ARG_POSITIVE_NUM.maxLength },
-    ].forEach(({ args, expected }) => {
+    ];
+    testCases.forEach(({ args, expected }) => {
       consoleLog.resetHistory();
       parseArgs(args);
       expect(consoleError.calledWithExactly(expected)).to.be.true;
