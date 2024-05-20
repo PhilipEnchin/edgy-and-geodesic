@@ -1,5 +1,6 @@
 import { expect } from 'chai';
 import { spawn } from 'nexpect';
+import { readFileSync } from 'fs';
 import {
   FREQUENCY_POSITIVE_INT, HELP_TEXT, MAX_ONE_SIZE_ARG, SIZE_ARG_POSITIVE_NUM, SIZE_ARG_REQUIRED,
 } from '../src/cli/lib/constants.js';
@@ -35,9 +36,12 @@ describe('CLI', () => {
 
   describe('should run via', () => {
     it('npm script', (done) => {
-      spawn('npm run geodesic -- -m 42')
-        .expect('geodesic')
-        .expect('geodesic -m 42')
+      const scriptName = 'geodesic';
+      const args = '-m 42';
+      const expectedCommand = JSON.parse(readFileSync('package.json').toString()).scripts[scriptName];
+      spawn(`npm run ${scriptName} -- ${args}`)
+        .expect('> geodesic')
+        .expect(`> ${expectedCommand} ${args}`)
         .expect('Length of 42: 30')
         .expect('TOTAL EDGES: 30')
         .run(callback(done, 4, 0));
