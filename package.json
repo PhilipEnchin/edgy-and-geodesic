@@ -27,9 +27,9 @@
     "spellcheck": "cspell \"**\" --no-progress --no-summary",
     "spellcheck:dev": "nodemon -x npm run spellcheck",
     "start": "nodemon .",
-    "test": "c8 --100 --exclude src/cli/cli.js mocha --recursive test/",
+    "test": "c8 --100 --exclude src/cli/cli.js --exclude src/web/ mocha --recursive test/",
     "test:dev": "nodemon -x 'npm run test -- --reporter min'",
-    "test-cli": "c8 mocha test-cli/",
+    "test-cli": "c8 --exclude src/web/ mocha test-cli/",
     "test-cli:dev": "nodemon -x 'npm run test-cli -- --reporter min'",
     "typecheck": "tsc"
   },

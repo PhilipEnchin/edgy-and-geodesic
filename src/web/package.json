@@ -1,5 +1,6 @@
 {
   "devDependencies": {
+    "@types/p5": "^1.7.6",
     "webpack": "^5.91.0",
     "webpack-cli": "^5.1.4",
     "webpack-dev-server": "^5.0.4"
@@ -7,5 +8,9 @@
   "scripts": {
     "start": "webpack-dev-server"
   },
-  "type": "module"
+  "type": "module",
+  "dependencies": {
+    "p5": "^1.9.3",
+    "p5.touchgui": "github:aryan02420/p5.touchgui"
+  }
 }

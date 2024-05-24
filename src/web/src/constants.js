@@ -1,0 +1,5 @@
+const UI_TEXT_SIZE = 20;
+
+export const COLOR = { BACKGROUND: '#222' };
+export const INCREMENTOR = { BUTTON_WIDTH: 30, PADDING_INTRA: 5, TEXT_SIZE: UI_TEXT_SIZE };
+export const UI = { MARGIN_TOP: 10, PADDING_INTER: 5, ROW_HEIGHT: 30 };
