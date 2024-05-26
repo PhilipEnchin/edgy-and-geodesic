@@ -22,12 +22,13 @@ const s = (sketch) => {
   const makePolyhedron = () => {
     // TODO: Implement this function for when the UI is used to update parameters
     console.error('Not implemented yet!');
+    return makeIcosahedron();
   };
 
   /** @type {Vertex} */ const polyhedron = makePolyhedron();
 
   const simpleLayout = () => {
-    additionalUI.push(frequencyUI = createIncrementorUI(sketch, 'Frequency', 1, 1, 10, 1, 10, rowLocationIncrementor.increment().value, updatePolyhedron));
+    additionalUI.push(frequencyUI = createIncrementorUI(sketch, 'Frequency', 1, 1, 10, 1, 10, rowLocationIncrementor.increment().value, makePolyhedron));
   };
 
   sketch.setup = () => {

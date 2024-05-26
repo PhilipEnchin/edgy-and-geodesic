@@ -5,12 +5,14 @@
     "webpack-cli": "^5.1.4",
     "webpack-dev-server": "^5.0.4"
   },
-  "scripts": {
-    "start": "webpack-dev-server"
-  },
-  "type": "module",
   "dependencies": {
     "p5": "^1.9.3",
     "p5.touchgui": "github:aryan02420/p5.touchgui"
-  }
+  },
+  "scripts": {
+    "start": "webpack-dev-server",
+    "test": "c8 mocha ../../test-web/",
+    "test:dev": "nodemon -w . -w ../../test-web -x 'c8 mocha ../../test-web/'"
+  },
+  "type": "module"
 }
