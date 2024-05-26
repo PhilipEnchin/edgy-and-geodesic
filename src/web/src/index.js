@@ -20,22 +20,24 @@ const s = (sketch) => {
    * @returns {Vertex}
    */
   const makePolyhedron = () => {
-    // TODO: Implement this function for when the UI is used to update parameters
-    console.error('Not implemented yet!');
-    return makeIcosahedron();
+    const icosahedron = makeIcosahedron();
+    const subdividedIcosahedron = icosahedron.subdivide(frequencyUI.value);
+
+    return subdividedIcosahedron;
   };
 
-  /** @type {Vertex} */ const polyhedron = makePolyhedron();
+  /** @type {Vertex} */ let polyhedron;
+  const updatePolyhedron = () => { polyhedron = makePolyhedron(); };
 
   const simpleLayout = () => {
-    additionalUI.push(frequencyUI = createIncrementorUI(sketch, 'Frequency', 1, 1, 10, 1, 10, rowLocationIncrementor.increment().value, makePolyhedron));
+    additionalUI.push(frequencyUI = createIncrementorUI(sketch, 'Frequency', 1, 1, 10, 1, 10, rowLocationIncrementor.increment().value, updatePolyhedron));
   };
 
   sketch.setup = () => {
     const canvas = sketch.createCanvas(600, 600);
     gui = sketch.createGui(canvas);
-    // gui.loadStyle('TerminalGreen');
     simpleLayout();
+    polyhedron = makePolyhedron();
   };
 
   sketch.draw = () => {
