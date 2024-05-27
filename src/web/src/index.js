@@ -1,5 +1,4 @@
 import p5 from 'p5';
-import 'p5.touchgui';
 import { createIncrementor, createIncrementorUI } from './util.js';
 import { COLOR, UI } from './constants.js';
 import makeIcosahedron from '../../lib/util/icosahedron.js';
@@ -34,8 +33,7 @@ const s = (sketch) => {
   };
 
   sketch.setup = () => {
-    const canvas = sketch.createCanvas(600, 600);
-    gui = sketch.createGui(canvas);
+    const canvas = sketch.createCanvas(600, 600, sketch.WEBGL);
     simpleLayout();
     polyhedron = makePolyhedron();
   };
@@ -43,8 +41,6 @@ const s = (sketch) => {
   sketch.draw = () => {
     sketch.background(COLOR.BACKGROUND);
     sketch.fill(255);
-    sketch.drawGui();
-    additionalUI.forEach((ui) => ui.draw());
   };
 };
 

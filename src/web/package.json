@@ -6,8 +6,7 @@
     "webpack-dev-server": "^5.0.4"
   },
   "dependencies": {
-    "p5": "^1.9.3",
-    "p5.touchgui": "github:aryan02420/p5.touchgui"
+    "p5": "^1.9.3"
   },
   "scripts": {
     "start": "webpack-dev-server",

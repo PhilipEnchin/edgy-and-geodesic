@@ -90,50 +90,101 @@ describe('util', () => {
     let callbackArgs;
     const callback = (...args) => { callbackArgs.push(args); };
 
-    let mockMinus; let mockPlus; let mockLabel;
+    let mockMinus; let mockPlus; let mockLabelDiv; let mockKeySpan; let mockValueSpan;
 
     const mockSketch = {
-      createButton: (...creationArgs) => {
-        const newMockButton = { isReleased: false, label: '', creationArgs };
+      createButton(...creation) {
+        const newMockButton = {
+          visible: null,
+          position(...args) { this.savedArgs.position = args; return this; },
+          size(...args) { this.savedArgs.size = args; return this; },
+          show() { this.visible = true; return this; },
+          hide() { this.visible = false; return this; },
+          mousePressed(f) { this.press = f; return this; },
+          press: null,
+          savedArgs: {
+            creation,
+            position: null,
+            size: null,
+          },
+        };
         if (!mockMinus) return mockMinus = newMockButton;
         if (!mockPlus) return mockPlus = newMockButton;
-        throw new Error('No mock button objects left!');
+        throw new Error('Extra mock button created');
       },
-      textSize: (...args) => {
-        mockLabel.textSizeArgs.push(args);
+      createDiv(...creation) {
+        const newMockDiv = {
+          position(...args) { this.savedArgs.position = args; return this; },
+          style(...args) { this.savedArgs.style = args; return this; },
+          children: [],
+          savedArgs: {
+            creation,
+            position: null,
+            style: null,
+          },
+        };
+        if (!mockLabelDiv) return mockLabelDiv = newMockDiv;
+        throw new Error('Extra mock div created');
       },
-      textAlign: (...args) => {
-        mockLabel.textAlignArgs.push(args);
+      createSpan(...creation) {
+        const newMockSpan = {
+          parent(parent) { parent.children.push(this); return this; },
+          html(...args) { this.savedArgs.html.push(args); return this; },
+          savedArgs: {
+            creation,
+            html: [],
+          },
+        };
+        if (!mockKeySpan) return mockKeySpan = newMockSpan;
+        if (!mockValueSpan) return mockValueSpan = newMockSpan;
+        throw new Error('Extra mock span created');
       },
-      text: (...args) => {
-        mockLabel.textArgs.push(args);
-      },
-      CENTER: 'feeling centred',
-      LEFT: 'radically left',
     };
     let defaultIncrementorUI;
 
     beforeEach(() => {
-      mockMinus = mockPlus = null;
-      mockLabel = {
-        textSizeArgs: [],
-        textAlignArgs: [],
-        textArgs: [],
-      };
+      mockMinus = mockPlus = mockLabelDiv = mockKeySpan = mockValueSpan = null;
       defaultIncrementorUI = createIncrementorUI(mockSketch, label, initial, min, max, increment, x, y, callback);
       callbackArgs = [];
     });
 
     it('should create a minus button', () => {
-      expect(mockMinus.creationArgs).to.deep.equal(['-', x, y, BUTTON_WIDTH, ROW_HEIGHT]);
+      expect(mockMinus.savedArgs).to.deep.equal({
+        creation: ['-'],
+        position: [x, y],
+        size: [BUTTON_WIDTH, ROW_HEIGHT],
+      });
     });
 
     it('should create a plus button', () => {
-      expect(mockPlus.creationArgs).to.deep.equal(['+', x + BUTTON_WIDTH, y, BUTTON_WIDTH, ROW_HEIGHT]);
+      expect(mockPlus.savedArgs).to.deep.equal({
+        creation: ['+'],
+        position: [x + BUTTON_WIDTH, y],
+        size: [BUTTON_WIDTH, ROW_HEIGHT],
+      });
     });
 
-    it('should return an object with a draw function', () => {
-      expect(defaultIncrementorUI).to.have.property('draw').that.is.a('function');
+    it('should create a key span', () => {
+      expect(mockKeySpan.savedArgs).to.deep.equal({
+        creation: [`${label}: `],
+        html: [],
+      });
+    });
+
+    it('should create a value span', () => {
+      expect(mockValueSpan.savedArgs).to.deep.equal({
+        creation: [],
+        html: [[3]],
+      });
+    });
+
+    it('should create label div with key and value spans as children', () => {
+      expect(mockLabelDiv.savedArgs).to.deep.equal({
+        creation: [],
+        position: [x + 2 * BUTTON_WIDTH + PADDING_INTRA, y],
+        style: ['font-size', `${TEXT_SIZE}px`],
+      });
+      expect(mockLabelDiv.children).to.deep.equal([mockKeySpan, mockValueSpan]);
     });
 
     it('should return an object with a value getter', () => {
@@ -146,13 +197,10 @@ describe('util', () => {
 
     it('should increment and decrement value when buttons are released', () => {
       const before = defaultIncrementorUI.value;
-      mockMinus.isReleased = true;
-      defaultIncrementorUI.draw();
-      mockMinus.isReleased = false;
+      mockMinus.press();
       const lower = defaultIncrementorUI.value;
-      mockPlus.isReleased = true;
-      defaultIncrementorUI.draw();
-      defaultIncrementorUI.draw();
+      mockPlus.press();
+      mockPlus.press();
       const higher = defaultIncrementorUI.value;
 
       expect(before).to.equal(initial);
@@ -161,64 +209,49 @@ describe('util', () => {
     });
 
     it('should create a text label on draw with current value', () => {
-      defaultIncrementorUI.draw();
-      mockPlus.isReleased = true;
-      defaultIncrementorUI.draw();
-      expect(mockLabel).to.deep.equal({
-        textSizeArgs: Array(2).fill([TEXT_SIZE]),
-        textAlignArgs: Array(2).fill([mockSketch.LEFT, mockSketch.CENTER]),
-        textArgs: [...Array(2)].map((_, i) => [`${label}: ${initial + i}`, x + 2 * BUTTON_WIDTH + PADDING_INTRA, y + ROW_HEIGHT / 2]),
-      });
+      mockMinus.press();
+      mockPlus.press();
+      mockPlus.press();
+
+      expect(mockValueSpan.savedArgs.html).to.deep.equal([[initial], [initial - 1], [initial], [initial + 1]]);
     });
 
     it('should call callback with new value on increment/decrement', () => {
-      defaultIncrementorUI.draw();
-      mockPlus.isReleased = true;
-      defaultIncrementorUI.draw(); // Callback after increment
-      mockPlus.isReleased = false;
-      defaultIncrementorUI.draw();
-      mockMinus.isReleased = true;
-      defaultIncrementorUI.draw(); // Callback after decrement
-      defaultIncrementorUI.draw(); // Callback after decrement
+      mockPlus.press();
+      mockMinus.press();
+      mockMinus.press();
 
       expect(callbackArgs).to.deep.equal([[initial + 1], [initial], [initial - 1]]);
     });
 
     it('should not increment or decrement outside of bounds', () => {
-      mockMinus.isReleased = true;
-      for (let i = 0; i < 10 ** 3; i++) { defaultIncrementorUI.draw(); }
+      for (let i = 0; i < 10 ** 3; i++) { mockMinus.press(); }
       const low = defaultIncrementorUI.value;
 
-      mockMinus.isReleased = false;
-      mockPlus.isReleased = true;
-      for (let i = 0; i < 10 ** 3; i++) { defaultIncrementorUI.draw(); }
+      for (let i = 0; i < 10 ** 3; i++) { mockPlus.press(); }
       const high = defaultIncrementorUI.value;
 
       expect(low).to.equal(min);
       expect(high).to.equal(max);
     });
 
-    it('should show +/- labels only when increment/decrement is possible', () => {
-      defaultIncrementorUI.draw();
-      const [midMinusLabel, midPlusLabel] = [mockMinus, mockPlus].map((b) => b.label);
+    it('should show +/- buttons only when increment/decrement is possible', () => {
+      const [midMinusVisibility, midPlusVisibility] = [mockMinus, mockPlus].map((b) => b.visible);
 
-      mockMinus.isReleased = true;
-      for (let i = 0; i < 10 ** 3; i++) { defaultIncrementorUI.draw(); }
-      const [lowMinusLabel, lowPlusLabel] = [mockMinus, mockPlus].map((b) => b.label);
+      for (let i = 0; i < 10 ** 3; i++) { mockMinus.press(); }
+      const [lowMinusVisibility, lowPlusVisibility] = [mockMinus, mockPlus].map((b) => b.visible);
 
-      mockMinus.isReleased = false;
-      mockPlus.isReleased = true;
-      for (let i = 0; i < 10 ** 3; i++) { defaultIncrementorUI.draw(); }
-      const [highMinusLabel, highPlusLabel] = [mockMinus, mockPlus].map((b) => b.label);
+      for (let i = 0; i < 10 ** 3; i++) { mockPlus.press(); }
+      const [highMinusVisibility, highPlusVisibility] = [mockMinus, mockPlus].map((b) => b.visible);
 
-      expect(midMinusLabel).to.equal('-');
-      expect(midPlusLabel).to.equal('+');
+      expect(midMinusVisibility).to.equal(true);
+      expect(midPlusVisibility).to.equal(true);
 
-      expect(lowMinusLabel).to.equal('');
-      expect(lowPlusLabel).to.equal('+');
+      expect(lowMinusVisibility).to.equal(false);
+      expect(lowPlusVisibility).to.equal(true);
 
-      expect(highMinusLabel).to.equal('-');
-      expect(highPlusLabel).to.equal('');
+      expect(highMinusVisibility).to.equal(true);
+      expect(highPlusVisibility).to.equal(false);
     });
   });
 });
