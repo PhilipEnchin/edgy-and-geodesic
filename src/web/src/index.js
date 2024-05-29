@@ -6,13 +6,13 @@ import {
   USER_PARAMETERS,
 } from './constants.js';
 import makeIcosahedron from '../../lib/util/icosahedron.js';
-import { edgeMap, vertexMap } from './coordinateMapping.js';
+import { edgeMap, vertexMap } from './lib/p5CoordinateMapping.js';
 import createIncrementor from './lib/incrementor.js';
 import createIncrementorUI from './ui/incrementor.js';
 
 /** @typedef {import('./ui/incrementor.js').IncrementorUI} IncrementorUI */
 /** @typedef {import('../../lib/models/Vertex.js').default} Vertex */
-/** @typedef {import('./coordinateMapping.js').Sketcher} Sketcher */
+/** @typedef {import('./lib/p5CoordinateMapping.js').Sketcher} Sketcher */
 
 const s = (sketch) => {
   const rowLocationIncrementor = createIncrementor(UI.MARGIN_TOP - UI.ROW_HEIGHT - UI.PADDING_INTER, -Infinity, Infinity, UI.ROW_HEIGHT + UI.PADDING_INTER);
@@ -41,6 +41,11 @@ const s = (sketch) => {
   sketch.setup = () => {
     sketch.createCanvas(sketch.windowWidth, sketch.windowHeight, sketch.WEBGL).position(0, 0);
     simpleLayout();
+    updatePolyhedron();
+  };
+
+  sketch.windowResized = () => {
+    sketch.resizeCanvas(sketch.windowWidth, sketch.windowHeight);
     updatePolyhedron();
   };
 
