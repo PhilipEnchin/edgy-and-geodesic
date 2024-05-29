@@ -1,9 +1,10 @@
 import { expect } from 'chai';
-import { createIncrementor, createIncrementorUI } from '../src/web/src/util.js';
 import { INCREMENTOR, UI } from '../src/web/src/constants.js';
+import createIncrementor from '../src/web/src/lib/incrementor.js';
+import createIncrementorUI from '../src/web/src/ui/incrementor.js';
 
-/** @typedef {import('../src/web/src/util.js').Incrementor} Incrementor */
-/** @typedef {import('../src/web/src/util.js').IncrementorUI} IncrementorUI */
+/** @typedef {import('../src/web/src/lib/incrementor.js').Incrementor} Incrementor */
+/** @typedef {import('../src/web/src/ui/incrementor.js').IncrementorUI} IncrementorUI */
 
 describe('util', () => {
   describe('createIncrementor', () => {

@@ -1,10 +1,11 @@
 import p5 from 'p5';
-import { createIncrementor, createIncrementorUI } from './util.js';
 import { COLOR, UI } from './constants.js';
 import makeIcosahedron from '../../lib/util/icosahedron.js';
 import { edgeMap, vertexMap } from './coordinateMapping.js';
+import createIncrementor from './lib/incrementor.js';
+import createIncrementorUI from './ui/incrementor.js';
 
-/** @typedef {import('./util.js').IncrementorUI} IncrementorUI */
+/** @typedef {import('./ui/incrementor.js').IncrementorUI} IncrementorUI */
 /** @typedef {import('../../lib/models/Vertex.js').default} Vertex */
 /** @typedef {import('./coordinateMapping.js').Sketcher} Sketcher */
 

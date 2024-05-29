@@ -1,46 +1,10 @@
-import { INCREMENTOR, UI } from './constants.js';
-
-/**
- * @typedef {object} Incrementor
- * @property {function} increment - Increments the value.
- * @property {function} decrement - Decrements the value.
- * @property {function} canIncrement - Checks if the value can be incremented.
- * @property {function} canDecrement - Checks if the value can be decremented.
- * @property {number} value - The current value.
- */
+import { INCREMENTOR, UI } from '../constants.js';
+import createIncrementor from '../lib/incrementor.js';
 
 /**
  * @typedef {object} IncrementorUI
  * @property {number} value
  */
-
-/**
- * @param {number} initial
- * @param {number} min
- * @param {number} max
- * @param {number} increment
- * @param {function} [callback]
- * @returns {Incrementor}
- */
-export const createIncrementor = (initial, min, max, increment, callback = () => {}) => {
-  let value = initial;
-  const incrementor = {
-    increment() {
-      value = Math.min(max, value + increment);
-      callback(value);
-      return incrementor;
-    },
-    decrement() {
-      value = Math.max(min, value - increment);
-      callback(value);
-      return incrementor;
-    },
-    canIncrement() { return value < max; },
-    canDecrement() { return min < value; },
-    get value() { return value; },
-  };
-  return incrementor;
-};
 
 /**
  * @param {*} sketch
@@ -54,7 +18,7 @@ export const createIncrementor = (initial, min, max, increment, callback = () =>
  * @param {function} callback
  * @returns {IncrementorUI}
  */
-export const createIncrementorUI = (sketch, labelKey, initial, min, max, increment, x, y, callback) => {
+const createIncrementorUI = (sketch, labelKey, initial, min, max, increment, x, y, callback) => {
   const { BUTTON_WIDTH, PADDING_INTRA, TEXT_SIZE } = INCREMENTOR;
   const { ROW_HEIGHT } = UI;
   const incrementor = createIncrementor(initial, min, max, increment, callback);
@@ -87,3 +51,5 @@ export const createIncrementorUI = (sketch, labelKey, initial, min, max, increme
   };
   return incrementorUI;
 };
+
+export default createIncrementorUI;
