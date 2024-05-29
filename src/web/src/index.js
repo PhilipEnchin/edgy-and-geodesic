@@ -1,5 +1,10 @@
 import p5 from 'p5';
-import { COLOR, UI } from './constants.js';
+import {
+  COLOR,
+  POLYHEDRON,
+  UI,
+  USER_PARAMETERS,
+} from './constants.js';
 import makeIcosahedron from '../../lib/util/icosahedron.js';
 import { edgeMap, vertexMap } from './coordinateMapping.js';
 import createIncrementor from './lib/incrementor.js';
@@ -18,19 +23,23 @@ const s = (sketch) => {
   /** @type {Sketcher[]} */ let edgeSketchers;
 
   const updatePolyhedron = () => {
-    let polyhedron = makeIcosahedron().spherify('radius', 200);
-    if (frequencyUI.value > 1) polyhedron = polyhedron.subdivide(frequencyUI.value);
+    const windowSize = Math.min(sketch.windowWidth, sketch.windowHeight);
+    const frequency = frequencyUI.value;
+    let polyhedron = makeIcosahedron().spherify('radius', windowSize * POLYHEDRON.RELATIVE_RADIUS);
+    if (frequencyUI.value > 1) polyhedron = polyhedron.subdivide(frequency);
 
-    vertexSketchers = vertexMap(polyhedron, 15);
-    edgeSketchers = edgeMap(polyhedron, 15);
+    const frequencyScaler = 1 / Math.sqrt(frequency);
+    vertexSketchers = vertexMap(polyhedron, windowSize * POLYHEDRON.RELATIVE_VERTEX_RADIUS * frequencyScaler);
+    edgeSketchers = edgeMap(polyhedron, windowSize * POLYHEDRON.RELATIVE_EDGE_RADIUS * frequencyScaler);
   };
 
   const simpleLayout = () => {
-    additionalUI.push(frequencyUI = createIncrementorUI(sketch, 'Frequency', 1, 1, 10, 1, 10, rowLocationIncrementor.increment().value, updatePolyhedron));
+    const { FREQUENCY } = USER_PARAMETERS;
+    additionalUI.push(frequencyUI = createIncrementorUI(sketch, 'Frequency', FREQUENCY.INITIAL, FREQUENCY.MIN, FREQUENCY.MAX, FREQUENCY.INCREMENT, UI.MARGIN_LEFT, rowLocationIncrementor.increment().value, updatePolyhedron));
   };
 
   sketch.setup = () => {
-    sketch.createCanvas(600, 600, sketch.WEBGL);
+    sketch.createCanvas(sketch.windowWidth, sketch.windowHeight, sketch.WEBGL).position(0, 0);
     simpleLayout();
     updatePolyhedron();
   };
@@ -42,8 +51,6 @@ const s = (sketch) => {
 
   sketch.draw = () => {
     sketch.background(COLOR.BACKGROUND);
-    sketch.fill(255);
-
     sketch.orbitControl();
     renderSketchers(vertexSketchers);
     renderSketchers(edgeSketchers);
