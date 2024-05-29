@@ -12,11 +12,10 @@ const s = (sketch) => {
   const rowLocationIncrementor = createIncrementor(UI.MARGIN_TOP - UI.ROW_HEIGHT - UI.PADDING_INTER, -Infinity, Infinity, UI.ROW_HEIGHT + UI.PADDING_INTER);
 
   /** @type {IncrementorUI[]} */ const additionalUI = [];
-
   /** @type {IncrementorUI} */ let frequencyUI;
-
   /** @type {Sketcher[]} */ let vertexSketchers;
   /** @type {Sketcher[]} */ let edgeSketchers;
+
   const updatePolyhedron = () => {
     let polyhedron = makeIcosahedron().spherify('radius', 200);
     if (frequencyUI.value > 1) polyhedron = polyhedron.subdivide(frequencyUI.value);
