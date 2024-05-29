@@ -2,9 +2,9 @@
  * @file Functions that map polyhedron info to p5 sketch methods and args
  */
 
-import Vector3 from '../../lib/models/Vector.js';
+import Vector3 from '../../../lib/models/Vector.js';
 
-/** @typedef {import('../../lib/models/Vertex.js').default} Vertex */
+/** @typedef {import('../../../lib/models/Vertex.js').default} Vertex */
 
 /**
  * @typedef {object} Sketcher
