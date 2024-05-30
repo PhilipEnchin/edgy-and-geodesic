@@ -19,8 +19,8 @@ import createIncrementor from '../lib/incrementor.js';
  * @returns {IncrementorUI}
  */
 const createIncrementorUI = (sketch, labelKey, initial, min, max, increment, x, y, callback) => {
-  const { BUTTON_WIDTH, PADDING_INTRA, TEXT_SIZE } = INCREMENTOR;
-  const { ROW_HEIGHT } = UI;
+  const { BUTTON_WIDTH, PADDING_INTRA } = INCREMENTOR;
+  const { ROW_HEIGHT, TEXT_SIZE } = UI;
   const incrementor = createIncrementor(initial, min, max, increment, callback);
   const minus = sketch.createButton('-')
     .position(x, y)

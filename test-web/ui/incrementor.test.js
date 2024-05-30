@@ -5,8 +5,8 @@ import { INCREMENTOR, UI } from '../../src/web/src/constants.js';
 /** @typedef {import('../../src/web/src/ui/incrementor.js').IncrementorUI} IncrementorUI */
 
 describe('createIncrementorUI', () => {
-  const { BUTTON_WIDTH, PADDING_INTRA, TEXT_SIZE } = INCREMENTOR;
-  const { ROW_HEIGHT } = UI;
+  const { BUTTON_WIDTH, PADDING_INTRA } = INCREMENTOR;
+  const { ROW_HEIGHT, TEXT_SIZE } = UI;
   const [label, initial, min, max, increment, x, y] = ['Mabel\'s labels', 3, 0, 5, 1, 40, 50];
   let callbackArgs;
   const callback = (...args) => { callbackArgs.push(args); };

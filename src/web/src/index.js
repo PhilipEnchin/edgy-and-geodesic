@@ -9,33 +9,51 @@ import makeIcosahedron from '../../lib/util/icosahedron.js';
 import { edgeMap, vertexMap } from './lib/p5CoordinateMapping.js';
 import createIncrementor from './lib/incrementor.js';
 import createIncrementorUI from './ui/incrementor.js';
+import createCheckboxArrayUI from './ui/checkboxArray.js';
 
 /** @typedef {import('./ui/incrementor.js').IncrementorUI} IncrementorUI */
+/** @typedef {import('./ui/checkboxArray.js').CheckboxArrayUI} CheckboxArrayUI */
 /** @typedef {import('../../lib/models/Vertex.js').default} Vertex */
 /** @typedef {import('./lib/p5CoordinateMapping.js').Sketcher} Sketcher */
 
 const s = (sketch) => {
   const rowLocationIncrementor = createIncrementor(UI.MARGIN_TOP - UI.ROW_HEIGHT - UI.PADDING_INTER, -Infinity, Infinity, UI.ROW_HEIGHT + UI.PADDING_INTER);
 
-  /** @type {IncrementorUI[]} */ const additionalUI = [];
   /** @type {IncrementorUI} */ let frequencyUI;
-  /** @type {Sketcher[]} */ let vertexSketchers;
-  /** @type {Sketcher[]} */ let edgeSketchers;
+  /** @type {CheckboxArrayUI} */ let spherifyUI;
+  /** @type {Sketcher[]} */ let flatVertexSketchers;
+  /** @type {Sketcher[]} */ let flatEdgeSketchers;
+  /** @type {Sketcher[]} */ let roundVertexSketchers;
+  /** @type {Sketcher[]} */ let roundEdgeSketchers;
 
   const updatePolyhedron = () => {
     const windowSize = Math.min(sketch.windowWidth, sketch.windowHeight);
     const frequency = frequencyUI.value;
-    let polyhedron = makeIcosahedron().spherify('radius', windowSize * POLYHEDRON.RELATIVE_RADIUS);
+    const checkboxValues = spherifyUI.values;
+    const radius = windowSize * POLYHEDRON.RELATIVE_RADIUS;
+
+    let polyhedron = makeIcosahedron().spherify('radius', radius);
     if (frequencyUI.value > 1) polyhedron = polyhedron.subdivide(frequency);
 
     const frequencyScaler = 1 / Math.sqrt(frequency);
-    vertexSketchers = vertexMap(polyhedron, windowSize * POLYHEDRON.RELATIVE_VERTEX_RADIUS * frequencyScaler);
-    edgeSketchers = edgeMap(polyhedron, windowSize * POLYHEDRON.RELATIVE_EDGE_RADIUS * frequencyScaler);
+
+    [flatVertexSketchers, flatEdgeSketchers] = checkboxValues.Flat
+      ? [
+        vertexMap(polyhedron, windowSize * POLYHEDRON.RELATIVE_VERTEX_RADIUS * frequencyScaler),
+        edgeMap(polyhedron, windowSize * POLYHEDRON.RELATIVE_EDGE_RADIUS * frequencyScaler)]
+      : [[], []];
+
+    [roundVertexSketchers, roundEdgeSketchers] = checkboxValues.Spherified
+      ? [
+        vertexMap(polyhedron = polyhedron.spherify('radius', radius), windowSize * POLYHEDRON.RELATIVE_VERTEX_RADIUS * frequencyScaler),
+        edgeMap(polyhedron, windowSize * POLYHEDRON.RELATIVE_EDGE_RADIUS * frequencyScaler)]
+      : [[], []];
   };
 
   const simpleLayout = () => {
     const { FREQUENCY } = USER_PARAMETERS;
-    additionalUI.push(frequencyUI = createIncrementorUI(sketch, 'Frequency', FREQUENCY.INITIAL, FREQUENCY.MIN, FREQUENCY.MAX, FREQUENCY.INCREMENT, UI.MARGIN_LEFT, rowLocationIncrementor.increment().value, updatePolyhedron));
+    frequencyUI = createIncrementorUI(sketch, 'Frequency', FREQUENCY.INITIAL, FREQUENCY.MIN, FREQUENCY.MAX, FREQUENCY.INCREMENT, UI.MARGIN_LEFT, rowLocationIncrementor.increment().value, updatePolyhedron);
+    spherifyUI = createCheckboxArrayUI(sketch, { Flat: true, Spherified: false }, UI.MARGIN_LEFT, rowLocationIncrementor.increment().value, updatePolyhedron);
   };
 
   sketch.setup = () => {
@@ -57,8 +75,10 @@ const s = (sketch) => {
   sketch.draw = () => {
     sketch.background(COLOR.BACKGROUND);
     sketch.orbitControl();
-    renderSketchers(vertexSketchers);
-    renderSketchers(edgeSketchers);
+    renderSketchers(flatVertexSketchers);
+    renderSketchers(flatEdgeSketchers);
+    renderSketchers(roundVertexSketchers);
+    renderSketchers(roundEdgeSketchers);
   };
 };
 
