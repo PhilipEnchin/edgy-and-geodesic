@@ -29,7 +29,7 @@ const createCheckboxArrayUI = (sketch, checkboxes, x, y, callback) => {
     input.style.width = input.style.height = `${ROW_HEIGHT}px`;
     checkbox.elt.querySelector('label').style.fontSize = `${TEXT_SIZE}px`;
 
-    checkbox.changed(callback);
+    checkbox.changed(() => callback({ [label]: checkbox.checked() }));
 
     checkboxLookup[label] = checkbox;
   });
