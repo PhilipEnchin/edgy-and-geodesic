@@ -1,7 +1,14 @@
 const UI_ROW_HEIGHT = 30;
 const UI_TEXT_SCALE = 0.9;
 
-export const COLOR = { BACKGROUND: '#222' };
+export const RENDER = {
+  BACKGROUND_COLOR: '#222',
+  FLAT_EDGE_COLOR: '#CCF',
+  FLAT_VERTEX_COLOR: '#AAF',
+  ROUND_EDGE_COLOR: '#CFC',
+  ROUND_VERTEX_COLOR: '#AFA',
+  VERTEX_SPHERE_DETAIL: 5,
+};
 export const INCREMENTOR = { BUTTON_WIDTH: UI_ROW_HEIGHT, PADDING_INTRA: 5 };
 export const UI = {
   MARGIN_LEFT: 10,
@@ -14,5 +21,8 @@ export const USER_PARAMETERS = {
   FREQUENCY: {
     INITIAL: 1, MIN: 1, MAX: 10, INCREMENT: 1,
   },
+  SPHERIFIED: {
+    get INITIAL() { return { Flat: true, Spherified: false }; },
+  },
 };
-export const POLYHEDRON = { RELATIVE_RADIUS: 0.4, RELATIVE_VERTEX_RADIUS: 0.025, RELATIVE_EDGE_RADIUS: 0.02 };
+export const POLYHEDRON = { RELATIVE_RADIUS: 0.4, RELATIVE_VERTEX_RADIUS: 0.03, RELATIVE_EDGE_RADIUS: 0.02 };

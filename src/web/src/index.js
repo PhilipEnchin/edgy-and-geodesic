@@ -1,6 +1,6 @@
 import p5 from 'p5';
 import {
-  COLOR,
+  RENDER,
   POLYHEDRON,
   UI,
   USER_PARAMETERS,
@@ -20,7 +20,7 @@ const s = (sketch) => {
 
   /** @type {IncrementorUI} */ let frequencyUI;
   /** @type {CheckboxArrayUI} */ let spherifyUI;
-  /** @type {CheckboxArray} */ let checkboxValues = { Flat: true, Spherified: false };
+  /** @type {CheckboxArray} */ let checkboxValues = USER_PARAMETERS.SPHERIFIED.INITIAL;
   /** @type {p5.Geometry} */ let flatModel;
   /** @type {p5.Geometry} */ let roundModel;
 
@@ -44,9 +44,11 @@ const s = (sketch) => {
 
     const frequencyScaler = 1 / Math.sqrt(frequency);
 
-    flatModel = makeModel(sketch, polyhedron, windowSize * POLYHEDRON.RELATIVE_VERTEX_RADIUS * frequencyScaler);
+    const edgeRadius = windowSize * POLYHEDRON.RELATIVE_EDGE_RADIUS * frequencyScaler;
+    const vertexRadius = windowSize * POLYHEDRON.RELATIVE_VERTEX_RADIUS * frequencyScaler;
+    flatModel = makeModel(sketch, polyhedron, edgeRadius, vertexRadius, RENDER.FLAT_EDGE_COLOR, RENDER.FLAT_VERTEX_COLOR);
     polyhedron = polyhedron.spherify('radius', radius);
-    roundModel = makeModel(sketch, polyhedron, POLYHEDRON.RELATIVE_EDGE_RADIUS * frequencyScaler);
+    roundModel = makeModel(sketch, polyhedron, edgeRadius, vertexRadius, RENDER.ROUND_EDGE_COLOR, RENDER.ROUND_VERTEX_COLOR);
   };
 
   const simpleLayout = () => {
@@ -68,7 +70,7 @@ const s = (sketch) => {
   };
 
   sketch.draw = () => {
-    sketch.background(COLOR.BACKGROUND);
+    sketch.background(RENDER.BACKGROUND_COLOR);
     sketch.orbitControl();
     if (checkboxValues.Flat) sketch.model(flatModel);
     if (checkboxValues.Spherified) sketch.model(roundModel);
