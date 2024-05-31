@@ -6,30 +6,37 @@ import {
   USER_PARAMETERS,
 } from './constants.js';
 import makeIcosahedron from '../../lib/util/icosahedron.js';
-import { edgeMap, vertexMap } from './lib/p5CoordinateMapping.js';
 import createIncrementor from './lib/incrementor.js';
 import createIncrementorUI from './ui/incrementor.js';
 import createCheckboxArrayUI from './ui/checkboxArray.js';
+import makeModel from './lib/p5Model.js';
 
 /** @typedef {import('./ui/incrementor.js').IncrementorUI} IncrementorUI */
 /** @typedef {import('./ui/checkboxArray.js').CheckboxArrayUI} CheckboxArrayUI */
-/** @typedef {import('../../lib/models/Vertex.js').default} Vertex */
-/** @typedef {import('./lib/p5CoordinateMapping.js').Sketcher} Sketcher */
+/** @typedef {import('./ui/checkboxArray.js').CheckboxArray} CheckboxArray */
 
 const s = (sketch) => {
   const rowLocationIncrementor = createIncrementor(UI.MARGIN_TOP - UI.ROW_HEIGHT - UI.PADDING_INTER, -Infinity, Infinity, UI.ROW_HEIGHT + UI.PADDING_INTER);
 
   /** @type {IncrementorUI} */ let frequencyUI;
   /** @type {CheckboxArrayUI} */ let spherifyUI;
-  /** @type {Sketcher[]} */ let flatVertexSketchers;
-  /** @type {Sketcher[]} */ let flatEdgeSketchers;
-  /** @type {Sketcher[]} */ let roundVertexSketchers;
-  /** @type {Sketcher[]} */ let roundEdgeSketchers;
+  /** @type {CheckboxArray} */ let checkboxValues = { Flat: true, Spherified: false };
+  /** @type {p5.Geometry} */ let flatModel;
+  /** @type {p5.Geometry} */ let roundModel;
+
+  let frameRateLabel;
+  const frameRateHistoryLength = 10;
+  const frameRateHistory = Array(frameRateHistoryLength);
+  let i = 0;
+  const appendFrameRate = () => {
+    frameRateHistory[i] = sketch.frameRate();
+    i = (i + 1) % frameRateHistoryLength;
+  };
+  const getFrameRate = () => Math.round((frameRateHistory.reduce((a, b) => a + b) / frameRateHistoryLength));
 
   const updatePolyhedron = () => {
     const windowSize = Math.min(sketch.windowWidth, sketch.windowHeight);
     const frequency = frequencyUI.value;
-    const checkboxValues = spherifyUI.values;
     const radius = windowSize * POLYHEDRON.RELATIVE_RADIUS;
 
     let polyhedron = makeIcosahedron().spherify('radius', radius);
@@ -37,23 +44,16 @@ const s = (sketch) => {
 
     const frequencyScaler = 1 / Math.sqrt(frequency);
 
-    [flatVertexSketchers, flatEdgeSketchers] = checkboxValues.Flat
-      ? [
-        vertexMap(polyhedron, windowSize * POLYHEDRON.RELATIVE_VERTEX_RADIUS * frequencyScaler),
-        edgeMap(polyhedron, windowSize * POLYHEDRON.RELATIVE_EDGE_RADIUS * frequencyScaler)]
-      : [[], []];
-
-    [roundVertexSketchers, roundEdgeSketchers] = checkboxValues.Spherified
-      ? [
-        vertexMap(polyhedron = polyhedron.spherify('radius', radius), windowSize * POLYHEDRON.RELATIVE_VERTEX_RADIUS * frequencyScaler),
-        edgeMap(polyhedron, windowSize * POLYHEDRON.RELATIVE_EDGE_RADIUS * frequencyScaler)]
-      : [[], []];
+    flatModel = makeModel(sketch, polyhedron, windowSize * POLYHEDRON.RELATIVE_VERTEX_RADIUS * frequencyScaler);
+    polyhedron = polyhedron.spherify('radius', radius);
+    roundModel = makeModel(sketch, polyhedron, POLYHEDRON.RELATIVE_EDGE_RADIUS * frequencyScaler);
   };
 
   const simpleLayout = () => {
     const { FREQUENCY } = USER_PARAMETERS;
     frequencyUI = createIncrementorUI(sketch, 'Frequency', FREQUENCY.INITIAL, FREQUENCY.MIN, FREQUENCY.MAX, FREQUENCY.INCREMENT, UI.MARGIN_LEFT, rowLocationIncrementor.increment().value, updatePolyhedron);
-    spherifyUI = createCheckboxArrayUI(sketch, { Flat: true, Spherified: false }, UI.MARGIN_LEFT, rowLocationIncrementor.increment().value, updatePolyhedron);
+    spherifyUI = createCheckboxArrayUI(sketch, checkboxValues, UI.MARGIN_LEFT, rowLocationIncrementor.increment().value, () => { checkboxValues = spherifyUI.values; });
+    frameRateLabel = sketch.createDiv('blah').position(sketch.windowWidth / 2, sketch.windowHeight / 2).style('text-align', 'center').style('font-size', '50px');
   };
 
   sketch.setup = () => {
@@ -67,18 +67,14 @@ const s = (sketch) => {
     updatePolyhedron();
   };
 
-  /**
-   * @param {Sketcher[]} sketcher
-   */
-  const renderSketchers = (sketcher) => { sketcher.forEach(({ method, args }) => sketch[method](...args)); };
-
   sketch.draw = () => {
     sketch.background(COLOR.BACKGROUND);
     sketch.orbitControl();
-    renderSketchers(flatVertexSketchers);
-    renderSketchers(flatEdgeSketchers);
-    renderSketchers(roundVertexSketchers);
-    renderSketchers(roundEdgeSketchers);
+    if (checkboxValues.Flat) sketch.model(flatModel);
+    if (checkboxValues.Spherified) sketch.model(roundModel);
+
+    appendFrameRate();
+    frameRateLabel.html(getFrameRate());
   };
 };
 
