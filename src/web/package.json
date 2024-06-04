@@ -9,9 +9,7 @@
     "p5": "^1.9.3"
   },
   "scripts": {
-    "start": "webpack-dev-server",
-    "test": "c8 mocha --recursive ../../test-web/",
-    "test:dev": "nodemon -w . -w ../../test-web -x 'npm run test -- --reporter min'"
+    "start": "webpack-dev-server"
   },
   "type": "module"
 }

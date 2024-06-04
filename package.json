@@ -30,12 +30,12 @@
     "spellcheck:dev": "nodemon -x npm run spellcheck",
     "start": "nodemon .",
     "start-web": "cd src/web && npm start",
-    "test": "c8 --100 --exclude src/cli/cli.js --exclude src/web/ mocha --recursive test/",
+    "test": "c8 --100 --include src/lib mocha --recursive test/",
     "test:dev": "nodemon -x 'npm run test -- --reporter min'",
-    "test-cli": "c8 --exclude src/web/ mocha test-cli/",
+    "test-cli": "c8 --include src/lib/ mocha test-cli/",
     "test-cli:dev": "nodemon -x 'npm run test-cli -- --reporter min'",
-    "test-web": "cd src/web && npm test",
-    "test-web:dev": "cd src/web && npm run test:dev",
+    "test-web": "c8 --include src/web/ --exclude src/web/webpack.config.cjs --exclude src/web/src/index.js --exclude src/web/dist/ mocha --recursive test-web/",
+    "test-web:dev": "nodemon -x 'npm run test-web -- --reporter min'",
     "typecheck": "tsc"
   },
   "type": "module"
