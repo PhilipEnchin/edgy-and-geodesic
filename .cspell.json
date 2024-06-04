@@ -2,7 +2,8 @@
   "version": "0.2",
   "language": "en",
   "ignorePaths": [
-    "coverage"
+    "coverage",
+    "node_modules"
   ],
   "words": [
     "desmos",
@@ -10,7 +11,9 @@
     "spherifiable",
     "spherification",
     "spherified",
+    "spherifier",
     "spherify",
+    "touchgui",
     "typecheck"
   ]
 }

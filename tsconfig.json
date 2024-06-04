@@ -9,6 +9,6 @@
     "target": "ESNext"
   },
   "exclude": [
-    "coverage"
+    "**/coverage"
   ]
 }

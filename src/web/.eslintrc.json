@@ -1,0 +1,21 @@
+{
+  "ignorePatterns": [
+    "dist"
+  ],
+  "rules": {
+    "new-cap": [
+      "error",
+      {
+        "newIsCapExceptions": [
+          "p5"
+        ]
+      }
+    ],
+    "no-param-reassign": [
+      "error",
+      {
+        "props": false
+      }
+    ]
+  }
+}

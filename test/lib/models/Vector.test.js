@@ -131,6 +131,35 @@ describe('Vector', () => {
     });
   });
 
+  describe('Vector3.prototype.cross', () => {
+    it('should calculate the cross product of two vectors', () => {
+      const a = new Vector3(2, 3, 5);
+      const b = new Vector3(7, 11, 13);
+      const expected = new Vector3(-16, 9, 1);
+
+      expect(a.cross(b).isEqualTo(expected), `Expected ${a} x ${b} to equal ${expected}`).to.be.true;
+      expect(b.cross(a).isEqualTo(expected.times(-1)), `Expected ${a} x ${b} to equal ${expected}`).to.be.true;
+    });
+
+    it('should return a new vector', () => {
+      const a = new Vector3(2, 3, 5);
+      const b = new Vector3(7, 11, 13);
+      const crossProduct = a.cross(b);
+
+      expect(crossProduct).to.not.equal(a);
+      expect(crossProduct).to.not.equal(b);
+    });
+
+    it('should not modify original vectors', () => {
+      const a = new Vector3(2, 3, 5);
+      const b = new Vector3(7, 11, 13);
+      a.cross(b);
+
+      expect(a.isEqualTo(new Vector3(2, 3, 5))).to.be.true;
+      expect(b.isEqualTo(new Vector3(7, 11, 13))).to.be.true;
+    });
+  });
+
   describe('Vector3.prototype.distanceTo', () => {
     it('should calculate the magnitude of the difference of two vectors', () => {
       const a = new Vector3(-4, 5, -6);

@@ -58,6 +58,19 @@ class Vector3 {
   }
 
   /**
+   * Returns the cross product of this and another vector
+   * @param {Vector3} that
+   * @returns {Vector3}
+   */
+  cross(that) {
+    return new Vector3(
+      this.#y * that.#z - this.#z * that.#y,
+      this.#z * that.#x - this.#x * that.#z,
+      this.#x * that.#y - this.#y * that.#x,
+    );
+  }
+
+  /**
    * @param {Vector3} that
    * @returns {number}
    */
