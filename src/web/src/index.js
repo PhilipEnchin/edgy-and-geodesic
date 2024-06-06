@@ -5,7 +5,7 @@ import {
   UI,
   USER_PARAMETERS,
 } from './constants.js';
-import makeIcosahedron from '../../lib/util/icosahedron.js';
+import makeIcosahedron from '../../lib/polyhedra/icosahedron.js';
 import createIncrementor from './lib/incrementor.js';
 import createIncrementorUI from './ui/incrementor.js';
 import createCheckboxArrayUI from './ui/checkboxArray.js';

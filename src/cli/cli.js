@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { decorateEdges, groupDecoratedEdgesByLength } from '../lib/util/edgeProcessor.js';
-import makeIcosahedron from '../lib/util/icosahedron.js';
+import makeIcosahedron from '../lib/polyhedra/icosahedron.js';
 import { DEFAULT_PRECISION } from './lib/constants.js';
 import parseArgs from './lib/parseArgs.js';
 
