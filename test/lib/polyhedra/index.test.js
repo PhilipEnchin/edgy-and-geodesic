@@ -15,6 +15,13 @@ import makePolyhedron from '../../../src/lib/polyhedra/index.js';
 
 /** @type {PolyhedronTest[]} */ const tests = [
   {
+    polyhedronId: 'octahedron',
+    vertexCount: 6,
+    edgeCount: 12,
+    faceCount: 8,
+    connectionsPerVertex: 4,
+  },
+  {
     polyhedronId: 'icosahedron',
     vertexCount: 12,
     edgeCount: 30,
