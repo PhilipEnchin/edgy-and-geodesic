@@ -15,6 +15,13 @@ import makePolyhedron from '../../../src/lib/polyhedra/index.js';
 
 /** @type {PolyhedronTest[]} */ const tests = [
   {
+    polyhedronId: 'tetrahedron',
+    vertexCount: 4,
+    edgeCount: 6,
+    faceCount: 4,
+    connectionsPerVertex: 3,
+  },
+  {
     polyhedronId: 'octahedron',
     vertexCount: 6,
     edgeCount: 12,
@@ -82,7 +89,7 @@ describe('makePolyhedron', () => {
           .flat();
 
         expect(expectedLength).to.be.greaterThan(0);
-        expect(actualLengths).to.deep.equal(Array(vertexCount * connectionsPerVertex).fill(expectedLength));
+        actualLengths.forEach((actualLength) => expect(actualLength).to.be.closeTo(expectedLength, 2 ** -50));
       });
 
       it('should create equivalent, non-zero angles between adjacent vertices, as measured from the origin', () => {
@@ -91,9 +98,9 @@ describe('makePolyhedron', () => {
 
         expect(expectedAngle).to.be.greaterThan(0);
         triangles.forEach((triangle) => {
-          expect(triangle[0].vector3.angleTo(triangle[1].vector3)).to.equal(expectedAngle);
-          expect(triangle[0].vector3.angleTo(triangle[2].vector3)).to.equal(expectedAngle);
-          expect(triangle[1].vector3.angleTo(triangle[2].vector3)).to.equal(expectedAngle);
+          expect(triangle[0].vector3.angleTo(triangle[1].vector3)).to.be.closeTo(expectedAngle, 2 ** -50);
+          expect(triangle[0].vector3.angleTo(triangle[2].vector3)).to.be.closeTo(expectedAngle, 2 ** -50);
+          expect(triangle[1].vector3.angleTo(triangle[2].vector3)).to.be.closeTo(expectedAngle, 2 ** -50);
         });
       });
 
@@ -117,10 +124,10 @@ describe('makePolyhedron', () => {
           expect(ab.angleTo(cb)).to.be.closeTo(Math.PI / 3, 0.000000001);
           expect(ac.angleTo(bc)).to.be.closeTo(Math.PI / 3, 0.000000001);
 
-          expect(ab.magnitude).to.equal(expectedSideLength);
-          expect(ac.magnitude).to.equal(expectedSideLength);
-          expect(bc.magnitude).to.equal(expectedSideLength);
-          expect(cb.magnitude).to.equal(expectedSideLength);
+          expect(ab.magnitude).to.be.closeTo(expectedSideLength, 2 ** -50);
+          expect(ac.magnitude).to.be.closeTo(expectedSideLength, 2 ** -50);
+          expect(bc.magnitude).to.be.closeTo(expectedSideLength, 2 ** -50);
+          expect(cb.magnitude).to.be.closeTo(expectedSideLength, 2 ** -50);
         });
       });
     });
