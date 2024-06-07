@@ -1,6 +1,8 @@
 import { INCREMENTOR, UI } from '../constants.js';
 import createIncrementor from '../lib/incrementor.js';
 
+/** @typedef {import('../lib/incrementor.js').IncrementorCallback} IncrementorCallback */
+
 /**
  * @typedef {object} IncrementorUI
  * @property {number} value
@@ -15,7 +17,7 @@ import createIncrementor from '../lib/incrementor.js';
  * @param {number} increment
  * @param {number} x
  * @param {number} y
- * @param {function} callback
+ * @param {IncrementorCallback} callback
  * @returns {IncrementorUI}
  */
 const createIncrementorUI = (sketch, labelKey, initial, min, max, increment, x, y, callback) => {

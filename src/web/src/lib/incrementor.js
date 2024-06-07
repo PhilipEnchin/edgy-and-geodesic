@@ -7,12 +7,14 @@
  * @property {number} value - The current value.
  */
 
+/** @typedef {(value:number) => void} IncrementorCallback */
+
 /**
  * @param {number} initial
  * @param {number} min
  * @param {number} max
  * @param {number} increment
- * @param {function} [callback]
+ * @param {IncrementorCallback} [callback]
  * @returns {Incrementor}
  */
 const createIncrementor = (initial, min, max, increment, callback = () => {}) => {

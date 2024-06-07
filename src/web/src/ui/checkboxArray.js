@@ -7,12 +7,14 @@ import { UI } from '../constants.js';
 
 /** @typedef {Object<string,boolean>} CheckboxArray */
 
+/** @typedef {(checkboxArray:CheckboxArray) => void} CheckboxArrayCallback */
+
 /**
  * @param {*} sketch
  * @param {CheckboxArray} checkboxes
  * @param {number} x
  * @param {number} y
- * @param {function} callback
+ * @param {CheckboxArrayCallback} callback
  * @returns {CheckboxArrayUI}
  */
 const createCheckboxArrayUI = (sketch, checkboxes, x, y, callback) => {

@@ -53,8 +53,24 @@ const s = (sketch) => {
 
   const simpleLayout = () => {
     const { FREQUENCY } = USER_PARAMETERS;
-    frequencyUI = createIncrementorUI(sketch, 'Frequency', FREQUENCY.INITIAL, FREQUENCY.MIN, FREQUENCY.MAX, FREQUENCY.INCREMENT, UI.MARGIN_LEFT, rowLocationIncrementor.increment().value, updatePolyhedron);
-    spherifyUI = createCheckboxArrayUI(sketch, checkboxValues, UI.MARGIN_LEFT, rowLocationIncrementor.increment().value, () => { checkboxValues = spherifyUI.values; });
+    frequencyUI = createIncrementorUI(
+      sketch,
+      'Frequency',
+      FREQUENCY.INITIAL,
+      FREQUENCY.MIN,
+      FREQUENCY.MAX,
+      FREQUENCY.INCREMENT,
+      UI.MARGIN_LEFT,
+      rowLocationIncrementor.increment().value,
+      updatePolyhedron,
+    );
+    spherifyUI = createCheckboxArrayUI(
+      sketch,
+      checkboxValues,
+      UI.MARGIN_LEFT,
+      rowLocationIncrementor.increment().value,
+      () => { checkboxValues = spherifyUI.values; },
+    );
     frameRateLabel = sketch.createDiv('blah').position(sketch.windowWidth / 2, sketch.windowHeight / 2).style('text-align', 'center').style('font-size', '50px');
   };
 

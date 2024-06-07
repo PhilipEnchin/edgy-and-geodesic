@@ -36,7 +36,8 @@
     "test-cli:dev": "nodemon -x 'npm run test-cli -- --reporter min'",
     "test-web": "c8 --include src/web/ --exclude src/web/webpack.config.cjs --exclude src/web/src/index.js --exclude src/web/dist/ mocha --recursive test-web/",
     "test-web:dev": "nodemon -x 'npm run test-web -- --reporter min'",
-    "typecheck": "tsc"
+    "typecheck": "tsc",
+    "typecheck:dev": "tsc -w"
   },
   "type": "module"
 }
