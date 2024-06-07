@@ -2,13 +2,17 @@
 
 import { parseArgs } from 'node:util';
 import {
-  FREQUENCY_POSITIVE_INT, HELP_TEXT, MAX_ONE_SIZE_ARG, PARSE_CONFIG, SIZE_ARG_POSITIVE_NUM, SIZE_ARG_REQUIRED,
+  FREQUENCY_POSITIVE_INT, HELP_TEXT, MAX_ONE_POLYHEDRON_ARG, MAX_ONE_SIZE_ARG, PARSE_CONFIG, SIZE_ARG_POSITIVE_NUM, SIZE_ARG_REQUIRED,
 } from './constants.js';
+
+/** @typedef {import('../../lib/models/Vertex.js').SpherifyMode} SpherifyMode */
+/** @typedef {import('../../lib/polyhedra/index.js').PolyhedronId} PolyhedronId */
 
 /**
  * @typedef {object} ParsedArgs
+ * @property {PolyhedronId} polyhedronId
  * @property {number} frequency
- * @property {'radius'|'minLength'|'maxLength'} sizeKey
+ * @property {SpherifyMode} sizeKey
  * @property {number} sizeValue
  * @property {boolean} fullOutput
  * @property {boolean} spherify
@@ -42,6 +46,10 @@ const argParser = (args = process.argv.slice(2)) => {
       return false;
     }
 
+    const polyhedronArgCount = ['icosahedron', 'octahedron', 'tetrahedron'].reduce((acc, arg) => acc + (arg in values ? 1 : 0), 0);
+    if (polyhedronArgCount > 1) throw new ArgParseError(MAX_ONE_POLYHEDRON_ARG);
+    const polyhedronId = 'tetrahedron' in values ? 'tetrahedron' : ('octahedron' in values ? 'octahedron' : 'icosahedron');
+
     const frequency = Number(values.frequency);
     if (Number.isNaN(frequency) || !Number.isInteger(frequency) || frequency <= 0) throw new ArgParseError(FREQUENCY_POSITIVE_INT);
 
@@ -54,6 +62,7 @@ const argParser = (args = process.argv.slice(2)) => {
     if (Number.isNaN(sizeValue) || sizeValue <= 0) throw new ArgParseError(SIZE_ARG_POSITIVE_NUM[sizeKey]);
 
     return {
+      polyhedronId,
       frequency,
       sizeKey,
       sizeValue,

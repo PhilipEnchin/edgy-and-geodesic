@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
+import makePolyhedron from '../lib/polyhedra/index.js';
 import { decorateEdges, groupDecoratedEdgesByLength } from '../lib/util/edgeProcessor.js';
-import makeIcosahedron from '../lib/polyhedra/icosahedron.js';
 import { DEFAULT_PRECISION } from './lib/constants.js';
 import parseArgs from './lib/parseArgs.js';
 
@@ -9,13 +9,13 @@ const main = () => {
   const args = parseArgs();
   if (!args) process.exit();
   const {
-    frequency, sizeKey, sizeValue, fullOutput, spherify,
+    polyhedronId, frequency, sizeKey, sizeValue, fullOutput, spherify,
   } = args;
 
-  const icosahedron = makeIcosahedron();
+  const basePolyhedron = makePolyhedron(polyhedronId);
   const polyhedron = spherify
-    ? icosahedron.subdivide(frequency).spherify(sizeKey, sizeValue)
-    : icosahedron.spherify(
+    ? basePolyhedron.subdivide(frequency).spherify(sizeKey, sizeValue)
+    : basePolyhedron.spherify(
       sizeKey,
       sizeValue * (sizeKey === 'maxLength' || sizeKey === 'minLength' ? frequency : 1),
     ).subdivide(frequency);

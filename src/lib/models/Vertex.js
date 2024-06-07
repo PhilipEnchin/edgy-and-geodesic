@@ -11,6 +11,8 @@
 
 /** @typedef {(vertex:Vertex, index:number) => TransformedVertex} VertexTransformerFunction */
 
+/** @typedef {'radius'|'minLength'|'maxLength'} SpherifyMode */
+
 import Vector3 from './Vector.js';
 import { triangleCompare, vectorCompare, vertexCompare } from '../util/comparators.js';
 import {
@@ -173,7 +175,7 @@ class Vertex {
   /**
    * Project points outward from origin onto the surface of a sphere. Specify either the radius of
    * the sphere, or the minimum of maximum lengths of all edges.
-   * @param {'radius'|'minLength'|'maxLength'} [mode=radius]
+   * @param {SpherifyMode} [mode=radius]
    * @param {number} [modeValue=1]
    * @returns {Vertex}
    */

@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import { spawn } from 'nexpect';
 import { readFileSync } from 'fs';
 import {
-  FREQUENCY_POSITIVE_INT, HELP_TEXT, MAX_ONE_SIZE_ARG, SIZE_ARG_POSITIVE_NUM, SIZE_ARG_REQUIRED,
+  FREQUENCY_POSITIVE_INT, HELP_TEXT, MAX_ONE_POLYHEDRON_ARG, MAX_ONE_SIZE_ARG, SIZE_ARG_POSITIVE_NUM, SIZE_ARG_REQUIRED,
 } from '../src/cli/lib/constants.js';
 
 /**
@@ -118,6 +118,33 @@ describe('CLI', () => {
         .run(callback(done, 2));
     });
 
+    it('should print summary with icosahedron specified', (_done) => {
+      const done = multiDone(_done, 2);
+      ['--icosahedron', '-i'].forEach((polyhedronFlag) => {
+        spawn(`./geodesic -m 42 ${polyhedronFlag}`)
+          .expect('Length of 42: 30')
+          .run(callback(done, 2));
+      });
+    });
+
+    it('should print summary with octahedron specified', (_done) => {
+      const done = multiDone(_done, 2);
+      ['--octahedron', '-o'].forEach((polyhedronFlag) => {
+        spawn(`./geodesic -m 42 ${polyhedronFlag}`)
+          .expect('Length of 42: 12')
+          .run(callback(done, 2));
+      });
+    });
+
+    it('should print summary with tetrahedron specified', (_done) => {
+      const done = multiDone(_done, 2);
+      ['--tetrahedron', '-t'].forEach((polyhedronFlag) => {
+        spawn(`./geodesic -m 42 ${polyhedronFlag}`)
+          .expect('Length of 42: 6')
+          .run(callback(done, 2));
+      });
+    });
+
     it('should print summary non-default frequency', (_done) => {
       const done = multiDone(_done, 2);
       ['--frequency', '-f'].forEach((frequencyFlag) => {
@@ -175,11 +202,12 @@ describe('CLI', () => {
 
   describe('sad path', () => {
     /**
-     * @param {string} command
+     * @param {string} args
      * @param {string} expectedErrorText
      * @param {Mocha.Done} _done
      */
-    const checkErrorAndHelpText = (command, expectedErrorText, _done) => {
+    const checkErrorAndHelpText = (args, expectedErrorText, _done) => {
+      const command = `./geodesic${args ? ` ${args}` : args}`;
       const done = multiDone(_done, 2);
       const spawned = spawn(command, { stream: 'stdout' });
       helpText.forEach((helpLine) => { spawned.expect(helpLine); });
@@ -191,41 +219,49 @@ describe('CLI', () => {
     };
 
     it('should print error and help when no size specified', (done) => {
-      checkErrorAndHelpText('./geodesic', SIZE_ARG_REQUIRED, done);
+      checkErrorAndHelpText('', SIZE_ARG_REQUIRED, done);
     });
 
     it('should print error and help when unsupported flags are used', (done) => {
-      checkErrorAndHelpText('./geodesic --unknown', 'Unknown option \'--unknown\'', done);
+      checkErrorAndHelpText('--unknown', 'Unknown option \'--unknown\'', done);
+    });
+
+    it('should print error and help when multiple polyhedra are specified', (_done) => {
+      const done = multiDone(_done, 4);
+      checkErrorAndHelpText('-m 42 -i -o', MAX_ONE_POLYHEDRON_ARG, done);
+      checkErrorAndHelpText('-m 42 -i -t', MAX_ONE_POLYHEDRON_ARG, done);
+      checkErrorAndHelpText('-m 42 -o -t', MAX_ONE_POLYHEDRON_ARG, done);
+      checkErrorAndHelpText('-m 42 -i -o -t', MAX_ONE_POLYHEDRON_ARG, done);
     });
 
     it('should print error and help when frequency is zero', (done) => {
-      checkErrorAndHelpText('./geodesic -m 42 -f 0', FREQUENCY_POSITIVE_INT, done);
+      checkErrorAndHelpText('-m 42 -f 0', FREQUENCY_POSITIVE_INT, done);
     });
 
     it('should print error and help when frequency is negative', (done) => {
-      checkErrorAndHelpText('./geodesic -m 42 --frequency=-1', FREQUENCY_POSITIVE_INT, done);
+      checkErrorAndHelpText('-m 42 --frequency=-1', FREQUENCY_POSITIVE_INT, done);
     });
 
     it('should print error and help when frequency is not an integer', (done) => {
-      checkErrorAndHelpText('./geodesic -m 42 -f 1.5', FREQUENCY_POSITIVE_INT, done);
+      checkErrorAndHelpText('-m 42 -f 1.5', FREQUENCY_POSITIVE_INT, done);
     });
 
     it('should print error and help when size is zero', (_done) => {
       const done = multiDone(_done, 3);
-      checkErrorAndHelpText('./geodesic -m 0', SIZE_ARG_POSITIVE_NUM.minLength, done);
-      checkErrorAndHelpText('./geodesic -M 0', SIZE_ARG_POSITIVE_NUM.maxLength, done);
-      checkErrorAndHelpText('./geodesic -r 0', SIZE_ARG_POSITIVE_NUM.radius, done);
+      checkErrorAndHelpText('-m 0', SIZE_ARG_POSITIVE_NUM.minLength, done);
+      checkErrorAndHelpText('-M 0', SIZE_ARG_POSITIVE_NUM.maxLength, done);
+      checkErrorAndHelpText('-r 0', SIZE_ARG_POSITIVE_NUM.radius, done);
     });
 
     it('should print error and help when size is negative', (_done) => {
       const done = multiDone(_done, 3);
-      checkErrorAndHelpText('./geodesic --minLength=-1', SIZE_ARG_POSITIVE_NUM.minLength, done);
-      checkErrorAndHelpText('./geodesic --maxLength=-1', SIZE_ARG_POSITIVE_NUM.maxLength, done);
-      checkErrorAndHelpText('./geodesic --radius=-1', SIZE_ARG_POSITIVE_NUM.radius, done);
+      checkErrorAndHelpText('--minLength=-1', SIZE_ARG_POSITIVE_NUM.minLength, done);
+      checkErrorAndHelpText('--maxLength=-1', SIZE_ARG_POSITIVE_NUM.maxLength, done);
+      checkErrorAndHelpText('--radius=-1', SIZE_ARG_POSITIVE_NUM.radius, done);
     });
 
     it('should print error and help when multiple size args are specified', (done) => {
-      checkErrorAndHelpText('./geodesic -r 1 -m 2', MAX_ONE_SIZE_ARG, done);
+      checkErrorAndHelpText('-r 1 -m 2', MAX_ONE_SIZE_ARG, done);
     });
   });
 });

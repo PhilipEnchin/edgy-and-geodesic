@@ -21,8 +21,13 @@ describe('parseArgs', () => {
     consoleError.restore();
   });
 
+  it('should default to icosahedron when base polyhedron is omitted', () => {
+    expect(parseArgs(['-m', '42'])).to.haveOwnProperty('polyhedronId', 'icosahedron');
+  });
+
   it('should return parsed args object when help flag is absent, and there are no errors', () => {
     /** @type {ParsedArgs} */ const expected = {
+      polyhedronId: 'icosahedron',
       frequency: 42,
       sizeKey: 'radius',
       sizeValue: 2,
@@ -31,12 +36,12 @@ describe('parseArgs', () => {
     };
     /** @type {{args: string[], expected: ParsedArgs}[]} */ const testCases = [
       { args: ['--frequency', '42', '--radius', '2'], expected },
-      { args: ['--frequency', '42', '--radius', '2', '--fullOutput'], expected: { ...expected, fullOutput: true } },
-      { args: ['--frequency', '42', '--radius', '2', '-F'], expected: { ...expected, fullOutput: true } },
-      { args: ['--frequency', '42', '--radius', '2', '--doNotSpherify'], expected: { ...expected, spherify: false } },
-      { args: ['--frequency', '42', '--radius', '2', '-d'], expected: { ...expected, spherify: false } },
-      { args: ['-f', '42', '-r', '2'], expected },
-      { args: ['-f', '42', '--minLength', '2'], expected: { ...expected, sizeKey: 'minLength' } },
+      { args: ['--frequency', '42', '--radius', '2', '--fullOutput', '--icosahedron'], expected: { ...expected, fullOutput: true } },
+      { args: ['--frequency', '42', '--radius', '2', '-F', '-i'], expected: { ...expected, fullOutput: true } },
+      { args: ['--frequency', '42', '--radius', '2', '--doNotSpherify', '--octahedron'], expected: { ...expected, spherify: false, polyhedronId: 'octahedron' } },
+      { args: ['--frequency', '42', '--radius', '2', '-d', '-o'], expected: { ...expected, spherify: false, polyhedronId: 'octahedron' } },
+      { args: ['-f', '42', '-r', '2', '--tetrahedron'], expected: { ...expected, polyhedronId: 'tetrahedron' } },
+      { args: ['-f', '42', '--minLength', '2', '-t'], expected: { ...expected, sizeKey: 'minLength', polyhedronId: 'tetrahedron' } },
       { args: ['-f', '42', '-m', '2'], expected: { ...expected, sizeKey: 'minLength' } },
       { args: ['-f', '42', '--maxLength', '2'], expected: { ...expected, sizeKey: 'maxLength' } },
       { args: ['-f', '42', '-M', '2'], expected: { ...expected, sizeKey: 'maxLength' } },
@@ -57,14 +62,27 @@ describe('parseArgs', () => {
   });
 
   it('should not check other args with help flag', () => {
-    const parsed = parseArgs(['-f', '1', '-h', '-r', '2']);
+    const parsed = parseArgs(['-f', '1', '-h', '-r', '2', 't']);
 
     expect(parsed).to.be.false;
     expect(consoleLog.calledWithExactly(HELP_TEXT)).to.be.true;
   });
 
+  it('should accept a maximum of one of icosahedron, octahedron, tetrahedron', () => {
+    expect(parseArgs(['-r', '1'])).to.be.an('object');
+    expect(parseArgs(['-r', '1', '-i'])).to.be.an('object');
+    expect(parseArgs(['-r', '1', '-o'])).to.be.an('object');
+    expect(parseArgs(['-r', '1', '-t'])).to.be.an('object');
+
+    expect(parseArgs(['-r', '1', '-i', '-o'])).to.be.false;
+    expect(parseArgs(['-r', '1', '-i', '-t'])).to.be.false;
+    expect(parseArgs(['-r', '1', '-o', '-t'])).to.be.false;
+    expect(parseArgs(['-r', '1', '-i', '-o', '-t'])).to.be.false;
+  });
+
   it('should default to 1 when frequency is omitted', () => {
     /** @type {ParsedArgs} */ const expected = {
+      polyhedronId: 'icosahedron',
       frequency: 1,
       sizeKey: 'radius',
       sizeValue: 42,

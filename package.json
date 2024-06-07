@@ -32,7 +32,7 @@
     "start-web": "cd src/web && npm start",
     "test": "c8 --100 --include src/lib mocha --recursive test/",
     "test:dev": "nodemon -x 'npm run test -- --reporter min'",
-    "test-cli": "c8 --include src/lib/ mocha test-cli/",
+    "test-cli": "c8 --include src/lib/ --include src/cli/ mocha --recursive test-cli/",
     "test-cli:dev": "nodemon -x 'npm run test-cli -- --reporter min'",
     "test-web": "c8 --include src/web/ --exclude src/web/webpack.config.cjs --exclude src/web/src/index.js --exclude src/web/dist/ mocha --recursive test-web/",
     "test-web:dev": "nodemon -x 'npm run test-web -- --reporter min'",
