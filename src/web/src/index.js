@@ -5,21 +5,25 @@ import {
   UI,
   USER_PARAMETERS,
 } from './constants.js';
-import makeIcosahedron from '../../lib/polyhedra/icosahedron.js';
 import createIncrementor from './lib/incrementor.js';
 import createIncrementorUI from './ui/incrementor.js';
 import createCheckboxArrayUI from './ui/checkboxArray.js';
 import makeModel from './lib/p5Model.js';
+import createRadioUI from './ui/radio.js';
+import makePolyhedron from '../../lib/polyhedra/index.js';
 
 /** @typedef {import('./ui/incrementor.js').IncrementorUI} IncrementorUI */
 /** @typedef {import('./ui/checkboxArray.js').CheckboxArrayUI} CheckboxArrayUI */
 /** @typedef {import('./ui/checkboxArray.js').CheckboxArray} CheckboxArray */
+/** @typedef {import('./ui/radio.js').RadioUI} RadioUI */
+/** @typedef {import('../../lib/polyhedra/index.js').PolyhedronId} PolyhedronId */
 
 const s = (sketch) => {
   const rowLocationIncrementor = createIncrementor(UI.MARGIN_TOP - UI.ROW_HEIGHT - UI.PADDING_INTER, -Infinity, Infinity, UI.ROW_HEIGHT + UI.PADDING_INTER);
 
   /** @type {IncrementorUI} */ let frequencyUI;
   /** @type {CheckboxArrayUI} */ let spherifyUI;
+  /** @type {RadioUI} */ let basePolyhedronUI;
   /** @type {CheckboxArray} */ let checkboxValues = USER_PARAMETERS.SPHERIFIED.INITIAL;
   /** @type {p5.Geometry} */ let flatModel;
   /** @type {p5.Geometry} */ let roundModel;
@@ -38,8 +42,9 @@ const s = (sketch) => {
     const windowSize = Math.min(sketch.windowWidth, sketch.windowHeight);
     const frequency = frequencyUI.value;
     const radius = windowSize * POLYHEDRON.RELATIVE_RADIUS;
+    const polyhedronId = /** @type {PolyhedronId} */ (basePolyhedronUI.selected);
 
-    let polyhedron = makeIcosahedron().spherify('radius', radius);
+    let polyhedron = makePolyhedron(polyhedronId).spherify('radius', radius);
     if (frequencyUI.value > 1) polyhedron = polyhedron.subdivide(frequency);
 
     const frequencyScaler = 1 / Math.sqrt(frequency);
@@ -70,6 +75,14 @@ const s = (sketch) => {
       UI.MARGIN_LEFT,
       rowLocationIncrementor.increment().value,
       () => { checkboxValues = spherifyUI.values; },
+    );
+    basePolyhedronUI = createRadioUI(
+      sketch,
+      USER_PARAMETERS.BASE_POLYHEDRON.OPTIONS,
+      USER_PARAMETERS.BASE_POLYHEDRON.INITIAL,
+      UI.MARGIN_LEFT,
+      rowLocationIncrementor.increment().value,
+      updatePolyhedron,
     );
     frameRateLabel = sketch.createDiv('blah').position(sketch.windowWidth / 2, sketch.windowHeight / 2).style('text-align', 'center').style('font-size', '50px');
   };

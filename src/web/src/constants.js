@@ -1,3 +1,5 @@
+/** @typedef {import('../../lib/polyhedra/index.js').PolyhedronId} PolyhedronId */
+
 const UI_ROW_HEIGHT = 30;
 const UI_TEXT_SCALE = 0.9;
 
@@ -20,6 +22,16 @@ export const UI = {
 export const USER_PARAMETERS = {
   FREQUENCY: {
     INITIAL: 1, MIN: 1, MAX: 10, INCREMENT: 1,
+  },
+  BASE_POLYHEDRON: {
+    /** @type {[string,PolyhedronId][]} */ get OPTIONS() {
+      return [
+        ['20-gon', 'icosahedron'],
+        ['8-gon', 'octahedron'],
+        ['4-gon', 'tetrahedron'],
+      ];
+    },
+    /** @type {PolyhedronId} */ INITIAL: 'icosahedron',
   },
   SPHERIFIED: {
     get INITIAL() { return { Flat: true, Spherified: false }; },
