@@ -1,3 +1,5 @@
+import { UI } from '../constants.js';
+
 /** @typedef {import('../../../lib/polyhedra/index.js').PolyhedronId} PolyhedronId */
 
 /** @typedef {[string,string]} LabelValuePair */
@@ -7,6 +9,8 @@
  * @typedef {object} RadioUI
  * @property {string} selected
  */
+
+const { ROW_HEIGHT, TEXT_SIZE } = UI;
 
 /**
  * @param {*} sketch
@@ -19,10 +23,12 @@
  */
 const createRadioUI = (sketch, labelValuePairs, selection, x, y, callback) => {
   const radio = sketch.createRadio()
-    .position(x, y);
+    .position(x, y)
+    .style('fontSize', `${TEXT_SIZE}px`);
 
   labelValuePairs.forEach(([label, value]) => {
-    radio.option(value, label);
+    const option = radio.option(value, label);
+    option.style.height = option.style.width = `${ROW_HEIGHT}px`;
   });
 
   radio.selected(selection);
