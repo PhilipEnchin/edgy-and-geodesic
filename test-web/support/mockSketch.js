@@ -4,11 +4,13 @@
  * @property {MockDiv[]} divs
  * @property {MockSpan[]} spans
  * @property {MockCheckbox[]} checkboxes
+ * @property {MockRadio[]} radios
  * @property {()=>void} reset Reset element arrays
  * @property {(...creation:*) => MockButton} createButton
  * @property {(...creation:*) => MockDiv} createDiv
  * @property {(...creation:*) => MockSpan} createSpan
  * @property {(...creation:*) => MockCheckbox} createCheckbox
+ * @property {(...creation:*) => MockRadio} createRadio
 */
 
 /**
@@ -71,8 +73,52 @@
  * @property {string?} style.fontSize
  */
 
+/**
+ * @typedef {object} MockRadio
+ * @property {function} callback
+ * @property {(...args:*) => MockRadio} position
+ * @property {(...args:*) => MockRadio} style
+ * @property {(...args:*) => MockRadioOption} option
+ * @property {MockRadioOption[]} options
+ * @property {string} selectedValue
+ * @property {(selection?:string) => MockRadioOption} selected
+ * @property {(f:function) => void} mouseClicked
+ * @property {() => string} value
+ * @property {object} savedArgs
+ * @property {*[]} savedArgs.creation
+ * @property {*[]?} savedArgs.position
+ * @property {*[]?} savedArgs.style
+ */
+
+/**
+ * @typedef {object} MockRadioOptionExtras
+ * @property {string} value
+ * @property {string} label
+ * @property {MockRadio} parentRadio
+ * @property {() => void} press
+ */
+
+/** @typedef {MockElement & MockRadioOptionExtras} MockRadioOption */
+
 /** @returns {MockElement} */
 const makeMockElement = () => ({ style: { width: null, height: null, fontSize: null } });
+
+/**
+ * @param {string} value
+ * @param {string} label
+ * @param {MockRadio} parentRadio
+ * @returns {MockRadioOption}
+ */
+const makeMockRadioOption = (value, label, parentRadio) => ({
+  ...makeMockElement(),
+  value,
+  label,
+  parentRadio,
+  press() {
+    parentRadio.selected(this.value);
+    parentRadio.callback(this.value);
+  },
+});
 
 /**
  * @param {object} limits
@@ -80,23 +126,32 @@ const makeMockElement = () => ({ style: { width: null, height: null, fontSize: n
  * @param {number} [limits.divLimit]
  * @param {number} [limits.spanLimit]
  * @param {number} [limits.checkboxLimit]
+ * @param {number} [limits.radioLimit]
+ * @param {number} [limits.radioOptionLimit]
  * @returns {MockSketch}
  */
 const makeMockSketch = ({
-  buttonLimit = 0, divLimit = 0, spanLimit = 0, checkboxLimit = 0,
+  buttonLimit = 0,
+  divLimit = 0,
+  spanLimit = 0,
+  checkboxLimit = 0,
+  radioLimit = 0,
+  radioOptionLimit = 0,
 } = {}) => {
-  const buttons = [];
-  const divs = [];
-  const spans = [];
-  const checkboxes = [];
+  /** @type {MockButton[]} */ const buttons = [];
+  /** @type {MockDiv[]} */ const divs = [];
+  /** @type {MockSpan[]} */ const spans = [];
+  /** @type {MockCheckbox[]} */ const checkboxes = [];
+  /** @type {MockRadio[]} */ const radios = [];
 
   return {
     get buttons() { return [...buttons]; },
     get divs() { return [...divs]; },
     get spans() { return [...spans]; },
     get checkboxes() { return [...checkboxes]; },
+    get radios() { return [...radios]; },
     reset() {
-      buttons.length = divs.length = spans.length = checkboxes.length = 0;
+      buttons.length = divs.length = spans.length = checkboxes.length = radios.length = 0;
       return this;
     },
     /**
@@ -181,6 +236,35 @@ const makeMockSketch = ({
       };
       checkboxes.push(newCheckbox);
       return newCheckbox;
+    },
+    createRadio(...creation) {
+      if (radios.length >= radioLimit) throw new Error('Extra mock radio created');
+      /** @type {MockRadio} */ const newRadio = {
+        callback: () => {},
+        position(...args) { this.savedArgs.position = args; return this; },
+        style(...args) { this.savedArgs.style = args; return this; },
+        options: [],
+        option(value, label) {
+          if (this.options.length >= radioOptionLimit) throw new Error('Extra mock radio option created');
+          const option = makeMockRadioOption(value, label, this);
+          this.options.push(option);
+          return option;
+        },
+        selectedValue: creation[2],
+        selected(selection) {
+          if (selection !== undefined) this.selectedValue = selection;
+          return this.options.find(({ value }) => value === this.selectedValue);
+        },
+        mouseClicked(f) { this.callback = f; return this; },
+        value() { return this.selectedValue; },
+        savedArgs: {
+          creation,
+          position: null,
+          style: null,
+        },
+      };
+      radios.push(newRadio);
+      return newRadio;
     },
   };
 };

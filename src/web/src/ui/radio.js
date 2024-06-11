@@ -15,7 +15,7 @@ const { ROW_HEIGHT, TEXT_SIZE } = UI;
 /**
  * @param {*} sketch
  * @param {LabelValuePair[]} labelValuePairs
- * @param {string} selection
+ * @param {string} selection selected value (second in labelValuePair)
  * @param {number} x
  * @param {number} y
  * @param {RadioCallback} callback
@@ -33,7 +33,7 @@ const createRadioUI = (sketch, labelValuePairs, selection, x, y, callback) => {
 
   radio.selected(selection);
 
-  radio.mouseClicked(() => { callback(radio.selected()); });
+  radio.mouseClicked(() => { callback(radio.value()); });
 
   return {
     get selected() { return radio.value(); },
