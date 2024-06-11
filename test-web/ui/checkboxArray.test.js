@@ -1,71 +1,34 @@
 import { expect } from 'chai';
 import createCheckboxArrayUI from '../../src/web/src/ui/checkboxArray.js';
+import makeMockSketch from '../support/mockSketch.js';
 
 /** @typedef {import('../../src/web/src/ui/checkboxArray.js').CheckboxArrayUI} CheckboxArrayUI */
+/** @typedef {import('../support/mockSketch.js').MockDiv} MockDiv */
+/** @typedef {import('../support/mockSketch.js').MockCheckbox} MockCheckbox */
 
 describe('createCheckboxArrayUI', () => {
   /** @type {CheckboxArrayUI} */ let defaultCheckboxArrayUI;
 
-  let mockDiv; let mockCheckboxLeft; let mockCheckboxMiddle; let mockCheckboxRight;
+  /** @type {MockDiv} */ let mockDiv;
+  /** @type {MockCheckbox} */ let mockCheckboxLeft;
+  /** @type {MockCheckbox} */ let mockCheckboxMiddle;
+  /** @type {MockCheckbox} */ let mockCheckboxRight;
+
   const LABEL = { LEFT: 'left', MIDDLE: 'middle', RIGHT: 'right' };
   const INITIAL = { LEFT: true, MIDDLE: false, RIGHT: true };
   let callbackArgs;
   const [X, Y, CALLBACK] = [1, 2, (...args) => { callbackArgs.push(args); }];
 
-  const mockSketch = {
-    createDiv(...creation) {
-      const newMockDiv = {
-        position(...args) { this.savedArgs.position = args; return this; },
-        children: [],
-        savedArgs: {
-          creation,
-          position: null,
-        },
-      };
-      if (!mockDiv) return mockDiv = newMockDiv;
-      throw new Error('Extra mock div created');
-    },
-    createCheckbox(...creation) {
-      const mockCheckbox = {
-        callback: () => {},
-        parent(parent) { parent.children.push(this); return this; },
-        style(...args) { this.savedArgs.style = args; return this; },
-        input: null,
-        label: null,
-        value: creation[1],
-        changed(f) { this.callback = f; return this; },
-        checked() { return this.value; },
-        press() { this.value = !this.value; this.callback(); },
-        get elt() {
-          return {
-            querySelector: (selector) => {
-              const newElement = { style: { width: null, height: null, fontSize: null } };
-              if (selector === 'input' && !this.input) return this.input = newElement;
-              if (selector === 'label' && !this.label) return this.label = newElement;
-              throw new Error('Extra or unknown element queried');
-            },
-          };
-        },
-        savedArgs: {
-          creation,
-          style: null,
-        },
-      };
-
-      if (!mockCheckboxLeft) return mockCheckboxLeft = mockCheckbox;
-      if (!mockCheckboxMiddle) return mockCheckboxMiddle = mockCheckbox;
-      if (!mockCheckboxRight) return mockCheckboxRight = mockCheckbox;
-      throw new Error('Extra mock checkbox created');
-    },
-  };
+  const mockSketch = makeMockSketch({ divLimit: 1, checkboxLimit: 3 });
 
   beforeEach(() => {
-    mockDiv = mockCheckboxLeft = mockCheckboxMiddle = mockCheckboxRight = null;
-    defaultCheckboxArrayUI = createCheckboxArrayUI(mockSketch, {
+    defaultCheckboxArrayUI = createCheckboxArrayUI(mockSketch.reset(), {
       [LABEL.LEFT]: INITIAL.LEFT,
       [LABEL.MIDDLE]: INITIAL.MIDDLE,
       [LABEL.RIGHT]: INITIAL.RIGHT,
     }, X, Y, CALLBACK);
+    [mockDiv] = mockSketch.divs;
+    [mockCheckboxLeft, mockCheckboxMiddle, mockCheckboxRight] = mockSketch.checkboxes;
     callbackArgs = [];
   });
 
@@ -88,6 +51,7 @@ describe('createCheckboxArrayUI', () => {
     expect(mockDiv.savedArgs).to.deep.equal({
       creation: [],
       position: [X, Y],
+      style: null,
     });
   });
 

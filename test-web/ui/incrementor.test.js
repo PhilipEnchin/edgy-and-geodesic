@@ -1,8 +1,13 @@
 import { expect } from 'chai';
 import createIncrementorUI from '../../src/web/src/ui/incrementor.js';
 import { INCREMENTOR, UI } from '../../src/web/src/constants.js';
+import makeMockSketch from '../support/mockSketch.js';
 
 /** @typedef {import('../../src/web/src/ui/incrementor.js').IncrementorUI} IncrementorUI */
+/** @typedef {import('../support/mockSketch.js').MockSketch} MockSketch */
+/** @typedef {import('../support/mockSketch.js').MockButton} MockButton */
+/** @typedef {import('../support/mockSketch.js').MockDiv} MockDiv */
+/** @typedef {import('../support/mockSketch.js').MockSpan} MockSpan */
 
 describe('createIncrementorUI', () => {
   /** @type {IncrementorUI} */ let defaultIncrementorUI;
@@ -13,61 +18,19 @@ describe('createIncrementorUI', () => {
   let callbackArgs;
   const CALLBACK = (...args) => { callbackArgs.push(args); };
 
-  let mockMinus; let mockPlus; let mockLabelDiv; let mockKeySpan; let mockValueSpan;
+  /** @type {MockButton} */ let mockMinus;
+  /** @type {MockButton} */ let mockPlus;
+  /** @type {MockDiv} */ let mockLabelDiv;
+  /** @type {MockSpan} */ let mockKeySpan;
+  /** @type {MockSpan} */ let mockValueSpan;
 
-  const mockSketch = {
-    createButton(...creation) {
-      const newMockButton = {
-        callback: () => {},
-        visible: null,
-        position(...args) { this.savedArgs.position = args; return this; },
-        size(...args) { this.savedArgs.size = args; return this; },
-        show() { this.visible = true; return this; },
-        hide() { this.visible = false; return this; },
-        mousePressed(f) { this.callback = f; return this; },
-        press() { this.callback(); },
-        savedArgs: {
-          creation,
-          position: null,
-          size: null,
-        },
-      };
-      if (!mockMinus) return mockMinus = newMockButton;
-      if (!mockPlus) return mockPlus = newMockButton;
-      throw new Error('Extra mock button created');
-    },
-    createDiv(...creation) {
-      const newMockDiv = {
-        position(...args) { this.savedArgs.position = args; return this; },
-        style(...args) { this.savedArgs.style = args; return this; },
-        children: [],
-        savedArgs: {
-          creation,
-          position: null,
-          style: null,
-        },
-      };
-      if (!mockLabelDiv) return mockLabelDiv = newMockDiv;
-      throw new Error('Extra mock div created');
-    },
-    createSpan(...creation) {
-      const newMockSpan = {
-        parent(parent) { parent.children.push(this); return this; },
-        html(...args) { this.savedArgs.html.push(args); return this; },
-        savedArgs: {
-          creation,
-          html: [],
-        },
-      };
-      if (!mockKeySpan) return mockKeySpan = newMockSpan;
-      if (!mockValueSpan) return mockValueSpan = newMockSpan;
-      throw new Error('Extra mock span created');
-    },
-  };
+  const mockSketch = makeMockSketch({ buttonLimit: 2, divLimit: 1, spanLimit: 2 });
 
   beforeEach(() => {
-    mockMinus = mockPlus = mockLabelDiv = mockKeySpan = mockValueSpan = null;
-    defaultIncrementorUI = createIncrementorUI(mockSketch, LABEL, INITIAL, MIN, MAX, INCREMENT, X, Y, CALLBACK);
+    defaultIncrementorUI = createIncrementorUI(mockSketch.reset(), LABEL, INITIAL, MIN, MAX, INCREMENT, X, Y, CALLBACK);
+    [mockMinus, mockPlus] = mockSketch.buttons;
+    [mockLabelDiv] = mockSketch.divs;
+    [mockKeySpan, mockValueSpan] = mockSketch.spans;
     callbackArgs = [];
   });
 
