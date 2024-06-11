@@ -1,10 +1,13 @@
 import { expect } from 'chai';
 import createCheckboxArrayUI from '../../src/web/src/ui/checkboxArray.js';
 import makeMockSketch from '../support/mockSketch.js';
+import { UI } from '../../src/web/src/constants.js';
 
 /** @typedef {import('../../src/web/src/ui/checkboxArray.js').CheckboxArrayUI} CheckboxArrayUI */
 /** @typedef {import('../support/mockSketch.js').MockDiv} MockDiv */
 /** @typedef {import('../support/mockSketch.js').MockCheckbox} MockCheckbox */
+
+const { ROW_HEIGHT, TEXT_SIZE } = UI;
 
 describe('createCheckboxArrayUI', () => {
   /** @type {CheckboxArrayUI} */ let defaultCheckboxArrayUI;
@@ -47,12 +50,36 @@ describe('createCheckboxArrayUI', () => {
     });
   });
 
+  it('should format checkbox input and labels to appropriate size', () => {
+    [mockCheckboxLeft, mockCheckboxMiddle, mockCheckboxRight].forEach((checkbox) => {
+      expect(checkbox.input).to.deep.equal({
+        style: {
+          fontSize: null,
+          height: `${ROW_HEIGHT}px`,
+          width: `${ROW_HEIGHT}px`,
+        },
+      });
+      expect(checkbox.label).to.deep.equal({
+        style: {
+          fontSize: `${TEXT_SIZE}px`,
+          height: null,
+          width: null,
+        },
+      });
+    });
+  });
+
   it('should create div with checkboxes as children', () => {
     expect(mockDiv.savedArgs).to.deep.equal({
       creation: [],
       position: [X, Y],
       style: null,
     });
+
+    expect(mockDiv.children).to.have.lengthOf(3);
+    expect(mockDiv.children).to.include(mockCheckboxLeft);
+    expect(mockDiv.children).to.include(mockCheckboxMiddle);
+    expect(mockDiv.children).to.include(mockCheckboxRight);
   });
 
   it('should return an object with a values getter', () => {
