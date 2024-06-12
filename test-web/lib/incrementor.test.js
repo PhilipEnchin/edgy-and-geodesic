@@ -175,7 +175,11 @@ describe('createIncrementor', () => {
       })).to.throw(ERROR.INCREMENTOR_MIN_MAX_FLIPPED);
     });
     incrementorTests();
-    xit('should set initial value to one if omitted and one is within bounds');
+
+    it('should set initial value to increment if omitted and increment is within bounds', () => {
+      expect(createIncrementor({ min: 0, max: 10, increment: 1 }).value).to.equal(1);
+      expect(createIncrementor({ min: 0, max: 10, increment: 2 }).value).to.equal(2);
+    });
     xit('should set initial to min if omitted and bounds are all positive values');
     xit('should set initial to max if omitted and bounds are all negative values');
     xit('should set min to -Infinity if omitted');

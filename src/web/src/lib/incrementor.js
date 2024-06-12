@@ -52,7 +52,7 @@ const createIncrementor = (options, callback = () => {}) => {
     };
   } else {
     const { min = -Infinity, max = Infinity, increment = 1 } = options;
-    const { initial = 1 } = options;
+    const { initial = increment } = options;
     /** @type {number} */let value = initial;
     if (max < min) throw new Error(ERROR.INCREMENTOR_MIN_MAX_FLIPPED);
     if (initial < min || max < initial) throw new Error(ERROR.INCREMENTOR_INITIAL_OUT_OF_BOUNDS);
