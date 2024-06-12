@@ -89,9 +89,12 @@ describe('createIncrementor', () => {
 
     it('should call callback with new value as only argument', () => {
       /** @type {any[][]} */ const argHistory = [];
-      const incrementor = createIncrementor({
-        initial, min, max, increment,
-      }, (...args) => { argHistory.push(args); });
+      const incrementor = createIncrementor(
+        optionsType === 'bound' ? {
+          initial, min, max, increment,
+        } : { values, initialIndex },
+        (...args) => { argHistory.push(args); },
+      );
 
       incrementor.increment();
       incrementor.decrement();
@@ -99,7 +102,7 @@ describe('createIncrementor', () => {
       if (optionsType === 'bound') {
         expect(argHistory).to.deep.equal([[initial + increment], [initial]]);
       } else if (optionsType === 'indexed') {
-        expect(argHistory).to.deep.equal([[values[initialIndex + 1]], values[initialIndex]]);
+        expect(argHistory).to.deep.equal([[values[initialIndex + 1]], [values[initialIndex]]]);
       } else throwMissingTest();
     });
 
@@ -137,7 +140,7 @@ describe('createIncrementor', () => {
     xit('should throw error if initial and min are both omitted');
   });
 
-  xdescribe('using indexed incrementor options', () => {
+  describe('using indexed incrementor options', () => {
     beforeEach(() => {
       [values, initialIndex] = [[1, 10, 100, 1000, 10000], 2];
       defaultIncrementor = createIncrementor({ values, initialIndex });

@@ -31,24 +31,38 @@
 const createIncrementor = (options, callback = () => {}) => {
   /** @type {Incrementor} */ let incrementor;
   if ('values' in options) {
-    // TODO
+    const { values } = options;
+    let { initialIndex: index = 0 } = options;
+    /** @type {number} */ let value = values[index];
+    const maxIndex = values.length - 1;
+    incrementor = {
+      increment: () => {
+        callback(value = values[index = Math.min(index + 1, maxIndex)]);
+        return incrementor;
+      },
+      decrement: () => {
+        callback(value = values[index = Math.max(index - 1, 0)]);
+        return incrementor;
+      },
+      canIncrement: () => index < maxIndex,
+      canDecrement: () => index > 0,
+      get value() { return value; },
+    };
   } else {
     const { min = -Infinity, max = Infinity, increment = 1 } = options;
     const { initial = 1 } = options;
     /** @type {number} */let value = initial;
     incrementor = {
-      increment() {
-        value = Math.min(max, value + increment);
-        callback(value);
+      increment: () => {
+        callback(value = Math.min(max, value + increment));
         return incrementor;
       },
-      decrement() {
-        value = Math.max(min, value - increment);
-        callback(value);
+      decrement: () => {
+        callback(value = Math.max(min, value - increment));
         return incrementor;
       },
-      canIncrement() { return value < max; },
-      canDecrement() { return min < value; },
+      canIncrement: () => value < max,
+      canDecrement: () => min < value,
       get value() { return value; },
     };
   }
