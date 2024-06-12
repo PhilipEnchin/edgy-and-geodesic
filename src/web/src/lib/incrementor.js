@@ -1,3 +1,5 @@
+import { ERROR } from '../constants.js';
+
 /**
  * @typedef {object} Incrementor
  * @property {function} increment - Increments the value.
@@ -52,8 +54,9 @@ const createIncrementor = (options, callback = () => {}) => {
     const { min = -Infinity, max = Infinity, increment = 1 } = options;
     const { initial = 1 } = options;
     /** @type {number} */let value = initial;
-    if (initial < min || max < initial) throw new Error('Initial value must be within bounds');
-    if (increment <= 0) throw new Error('Increment value must be a positive number');
+    if (max < min) throw new Error(ERROR.INCREMENTOR_MIN_MAX_FLIPPED);
+    if (initial < min || max < initial) throw new Error(ERROR.INCREMENTOR_INITIAL_OUT_OF_BOUNDS);
+    if (increment <= 0) throw new Error(ERROR.INCREMENTOR_INCREMENT_NOT_POSITIVE);
     incrementor = {
       increment: () => {
         callback(value = Math.min(max, value + increment));

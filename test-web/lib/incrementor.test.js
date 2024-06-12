@@ -1,5 +1,6 @@
 import { expect } from 'chai';
 import createIncrementor from '../../src/web/src/lib/incrementor.js';
+import { ERROR } from '../../src/web/src/constants.js';
 
 /** @typedef {import('../../src/web/src/lib/incrementor.js').Incrementor} Incrementor */
 
@@ -132,19 +133,19 @@ describe('createIncrementor', () => {
     it('should throw error if increment value is zero or negative', () => {
       expect(() => createIncrementor({
         initial, min, max, increment: 0,
-      })).to.throw();
+      })).to.throw(ERROR.INCREMENTOR_INCREMENT_NOT_POSITIVE);
       expect(() => createIncrementor({
         initial, min, max, increment: -1,
-      })).to.throw();
+      })).to.throw(ERROR.INCREMENTOR_INCREMENT_NOT_POSITIVE);
     });
 
     it('should throw error if initial value is outside bounds', () => {
       expect(() => createIncrementor({
         initial: 10000, min, max, increment,
-      })).to.throw();
+      })).to.throw(ERROR.INCREMENTOR_INITIAL_OUT_OF_BOUNDS);
       expect(() => createIncrementor({
         initial: -10000, min, max, increment,
-      })).to.throw();
+      })).to.throw(ERROR.INCREMENTOR_INITIAL_OUT_OF_BOUNDS);
       expect(() => createIncrementor({
         initial: min, min, max, increment,
       })).to.not.throw();
@@ -152,7 +153,27 @@ describe('createIncrementor', () => {
         initial: max, min, max, increment,
       })).to.not.throw();
     });
-    xit('should throw error if min is greater than max', () => {});
+
+    it('should throw error if min is greater than max', () => {
+      expect(() => createIncrementor({
+        initial: max, min: max, max, increment,
+      })).to.not.throw();
+      expect(() => createIncrementor({
+        initial: min, min, max: min, increment,
+      })).to.not.throw();
+      expect(() => createIncrementor({
+        initial: min, min, max: min - 1, increment,
+      })).to.throw(ERROR.INCREMENTOR_MIN_MAX_FLIPPED);
+      expect(() => createIncrementor({
+        initial: max, min, max: min - 1, increment,
+      })).to.throw(ERROR.INCREMENTOR_MIN_MAX_FLIPPED);
+      expect(() => createIncrementor({
+        initial: max + 0.5, min, max: min - 1, increment,
+      })).to.throw(ERROR.INCREMENTOR_MIN_MAX_FLIPPED);
+      expect(() => createIncrementor({
+        initial: 100000, min, max: min - 1, increment,
+      })).to.throw(ERROR.INCREMENTOR_MIN_MAX_FLIPPED);
+    });
     incrementorTests();
     xit('should set initial value to one if omitted and one is within bounds');
     xit('should set initial to min if omitted and bounds are all positive values');

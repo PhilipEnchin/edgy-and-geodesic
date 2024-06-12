@@ -38,3 +38,9 @@ export const USER_PARAMETERS = {
   },
 };
 export const POLYHEDRON = { RELATIVE_RADIUS: 0.4, RELATIVE_VERTEX_RADIUS: 0.03, RELATIVE_EDGE_RADIUS: 0.02 };
+
+export const ERROR = {
+  INCREMENTOR_MIN_MAX_FLIPPED: 'Incrementor min must be less than or equal to max',
+  INCREMENTOR_INITIAL_OUT_OF_BOUNDS: 'Initial value must be within bounds',
+  INCREMENTOR_INCREMENT_NOT_POSITIVE: 'Increment value must be a positive number',
+};
