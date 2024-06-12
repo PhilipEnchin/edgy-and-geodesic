@@ -180,8 +180,14 @@ describe('createIncrementor', () => {
       expect(createIncrementor({ min: 0, max: 10, increment: 1 }).value).to.equal(1);
       expect(createIncrementor({ min: 0, max: 10, increment: 2 }).value).to.equal(2);
     });
-    xit('should set initial to min if omitted and bounds are all positive values');
-    xit('should set initial to max if omitted and bounds are all negative values');
+
+    it('should set initial to min if omitted and min is greater than increment value', () => {
+      expect(createIncrementor({ min: 10, max: 20, increment: 2 }).value).to.equal(10);
+    });
+
+    it('should set initial to max if omitted and max is greater than increment value', () => {
+      expect(createIncrementor({ min: -20, max: -10, increment: 2 }).value).to.equal(-10);
+    });
     xit('should set min to -Infinity if omitted');
     xit('should set max to Infinity if omitted');
     xit('should throw error if initial and min are both omitted');
