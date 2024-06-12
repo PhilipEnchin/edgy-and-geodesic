@@ -137,7 +137,21 @@ describe('createIncrementor', () => {
         initial, min, max, increment: -1,
       })).to.throw();
     });
-    xit('should throw error if initial value is outside bounds', () => {});
+
+    it('should throw error if initial value is outside bounds', () => {
+      expect(() => createIncrementor({
+        initial: 10000, min, max, increment,
+      })).to.throw();
+      expect(() => createIncrementor({
+        initial: -10000, min, max, increment,
+      })).to.throw();
+      expect(() => createIncrementor({
+        initial: min, min, max, increment,
+      })).to.not.throw();
+      expect(() => createIncrementor({
+        initial: max, min, max, increment,
+      })).to.not.throw();
+    });
     xit('should throw error if min is greater than max', () => {});
     incrementorTests();
     xit('should set initial value to one if omitted and one is within bounds');
