@@ -19,7 +19,12 @@ import makePolyhedron from '../../lib/polyhedra/index.js';
 /** @typedef {import('../../lib/polyhedra/index.js').PolyhedronId} PolyhedronId */
 
 const s = (sketch) => {
-  const rowLocationIncrementor = createIncrementor(UI.MARGIN_TOP - UI.ROW_HEIGHT - UI.PADDING_INTER, -Infinity, Infinity, UI.ROW_HEIGHT + UI.PADDING_INTER);
+  const rowLocationIncrementor = createIncrementor({
+    initial: UI.MARGIN_TOP - UI.ROW_HEIGHT - UI.PADDING_INTER,
+    min: -Infinity,
+    max: Infinity,
+    increment: UI.ROW_HEIGHT + UI.PADDING_INTER,
+  });
 
   /** @type {IncrementorUI} */ let frequencyUI;
   /** @type {CheckboxArrayUI} */ let spherifyUI;
