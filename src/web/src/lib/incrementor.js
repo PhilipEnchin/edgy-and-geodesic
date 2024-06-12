@@ -52,6 +52,7 @@ const createIncrementor = (options, callback = () => {}) => {
     const { min = -Infinity, max = Infinity, increment = 1 } = options;
     const { initial = 1 } = options;
     /** @type {number} */let value = initial;
+    if (increment <= 0) throw new Error('Increment value must be a positive number');
     incrementor = {
       increment: () => {
         callback(value = Math.min(max, value + increment));

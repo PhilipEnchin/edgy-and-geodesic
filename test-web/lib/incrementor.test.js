@@ -128,7 +128,15 @@ describe('createIncrementor', () => {
       });
       optionsType = 'bound';
     });
-    xit('should throw error if increment value is zero or negative', () => {});
+
+    it('should throw error if increment value is zero or negative', () => {
+      expect(() => createIncrementor({
+        initial, min, max, increment: 0,
+      })).to.throw();
+      expect(() => createIncrementor({
+        initial, min, max, increment: -1,
+      })).to.throw();
+    });
     xit('should throw error if initial value is outside bounds', () => {});
     xit('should throw error if min is greater than max', () => {});
     incrementorTests();
