@@ -14,7 +14,7 @@ describe('createIncrementorUI', () => {
 
   const { BUTTON_WIDTH, PADDING_INTRA } = INCREMENTOR;
   const { ROW_HEIGHT, TEXT_SIZE } = UI;
-  const [LABEL, INITIAL, MIN, MAX, INCREMENT, X, Y] = ['Mabel\'s labels', 3, 0, 5, 1, 40, 50];
+  const [label, initial, min, max, increment, x, y] = ['Mabel\'s labels', 3, 0, 5, 1, 40, 50];
   let callbackArgs;
   const CALLBACK = (...args) => { callbackArgs.push(args); };
 
@@ -27,7 +27,9 @@ describe('createIncrementorUI', () => {
   const mockSketch = makeMockSketch({ buttonLimit: 2, divLimit: 1, spanLimit: 2 });
 
   beforeEach(() => {
-    defaultIncrementorUI = createIncrementorUI(mockSketch.reset(), LABEL, INITIAL, MIN, MAX, INCREMENT, X, Y, CALLBACK);
+    defaultIncrementorUI = createIncrementorUI(mockSketch.reset(), label, {
+      initial, min, max, increment,
+    }, x, y, CALLBACK);
     [mockMinus, mockPlus] = mockSketch.buttons;
     [mockLabelDiv] = mockSketch.divs;
     [mockKeySpan, mockValueSpan] = mockSketch.spans;
@@ -37,7 +39,7 @@ describe('createIncrementorUI', () => {
   it('should create a minus button', () => {
     expect(mockMinus.savedArgs).to.deep.equal({
       creation: ['-'],
-      position: [X, Y],
+      position: [x, y],
       size: [BUTTON_WIDTH, ROW_HEIGHT],
     });
   });
@@ -45,14 +47,14 @@ describe('createIncrementorUI', () => {
   it('should create a plus button', () => {
     expect(mockPlus.savedArgs).to.deep.equal({
       creation: ['+'],
-      position: [X + BUTTON_WIDTH, Y],
+      position: [x + BUTTON_WIDTH, y],
       size: [BUTTON_WIDTH, ROW_HEIGHT],
     });
   });
 
   it('should create a key span', () => {
     expect(mockKeySpan.savedArgs).to.deep.equal({
-      creation: [`${LABEL}: `],
+      creation: [`${label}: `],
       html: [],
     });
   });
@@ -67,7 +69,7 @@ describe('createIncrementorUI', () => {
   it('should create label div with key and value spans as children', () => {
     expect(mockLabelDiv.savedArgs).to.deep.equal({
       creation: [],
-      position: [X + 2 * BUTTON_WIDTH + PADDING_INTRA, Y],
+      position: [x + 2 * BUTTON_WIDTH + PADDING_INTRA, y],
       style: ['font-size', `${TEXT_SIZE}px`],
     });
     expect(mockLabelDiv.children).to.deep.equal([mockKeySpan, mockValueSpan]);
@@ -89,9 +91,9 @@ describe('createIncrementorUI', () => {
     mockPlus.press();
     const higher = defaultIncrementorUI.value;
 
-    expect(before).to.equal(INITIAL);
-    expect(lower).to.equal(INITIAL - 1);
-    expect(higher).to.equal(INITIAL + 1);
+    expect(before).to.equal(initial);
+    expect(lower).to.equal(initial - 1);
+    expect(higher).to.equal(initial + 1);
   });
 
   it('should create a text label on draw with current value', () => {
@@ -99,7 +101,7 @@ describe('createIncrementorUI', () => {
     mockPlus.press();
     mockPlus.press();
 
-    expect(mockValueSpan.savedArgs.html).to.deep.equal([[INITIAL], [INITIAL - 1], [INITIAL], [INITIAL + 1]]);
+    expect(mockValueSpan.savedArgs.html).to.deep.equal([[initial], [initial - 1], [initial], [initial + 1]]);
   });
 
   it('should call callback with new value on increment/decrement', () => {
@@ -107,7 +109,7 @@ describe('createIncrementorUI', () => {
     mockMinus.press();
     mockMinus.press();
 
-    expect(callbackArgs).to.deep.equal([[INITIAL + 1], [INITIAL], [INITIAL - 1]]);
+    expect(callbackArgs).to.deep.equal([[initial + 1], [initial], [initial - 1]]);
   });
 
   it('should not increment or decrement outside of bounds', () => {
@@ -117,8 +119,8 @@ describe('createIncrementorUI', () => {
     for (let i = 0; i < 10 ** 3; i++) { mockPlus.press(); }
     const high = defaultIncrementorUI.value;
 
-    expect(low).to.equal(MIN);
-    expect(high).to.equal(MAX);
+    expect(low).to.equal(min);
+    expect(high).to.equal(max);
   });
 
   it('should show +/- buttons only when increment/decrement is possible', () => {

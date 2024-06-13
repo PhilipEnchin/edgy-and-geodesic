@@ -2,6 +2,8 @@ import { INCREMENTOR, UI } from '../constants.js';
 import createIncrementor from '../lib/incrementor.js';
 
 /** @typedef {import('../lib/incrementor.js').IncrementorCallback} IncrementorCallback */
+/** @typedef {import('../lib/incrementor.js').BoundIncrementorOptions} BoundIncrementorOptions */
+/** @typedef {import('../lib/incrementor.js').IndexedIncrementorOptions} IndexedIncrementorOptions */
 
 /**
  * @typedef {object} IncrementorUI
@@ -11,21 +13,16 @@ import createIncrementor from '../lib/incrementor.js';
 /**
  * @param {*} sketch
  * @param {string} labelKey
- * @param {number} initial
- * @param {number} min
- * @param {number} max
- * @param {number} increment
+ * @param {BoundIncrementorOptions|IndexedIncrementorOptions} options
  * @param {number} x
  * @param {number} y
  * @param {IncrementorCallback} callback
  * @returns {IncrementorUI}
  */
-const createIncrementorUI = (sketch, labelKey, initial, min, max, increment, x, y, callback) => {
+const createIncrementorUI = (sketch, labelKey, options, x, y, callback) => {
   const { BUTTON_WIDTH, PADDING_INTRA } = INCREMENTOR;
   const { ROW_HEIGHT, TEXT_SIZE } = UI;
-  const incrementor = createIncrementor({
-    initial, min, max, increment,
-  }, callback);
+  const incrementor = createIncrementor(options, callback);
   const minus = sketch.createButton('-')
     .position(x, y)
     .size(BUTTON_WIDTH, ROW_HEIGHT);

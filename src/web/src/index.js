@@ -66,10 +66,12 @@ const s = (sketch) => {
     frequencyUI = createIncrementorUI(
       sketch,
       'Frequency',
-      FREQUENCY.INITIAL,
-      FREQUENCY.MIN,
-      FREQUENCY.MAX,
-      FREQUENCY.INCREMENT,
+      {
+        initial: FREQUENCY.INITIAL,
+        min: FREQUENCY.MIN,
+        max: FREQUENCY.MAX,
+        increment: FREQUENCY.INCREMENT,
+      },
       UI.MARGIN_LEFT,
       rowLocationIncrementor.increment().value,
       updatePolyhedron,
