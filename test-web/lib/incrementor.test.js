@@ -1,6 +1,7 @@
 import { expect } from 'chai';
 import createIncrementor from '../../src/web/src/lib/incrementor.js';
 import { ERROR } from '../../src/web/src/constants.js';
+import throwMissingTest from '../support/errors/missingTest.js';
 
 /** @typedef {import('../../src/web/src/lib/incrementor.js').Incrementor} Incrementor */
 
@@ -16,8 +17,6 @@ describe('createIncrementor', () => {
   /** @type {'bound'|'indexed'} */ let optionsType;
 
   const incrementorTests = () => {
-    const throwMissingTest = () => { throw new Error('Missed a possible incrementor options type'); };
-
     it('should return an object with an increment function', () => {
       expect(defaultIncrementor).to.have.property('increment').that.is.a('function');
     });
