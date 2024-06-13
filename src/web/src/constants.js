@@ -1,4 +1,5 @@
 /** @typedef {import('../../lib/polyhedra/index.js').PolyhedronId} PolyhedronId */
+/** @typedef {import('./lib/p5Model.js').ColorOptionId} ColorOptionId */
 
 const UI_ROW_HEIGHT = 30;
 const UI_TEXT_SCALE = 0.9;
@@ -35,6 +36,16 @@ export const USER_PARAMETERS = {
   },
   SPHERIFIED: {
     get INITIAL() { return { Flat: true, Spherified: false }; },
+  },
+  COLOR: {
+    /** @type {[string,ColorOptionId][]} */ get OPTIONS() {
+      return [
+        ['single', 'single'],
+        ['spectrum', 'spectrum'],
+        ['highlight', 'highlight'],
+      ];
+    },
+    /** @type {ColorOptionId} */ INITIAL: 'single',
   },
 };
 export const POLYHEDRON = { RELATIVE_RADIUS: 0.4, RELATIVE_VERTEX_RADIUS: 0.03, RELATIVE_EDGE_RADIUS: 0.02 };

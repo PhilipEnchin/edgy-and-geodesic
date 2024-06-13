@@ -29,6 +29,7 @@ const s = (sketch) => {
   /** @type {IncrementorUI} */ let frequencyUI;
   /** @type {CheckboxArrayUI} */ let spherifyUI;
   /** @type {RadioUI} */ let basePolyhedronUI;
+  /** @type {RadioUI} */ let colorOption;
   /** @type {CheckboxArray} */ let checkboxValues = USER_PARAMETERS.SPHERIFIED.INITIAL;
   /** @type {p5.Geometry} */ let flatModel;
   /** @type {p5.Geometry} */ let roundModel;
@@ -56,9 +57,9 @@ const s = (sketch) => {
 
     const edgeRadius = windowSize * POLYHEDRON.RELATIVE_EDGE_RADIUS * frequencyScaler;
     const vertexRadius = windowSize * POLYHEDRON.RELATIVE_VERTEX_RADIUS * frequencyScaler;
-    flatModel = makeModel(sketch, polyhedron, edgeRadius, vertexRadius, RENDER.FLAT_EDGE_COLOR, RENDER.FLAT_VERTEX_COLOR);
+    flatModel = makeModel(sketch, polyhedron, edgeRadius, vertexRadius, { edgeColor: RENDER.FLAT_EDGE_COLOR, vertexColor: RENDER.FLAT_VERTEX_COLOR });
     polyhedron = polyhedron.spherify('radius', radius);
-    roundModel = makeModel(sketch, polyhedron, edgeRadius, vertexRadius, RENDER.ROUND_EDGE_COLOR, RENDER.ROUND_VERTEX_COLOR);
+    roundModel = makeModel(sketch, polyhedron, edgeRadius, vertexRadius, { edgeColor: RENDER.ROUND_EDGE_COLOR, vertexColor: RENDER.ROUND_VERTEX_COLOR });
   };
 
   const simpleLayout = () => {
@@ -87,6 +88,14 @@ const s = (sketch) => {
       sketch,
       USER_PARAMETERS.BASE_POLYHEDRON.OPTIONS,
       USER_PARAMETERS.BASE_POLYHEDRON.INITIAL,
+      UI.MARGIN_LEFT,
+      rowLocationIncrementor.increment().value,
+      updatePolyhedron,
+    );
+    colorOption = createRadioUI(
+      sketch,
+      USER_PARAMETERS.COLOR.OPTIONS,
+      USER_PARAMETERS.COLOR.INITIAL,
       UI.MARGIN_LEFT,
       rowLocationIncrementor.increment().value,
       updatePolyhedron,

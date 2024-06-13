@@ -40,10 +40,20 @@ describe('createRadioUI', () => {
 
   it('should create radio ui', () => {
     expect(mockRadio.savedArgs).to.deep.equal({
-      creation: [],
+      creation: ['radioGroup0'],
       position: [X, Y],
       style: ['fontSize', `${TEXT_SIZE}px`],
     });
+  });
+
+  it('should create independent radio button groups', () => {
+    const multipleRadioMockSketch = makeMockSketch({ radioLimit: 2 });
+    createRadioUI(multipleRadioMockSketch, [], '', X, Y, CALLBACK);
+    createRadioUI(multipleRadioMockSketch, [], '', X, Y, CALLBACK);
+
+    const radioGroups = multipleRadioMockSketch.radios.map(({ savedArgs: args }) => args.creation[0]);
+
+    expect(new Set(radioGroups)).to.have.lengthOf(2);
   });
 
   it('should create options with label value pairs', () => {

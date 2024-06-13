@@ -4,18 +4,27 @@ import { RENDER } from '../constants.js';
 /** @typedef {import('p5')} p5 */
 /** @typedef {import('../../../lib/models/Vertex.js').default} Vertex */
 
+/** @typedef {'single'|'spectrum'|'highlight'} ColorOptionId */
+
 const { VERTEX_SPHERE_DETAIL } = RENDER;
+
+/**
+ * @typedef {object} SingleColorOptions
+ * @property {string} edgeColor
+ * @property {string} vertexColor
+ */
 
 /**
  * @param {*} sketch
  * @param {Vertex} polyhedron
  * @param {number} edgeRadius
  * @param {number} vertexRadius
- * @param {string} edgeColor
- * @param {string} vertexColor
+ * @param {SingleColorOptions} colorOptions
  * @returns {import('p5').Geometry}
  */
-const makeModel = (sketch, polyhedron, edgeRadius, vertexRadius, edgeColor, vertexColor) => {
+const makeModel = (sketch, polyhedron, edgeRadius, vertexRadius, colorOptions) => {
+  const { vertexColor, edgeColor } = colorOptions;
+
   sketch.beginGeometry();
 
   sketch.push();

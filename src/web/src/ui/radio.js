@@ -10,6 +10,11 @@ import { UI } from '../constants.js';
  * @property {string} selected
  */
 
+const makeRadioGroupName = (() => {
+  let i = 0;
+  return () => `radioGroup${i++}`;
+})();
+
 const { ROW_HEIGHT, TEXT_SIZE } = UI;
 
 /**
@@ -22,7 +27,7 @@ const { ROW_HEIGHT, TEXT_SIZE } = UI;
  * @returns {RadioUI}
  */
 const createRadioUI = (sketch, labelValuePairs, selection, x, y, callback) => {
-  const radio = sketch.createRadio()
+  const radio = sketch.createRadio(makeRadioGroupName())
     .position(x, y)
     .style('fontSize', `${TEXT_SIZE}px`);
 
