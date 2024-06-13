@@ -221,6 +221,8 @@ describe('createIncrementor', () => {
     });
     incrementorTests();
 
-    xit('should set initial index to 0 if omitted');
+    it('should set initial index to 0 if omitted', () => {
+      expect(createIncrementor({ values: [42, 43, 44] }).value).to.equal(42);
+    });
   });
 });
