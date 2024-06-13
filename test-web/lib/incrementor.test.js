@@ -183,14 +183,25 @@ describe('createIncrementor', () => {
 
     it('should set initial to min if omitted and min is greater than increment value', () => {
       expect(createIncrementor({ min: 10, max: 20, increment: 2 }).value).to.equal(10);
+      expect(createIncrementor({ min: 10, max: 20 }).value).to.equal(10);
     });
 
     it('should set initial to max if omitted and max is greater than increment value', () => {
       expect(createIncrementor({ min: -20, max: -10, increment: 2 }).value).to.equal(-10);
+      expect(createIncrementor({ min: -20, max: -10 }).value).to.equal(-10);
     });
-    xit('should set min to -Infinity if omitted');
-    xit('should set max to Infinity if omitted');
-    xit('should throw error if initial and min are both omitted');
+
+    it('should set min to -Infinity if omitted', () => {
+      const incrementor = createIncrementor({ initial: 0, max: 10, increment: 10 ** 6 });
+      for (let i = 0; i < 10 ** 6; i++) incrementor.decrement();
+      expect(incrementor.value).to.equal(-(10 ** 12));
+    });
+
+    it('should set max to Infinity if omitted', () => {
+      const incrementor = createIncrementor({ initial: 0, min: -10, increment: 10 ** 6 });
+      for (let i = 0; i < 10 ** 6; i++) incrementor.increment();
+      expect(incrementor.value).to.equal(10 ** 12);
+    });
   });
 
   describe('using indexed incrementor options', () => {
