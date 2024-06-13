@@ -34,7 +34,9 @@ const createIncrementor = (options, callback = () => {}) => {
   /** @type {Incrementor} */ let incrementor;
   if ('values' in options) {
     const { values } = options;
+    if (values.length === 0) throw new Error(ERROR.INCREMENTOR_VALUES_EMPTY);
     let { initialIndex: index = 0 } = options;
+    if (!(index in values)) throw new Error(ERROR.INCREMENTOR_INDEX_OUT_OF_RANGE);
     /** @type {number} */ let value = values[index];
     const maxIndex = values.length - 1;
     incrementor = {

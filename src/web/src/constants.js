@@ -43,4 +43,6 @@ export const ERROR = {
   INCREMENTOR_MIN_MAX_FLIPPED: 'Incrementor min must be less than or equal to max',
   INCREMENTOR_INITIAL_OUT_OF_BOUNDS: 'Initial value must be within bounds',
   INCREMENTOR_INCREMENT_NOT_POSITIVE: 'Increment value must be a positive number',
+  INCREMENTOR_VALUES_EMPTY: 'Incrementor values array must not be empty',
+  INCREMENTOR_INDEX_OUT_OF_RANGE: 'Incrementor index must be withing values array range',
 };

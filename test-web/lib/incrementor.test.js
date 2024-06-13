@@ -210,9 +210,17 @@ describe('createIncrementor', () => {
       defaultIncrementor = createIncrementor({ values, initialIndex });
       optionsType = 'indexed';
     });
-    xit('should throw error if values array is empty', () => {});
-    xit('should throw error if initial index is outside of values array bounds', () => {});
+
+    it('should throw error if values array is empty', () => {
+      expect(() => { createIncrementor({ values: [] }); }).to.throw(ERROR.INCREMENTOR_VALUES_EMPTY);
+    });
+
+    it('should throw error if initial index is outside of values array bounds', () => {
+      expect(() => { createIncrementor({ values: [1, 2, 3], initialIndex: -1 }); }).to.throw(ERROR.INCREMENTOR_INDEX_OUT_OF_RANGE);
+      expect(() => { createIncrementor({ values: [1, 2, 3], initialIndex: 3 }); }).to.throw(ERROR.INCREMENTOR_INDEX_OUT_OF_RANGE);
+    });
     incrementorTests();
+
     xit('should set initial index to 0 if omitted');
   });
 });
