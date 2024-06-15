@@ -17,6 +17,9 @@ import makePolyhedron from '../../lib/polyhedra/index.js';
 /** @typedef {import('./ui/checkboxArray.js').CheckboxArray} CheckboxArray */
 /** @typedef {import('./ui/radio.js').RadioUI} RadioUI */
 /** @typedef {import('../../lib/polyhedra/index.js').PolyhedronId} PolyhedronId */
+/** @typedef {import('./lib/p5Model.js').ColorOptionId} ColorOptionId */
+/** @typedef {import('./lib/p5Model.js').SingleColorOptions} SingleColorOptions */
+/** @typedef {import('./lib/p5Model.js').SpectrumColorOptions} SpectrumColorOptions */
 
 const s = (sketch) => {
   const rowLocationIncrementor = createIncrementor({
@@ -29,7 +32,7 @@ const s = (sketch) => {
   /** @type {IncrementorUI} */ let frequencyUI;
   /** @type {CheckboxArrayUI} */ let spherifyUI;
   /** @type {RadioUI} */ let basePolyhedronUI;
-  /** @type {RadioUI} */ let colorOption;
+  /** @type {RadioUI} */ let colorOptionUI;
   /** @type {CheckboxArray} */ let checkboxValues = USER_PARAMETERS.SPHERIFIED.INITIAL;
   /** @type {p5.Geometry} */ let flatModel;
   /** @type {p5.Geometry} */ let roundModel;
@@ -49,17 +52,28 @@ const s = (sketch) => {
     const frequency = frequencyUI.value;
     const radius = windowSize * POLYHEDRON.RELATIVE_RADIUS;
     const polyhedronId = /** @type {PolyhedronId} */ (basePolyhedronUI.selected);
+    const colorId = /** @type {ColorOptionId} */ (colorOptionUI.selected);
 
     let polyhedron = makePolyhedron(polyhedronId).spherify('radius', radius);
     if (frequencyUI.value > 1) polyhedron = polyhedron.subdivide(frequency);
 
     const frequencyScaler = 1 / Math.sqrt(frequency);
 
+    /** @type {SingleColorOptions|SpectrumColorOptions} */
+    const roundColorOptions = (() => {
+      switch (colorId) {
+        case 'single': return { edgeColor: RENDER.ROUND_EDGE_COLOR, vertexColor: RENDER.ROUND_VERTEX_COLOR };
+        case 'spectrum': return { minLengthHue: RENDER.SPECTRUM_MIN_LENGTH_HUE, maxLengthHue: RENDER.SPECTRUM_MAX_LENGTH_HUE };
+        case 'highlight':
+        default: throw new Error(`Unhandled color option, "${colorId}"`);
+      }
+    })();
+
     const edgeRadius = windowSize * POLYHEDRON.RELATIVE_EDGE_RADIUS * frequencyScaler;
     const vertexRadius = windowSize * POLYHEDRON.RELATIVE_VERTEX_RADIUS * frequencyScaler;
     flatModel = makeModel(sketch, polyhedron, edgeRadius, vertexRadius, { edgeColor: RENDER.FLAT_EDGE_COLOR, vertexColor: RENDER.FLAT_VERTEX_COLOR });
     polyhedron = polyhedron.spherify('radius', radius);
-    roundModel = makeModel(sketch, polyhedron, edgeRadius, vertexRadius, { edgeColor: RENDER.ROUND_EDGE_COLOR, vertexColor: RENDER.ROUND_VERTEX_COLOR });
+    roundModel = makeModel(sketch, polyhedron, edgeRadius, vertexRadius, roundColorOptions);
   };
 
   const simpleLayout = () => {
@@ -92,7 +106,7 @@ const s = (sketch) => {
       rowLocationIncrementor.increment().value,
       updatePolyhedron,
     );
-    colorOption = createRadioUI(
+    colorOptionUI = createRadioUI(
       sketch,
       USER_PARAMETERS.COLOR.OPTIONS,
       USER_PARAMETERS.COLOR.INITIAL,
