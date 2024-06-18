@@ -5,6 +5,7 @@ import Vertex from '../../src/lib/models/Vertex.js';
 import makeModel from '../../src/web/src/lib/p5Model.js';
 import makeMockSketch from '../support/mockSketch.js';
 import { RENDER } from '../../src/web/src/constants.js';
+import { round } from '../../src/lib/util/numberFormatters.js';
 
 const { expect } = chai;
 chai.use(deepEqualInAnyOrder);
@@ -12,8 +13,14 @@ chai.use(deepEqualInAnyOrder);
 /** @typedef {import('../support/mockSketch.js').MockSketch} MockSketch */
 /** @typedef {import('../../src/web/src/lib/p5Model.js').SingleColorOptions} SingleColorOptions */
 /** @typedef {import('../../src/web/src/lib/p5Model.js').SpectrumColorOptions} SpectrumColorOptions */
+/** @typedef {import('../../src/web/src/lib/p5Model.js').HighlightColorOptions} HighlightColorOptions */
 
-const { SPECTRUM_LIGHTNESS, SPECTRUM_SATURATION, VERTEX_SPHERE_DETAIL } = RENDER;
+const {
+  EDGE_LENGTH_DIFFERENTIATION_THRESHOLD,
+  SPECTRUM_LIGHTNESS,
+  SPECTRUM_SATURATION,
+  VERTEX_SPHERE_DETAIL,
+} = RENDER;
 
 describe('p5 model (makeModel function)', () => {
   const a = new Vertex('a', new Vector3(0, 0, 0));
@@ -34,7 +41,18 @@ describe('p5 model (makeModel function)', () => {
     maxLengthHue: 1200,
     vertexColor: '#222',
   };
-
+  /** @type {HighlightColorOptions} */ const highlightColorOptionsAB = {
+    edgeColor: '#333',
+    prominentEdgeColor: '#444',
+    prominentEdgeLength: round(a.vector3.distanceTo(b.vector3), EDGE_LENGTH_DIFFERENTIATION_THRESHOLD),
+    vertexColor: '#555',
+  };
+  /** @type {HighlightColorOptions} */ const highlightColorOptionsAC = {
+    ...highlightColorOptionsAB,
+    prominentEdgeLength: round(a.vector3.distanceTo(c.vector3), EDGE_LENGTH_DIFFERENTIATION_THRESHOLD),
+    edgeColor: '#666',
+    prominentEdgeColor: '#777',
+  };
   /**
    * @param {SingleColorOptions|SpectrumColorOptions} colorOptions
    */
@@ -104,11 +122,15 @@ describe('p5 model (makeModel function)', () => {
     });
 
     it('should set vertex color', () => {
-      const vertexColors = mockSketch.geometryCalls.filter(({ method }) => method === 'sphere').map(({ geometryProperties: { fill } }) => fill);
+      const sphereCalls = mockSketch.geometryCalls.filter(({ method }) => method === 'sphere');
+      const vertexColors = sphereCalls.map(({ geometryProperties: { fill } }) => fill);
+      const noStrokes = sphereCalls.map(({ geometryProperties: { noStroke } }) => noStroke);
 
-      const expectedEdgeColors = vertexColors.map(() => [singleColorOptions.vertexColor]);
+      const expectedVertexColors = vertexColors.map(() => [singleColorOptions.vertexColor]);
+      const expectedNoStrokes = vertexColors.map(() => true);
 
-      expect(vertexColors).to.deep.equal(expectedEdgeColors);
+      expect(vertexColors).to.deep.equal(expectedVertexColors);
+      expect(noStrokes).to.deep.equal(expectedNoStrokes);
     });
   });
 
@@ -119,11 +141,15 @@ describe('p5 model (makeModel function)', () => {
     });
 
     it('should set vertex color', () => {
-      const vertexColors = mockSketch.geometryCalls.filter(({ method }) => method === 'sphere').map(({ geometryProperties: { fill } }) => fill);
+      const sphereCalls = mockSketch.geometryCalls.filter(({ method }) => method === 'sphere');
+      const vertexColors = sphereCalls.map(({ geometryProperties: { fill } }) => fill);
+      const noStrokes = sphereCalls.map(({ geometryProperties: { noStroke } }) => noStroke);
 
-      const expectedEdgeColors = vertexColors.map(() => [spectrumColorOptions.vertexColor]);
+      const expectedVertexColors = vertexColors.map(() => [spectrumColorOptions.vertexColor]);
+      const expectedNoStrokes = vertexColors.map(() => true);
 
-      expect(vertexColors).to.deep.equal(expectedEdgeColors);
+      expect(vertexColors).to.deep.equal(expectedVertexColors);
+      expect(noStrokes).to.deep.equal(expectedNoStrokes);
     });
 
     it('should set edge colors by length', () => {
@@ -151,7 +177,39 @@ describe('p5 model (makeModel function)', () => {
   });
 
   describe('highlight color mode', () => {
-    xit('should set vertex color', () => {});
-    xit('should set edge colors by length', () => {});
+    beforeEach(() => {
+      mockSketch.reset();
+      makeTestModel(highlightColorOptionsAB);
+    });
+
+    it('should set vertex color', () => {
+      const sphereCalls = mockSketch.geometryCalls.filter(({ method }) => method === 'sphere');
+      const vertexColors = sphereCalls.map(({ geometryProperties: { fill } }) => fill);
+      const noStrokes = sphereCalls.map(({ geometryProperties: { noStroke } }) => noStroke);
+
+      const expectedVertexColors = vertexColors.map(() => [highlightColorOptionsAB.vertexColor]);
+      const expectedNoStrokes = vertexColors.map(() => true);
+
+      expect(vertexColors).to.deep.equal(expectedVertexColors);
+      expect(noStrokes).to.deep.equal(expectedNoStrokes);
+    });
+
+    it('should set edge colors by length', () => {
+      const edgeCallsAB = mockSketch.geometryCalls.filter(({ method }) => method === 'box');
+      const edgeColorsAB = edgeCallsAB.map(({ geometryProperties: { fill } }) => fill);
+
+      const expectedEdgeColorsAB = edgeCallsAB.map(({ args: [, length] }) => [(length === a.vector3.distanceTo(b.vector3) ? highlightColorOptionsAB.prominentEdgeColor : highlightColorOptionsAB.edgeColor)]);
+
+      mockSketch.reset();
+      makeTestModel(highlightColorOptionsAC);
+
+      const edgeCallsAC = mockSketch.geometryCalls.filter(({ method }) => method === 'box');
+      const edgeColorsAC = edgeCallsAC.map(({ geometryProperties: { fill } }) => fill);
+
+      const expectedEdgeColorsAC = edgeCallsAC.map(({ args: [, length] }) => [(length === a.vector3.distanceTo(c.vector3) ? highlightColorOptionsAC.prominentEdgeColor : highlightColorOptionsAC.edgeColor)]);
+
+      expect(edgeColorsAB).to.deep.equal(expectedEdgeColorsAB);
+      expect(edgeColorsAC).to.deep.equal(expectedEdgeColorsAC);
+    });
   });
 });

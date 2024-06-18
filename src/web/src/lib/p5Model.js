@@ -8,7 +8,7 @@ import { RENDER } from '../constants.js';
 /** @typedef {'single'|'spectrum'|'highlight'} ColorOptionId */
 
 const {
-  SPECTRUM_EDGE_LENGTH_ROUNDING_PLACE,
+  EDGE_LENGTH_DIFFERENTIATION_THRESHOLD,
   SPECTRUM_LIGHTNESS,
   SPECTRUM_SATURATION,
   VERTEX_SPHERE_DETAIL,
@@ -28,20 +28,43 @@ const {
  */
 
 /**
+ * @typedef {object} HighlightColorOptions
+ * @property {string} edgeColor
+ * @property {string} prominentEdgeColor
+ * @property {number} prominentEdgeLength
+ * @property {string} vertexColor
+ */
+
+/**
+ * @typedef {function} ColorSetter
+ * @param {'edge'|'vertex'} elementType
+ * @param {number} [edgeLength]
+ */
+
+/**
  * @param {*} sketch
  * @param {Vertex} polyhedron
  * @param {number} edgeRadius
  * @param {number} vertexRadius
- * @param {SingleColorOptions|SpectrumColorOptions} colorOptions
+ * @param {SingleColorOptions|SpectrumColorOptions|HighlightColorOptions} colorOptions
  * @returns {import('p5').Geometry}
  */
 const makeModel = (sketch, polyhedron, edgeRadius, vertexRadius, colorOptions) => {
-  /**
-   * @param {'edge'|'vertex'} elementType
-   * @param {number} [edgeLength]
-  */
+/** @type {ColorSetter} */
   const setColor = (() => {
-    if ('edgeColor' in colorOptions) {
+    if ('prominentEdgeColor' in colorOptions) {
+      const {
+        vertexColor, edgeColor, prominentEdgeColor, prominentEdgeLength,
+      } = colorOptions;
+      return (elementType, edgeLength) => {
+        if (elementType === 'edge') {
+          sketch.fill(round(edgeLength, EDGE_LENGTH_DIFFERENTIATION_THRESHOLD) === round(prominentEdgeLength, EDGE_LENGTH_DIFFERENTIATION_THRESHOLD) ? prominentEdgeColor : edgeColor);
+        } else if (elementType === 'vertex') {
+          sketch.noStroke();
+          sketch.fill(vertexColor);
+        }
+      };
+    } if ('edgeColor' in colorOptions) {
       const { vertexColor, edgeColor } = colorOptions;
       return (elementType) => {
         if (elementType === 'edge') {
@@ -55,14 +78,14 @@ const makeModel = (sketch, polyhedron, edgeRadius, vertexRadius, colorOptions) =
       const { minLengthHue, maxLengthHue, vertexColor } = colorOptions;
       const hueDiff = maxLengthHue - minLengthHue;
       const edgeToHue = new Map(
-        [...new Set(polyhedron.edges.map(([{ vector3: a }, { vector3: b }]) => round(a.distanceTo(b), SPECTRUM_EDGE_LENGTH_ROUNDING_PLACE)))]
+        [...new Set(polyhedron.edges.map(([{ vector3: a }, { vector3: b }]) => round(a.distanceTo(b), EDGE_LENGTH_DIFFERENTIATION_THRESHOLD)))]
           .toSorted((a, b) => a - b)
           .map((edgeLength, index, { length }) => [edgeLength, (index / ((length - 1) || 1)) * hueDiff + minLengthHue]),
       );
       return (elementType, edgeLength) => {
         if (elementType === 'edge') {
           sketch.colorMode(sketch.HSL);
-          sketch.fill(edgeToHue.get(round(edgeLength, SPECTRUM_EDGE_LENGTH_ROUNDING_PLACE)), SPECTRUM_SATURATION, SPECTRUM_LIGHTNESS);
+          sketch.fill(edgeToHue.get(round(edgeLength, EDGE_LENGTH_DIFFERENTIATION_THRESHOLD)), SPECTRUM_SATURATION, SPECTRUM_LIGHTNESS);
         } else if (elementType === 'vertex') {
           sketch.noStroke();
           sketch.fill(vertexColor);
