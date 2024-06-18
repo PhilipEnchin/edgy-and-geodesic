@@ -11,7 +11,6 @@ const {
   SPECTRUM_EDGE_LENGTH_ROUNDING_PLACE,
   SPECTRUM_LIGHTNESS,
   SPECTRUM_SATURATION,
-  SPECTRUM_VERTEX_COLOR,
   VERTEX_SPHERE_DETAIL,
 } = RENDER;
 
@@ -25,6 +24,7 @@ const {
  * @typedef {object} SpectrumColorOptions
  * @property {number} minLengthHue
  * @property {number} maxLengthHue
+ * @property {string} vertexColor
  */
 
 /**
@@ -41,7 +41,7 @@ const makeModel = (sketch, polyhedron, edgeRadius, vertexRadius, colorOptions) =
    * @param {number} [edgeLength]
   */
   const setColor = (() => {
-    if ('vertexColor' in colorOptions) {
+    if ('edgeColor' in colorOptions) {
       const { vertexColor, edgeColor } = colorOptions;
       return (elementType) => {
         if (elementType === 'edge') {
@@ -52,7 +52,7 @@ const makeModel = (sketch, polyhedron, edgeRadius, vertexRadius, colorOptions) =
         }
       };
     } if ('minLengthHue' in colorOptions) {
-      const { minLengthHue, maxLengthHue } = colorOptions;
+      const { minLengthHue, maxLengthHue, vertexColor } = colorOptions;
       const hueDiff = maxLengthHue - minLengthHue;
       const edgeToHue = new Map(
         [...new Set(polyhedron.edges.map(([{ vector3: a }, { vector3: b }]) => round(a.distanceTo(b), SPECTRUM_EDGE_LENGTH_ROUNDING_PLACE)))]
@@ -65,7 +65,7 @@ const makeModel = (sketch, polyhedron, edgeRadius, vertexRadius, colorOptions) =
           sketch.fill(edgeToHue.get(round(edgeLength, SPECTRUM_EDGE_LENGTH_ROUNDING_PLACE)), SPECTRUM_SATURATION, SPECTRUM_LIGHTNESS);
         } else if (elementType === 'vertex') {
           sketch.noStroke();
-          sketch.fill(SPECTRUM_VERTEX_COLOR);
+          sketch.fill(vertexColor);
         }
       };
     }

@@ -63,7 +63,7 @@ const s = (sketch) => {
     const roundColorOptions = (() => {
       switch (colorId) {
         case 'single': return { edgeColor: RENDER.ROUND_EDGE_COLOR, vertexColor: RENDER.ROUND_VERTEX_COLOR };
-        case 'spectrum': return { minLengthHue: RENDER.SPECTRUM_MIN_LENGTH_HUE, maxLengthHue: RENDER.SPECTRUM_MAX_LENGTH_HUE };
+        case 'spectrum': return { minLengthHue: RENDER.SPECTRUM_MIN_LENGTH_HUE, maxLengthHue: RENDER.SPECTRUM_MAX_LENGTH_HUE, vertexColor: RENDER.SPECTRUM_VERTEX_COLOR };
         case 'highlight':
         default: throw new Error(`Unhandled color option, "${colorId}"`);
       }

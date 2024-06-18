@@ -5,13 +5,42 @@
  * @property {MockSpan[]} spans
  * @property {MockCheckbox[]} checkboxes
  * @property {MockRadio[]} radios
+ * @property {GeometryCall[]} geometryCalls
  * @property {()=>void} reset Reset element arrays
  * @property {(...creation:*) => MockButton} createButton
  * @property {(...creation:*) => MockDiv} createDiv
  * @property {(...creation:*) => MockSpan} createSpan
  * @property {(...creation:*) => MockCheckbox} createCheckbox
  * @property {(...creation:*) => MockRadio} createRadio
+ * @property {(...args:*) => void} beginGeometry
+ * @property {(...args:*) => void} endGeometry
+ * @property {(...args:*) => void} push
+ * @property {(...args:*) => void} pop
+ * @property {(...args:*) => void} noStroke
+ * @property {string} HSL
+ * @property {(...args:*) => void} colorMode
+ * @property {(...args:*) => void} fill
+ * @property {(...args:*) => void} translate
+ * @property {(...args:*) => void} rotate
+ * @property {(...args:*) => void} sphere
+ * @property {(...args:*) => void} box
 */
+
+/**
+ * @typedef {object} GeometryProperties
+ * @property {*[]} [fill]
+ * @property {string} [colorMode]
+ * @property {boolean} [noStroke]
+ * @property {[number,number,number]} [translate]
+ * @property {[number,[number,number,number]]} [rotate]
+ */
+
+/**
+ * @typedef {object} GeometryCall
+ * @property {string} method
+ * @property {*[]} args
+ * @property {GeometryProperties} geometryProperties
+ */
 
 /**
  * @typedef {object} MockButton
@@ -143,6 +172,43 @@ const makeMockSketch = ({
   /** @type {MockSpan[]} */ const spans = [];
   /** @type {MockCheckbox[]} */ const checkboxes = [];
   /** @type {MockRadio[]} */ const radios = [];
+  /** @type {GeometryCall[]} */ const geometryCalls = [];
+  /** @type {GeometryProperties[]} */ const geometryPropertiesStack = [{}];
+
+  /**
+   * @returns {GeometryProperties}
+   */
+  const currentGeometryProperties = () => geometryPropertiesStack[geometryPropertiesStack.length - 1];
+
+  /**
+   * @param {string} method
+   * @param {*[]} args
+   */
+  const logGeometryCall = (method, args) => {
+    geometryCalls.push({
+      method,
+      args: [...args],
+      geometryProperties: structuredClone(currentGeometryProperties()),
+    });
+  };
+
+  const pushGeometry = () => {
+    geometryPropertiesStack.push(structuredClone(currentGeometryProperties()));
+  };
+  const popGeometry = () => {
+    geometryPropertiesStack.pop();
+  };
+
+  /**
+   * @param {GeometryProperties} geometryProperty
+   */
+  const setGeometryProperty = (geometryProperty) => {
+    const newGeometryProperty = structuredClone(geometryProperty);
+    geometryPropertiesStack[geometryPropertiesStack.length - 1] = {
+      ...currentGeometryProperties(),
+      ...newGeometryProperty,
+    };
+  };
 
   return {
     get buttons() { return [...buttons]; },
@@ -150,8 +216,10 @@ const makeMockSketch = ({
     get spans() { return [...spans]; },
     get checkboxes() { return [...checkboxes]; },
     get radios() { return [...radios]; },
+    get geometryCalls() { return structuredClone(geometryCalls); },
     reset() {
-      buttons.length = divs.length = spans.length = checkboxes.length = radios.length = 0;
+      buttons.length = divs.length = spans.length = checkboxes.length = radios.length = geometryCalls.length = geometryPropertiesStack.length = 0;
+      geometryPropertiesStack.push({});
       return this;
     },
     /**
@@ -266,6 +334,18 @@ const makeMockSketch = ({
       radios.push(newRadio);
       return newRadio;
     },
+    beginGeometry: (...args) => { logGeometryCall('beginGeometry', args); },
+    endGeometry: (...args) => { logGeometryCall('endGeometry', args); },
+    push: (...args) => { pushGeometry(); logGeometryCall('push', args); },
+    pop: (...args) => { popGeometry(); logGeometryCall('pop', args); },
+    noStroke: (...args) => { setGeometryProperty({ noStroke: true }); logGeometryCall('noStroke', args); },
+    get HSL() { return 'highly suspect, larry.'; },
+    colorMode: (...args) => { setGeometryProperty({ colorMode: args[0] }); logGeometryCall('colorMode', args); },
+    fill: (...args) => { setGeometryProperty({ fill: args }); logGeometryCall('fill', args); },
+    translate: (...args) => { setGeometryProperty({ translate: [args[0], args[1], args[2]] }); logGeometryCall('translate', args); },
+    rotate: (...args) => { setGeometryProperty({ rotate: [args[0], args[1]] }); logGeometryCall('rotate', args); },
+    sphere: (...args) => { logGeometryCall('sphere', args); },
+    box: (...args) => { logGeometryCall('box', args); },
   };
 };
 
