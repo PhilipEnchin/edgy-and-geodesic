@@ -7,6 +7,7 @@ import { ERROR } from '../constants.js';
  * @property {function} canIncrement - Checks if the value can be incremented.
  * @property {function} canDecrement - Checks if the value can be decremented.
  * @property {number} value - The current value.
+ * @property {number|undefined} index - The current index, if indexed, otherwise undefined.
  */
 
 /** @typedef {(value:number) => void} IncrementorCallback */
@@ -22,7 +23,7 @@ import { ERROR } from '../constants.js';
 /**
  * @typedef {object} IndexedIncrementorOptions
  * @property {number[]} values Set of values to increment through
- * @property {number} [initialIndex=0] Initial index in the set of values
+ * @property {number} [index] Initial index in the set of values
  */
 
 /**
@@ -35,7 +36,7 @@ const createIncrementor = (options, callback = () => {}) => {
   if ('values' in options) {
     const { values } = options;
     if (values.length === 0) throw new Error(ERROR.INCREMENTOR_VALUES_EMPTY);
-    let { initialIndex: index = 0 } = options;
+    let { index = 0 } = options;
     if (!(index in values)) throw new Error(ERROR.INCREMENTOR_INDEX_OUT_OF_RANGE);
     /** @type {number} */ let value = values[index];
     const maxIndex = values.length - 1;
@@ -51,6 +52,7 @@ const createIncrementor = (options, callback = () => {}) => {
       canIncrement: () => index < maxIndex,
       canDecrement: () => index > 0,
       get value() { return value; },
+      get index() { return index; },
     };
   } else {
     const { min = -Infinity, max = Infinity, increment = 1 } = options;
@@ -71,6 +73,7 @@ const createIncrementor = (options, callback = () => {}) => {
       canIncrement: () => value < max,
       canDecrement: () => min < value,
       get value() { return value; },
+      get index() { return undefined; },
     };
   }
   return incrementor;

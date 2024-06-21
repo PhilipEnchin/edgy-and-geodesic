@@ -13,7 +13,7 @@ describe('createIncrementor', () => {
   /** @type {number}  */ let max;
   /** @type {number}  */ let increment;
   /** @type {number[]}  */ let values;
-  /** @type {number}  */ let initialIndex;
+  /** @type {number}  */ let index;
   /** @type {'bound'|'indexed'} */ let optionsType;
 
   const incrementorTests = () => {
@@ -43,34 +43,46 @@ describe('createIncrementor', () => {
 
     it('should increment and decrement value', () => {
       const middle = defaultIncrementor.value;
+      const middleIndex = defaultIncrementor.index;
       defaultIncrementor.decrement();
       const left = defaultIncrementor.value;
+      const leftIndex = defaultIncrementor.index;
       defaultIncrementor.increment().increment();
       const right = defaultIncrementor.value;
+      const rightIndex = defaultIncrementor.index;
 
       if (optionsType === 'bound') {
         expect(middle - left).to.equal(increment);
         expect(right - middle).to.equal(increment);
+        expect(middleIndex || leftIndex || rightIndex).to.be.undefined;
       } else if (optionsType === 'indexed') {
-        expect(middle).to.equal(values[initialIndex]);
-        expect(left).to.equal(values[initialIndex - 1]);
-        expect(right).to.equal(values[initialIndex + 1]);
+        expect(middle).to.equal(values[index]);
+        expect(middleIndex).to.equal(index);
+        expect(left).to.equal(values[index - 1]);
+        expect(leftIndex).to.equal(index - 1);
+        expect(right).to.equal(values[index + 1]);
+        expect(rightIndex).to.equal(index + 1);
       } else throwMissingTest();
     });
 
     it('should not increment or decrement outside of bounds', () => {
       for (let i = 0; i < 10 ** 3; i++) { defaultIncrementor.decrement(); }
       const leftBound = defaultIncrementor.value;
+      const indexZero = defaultIncrementor.index;
 
       for (let i = 0; i < 10 ** 3; i++) { defaultIncrementor.increment(); }
       const rightBound = defaultIncrementor.value;
+      const indexMax = defaultIncrementor.index;
 
       if (optionsType === 'bound') {
         expect(leftBound).to.equal(min);
         expect(rightBound).to.equal(max);
+        expect(indexZero || indexMax).to.be.undefined;
       } else if (optionsType === 'indexed') {
         expect(leftBound).to.equal(values[0]);
+        expect(indexZero).to.equal(0);
         expect(rightBound).to.equal(values[values.length - 1]);
+        expect(indexMax).to.equal(values.length - 1);
       } else throwMissingTest();
     });
 
@@ -92,7 +104,7 @@ describe('createIncrementor', () => {
       const incrementor = createIncrementor(
         optionsType === 'bound' ? {
           initial, min, max, increment,
-        } : { values, initialIndex },
+        } : { values, index },
         (...args) => { argHistory.push(args); },
       );
 
@@ -102,7 +114,7 @@ describe('createIncrementor', () => {
       if (optionsType === 'bound') {
         expect(argHistory).to.deep.equal([[initial + increment], [initial]]);
       } else if (optionsType === 'indexed') {
-        expect(argHistory).to.deep.equal([[values[initialIndex + 1]], [values[initialIndex]]]);
+        expect(argHistory).to.deep.equal([[values[index + 1]], [values[index]]]);
       } else throwMissingTest();
     });
 
@@ -201,12 +213,17 @@ describe('createIncrementor', () => {
       for (let i = 0; i < 10 ** 6; i++) incrementor.increment();
       expect(incrementor.value).to.equal(10 ** 12);
     });
+
+    it('should return an index of undefined', () => {
+      expect(defaultIncrementor.index).to.be.undefined;
+      expect(defaultIncrementor.increment().index).to.be.undefined;
+    });
   });
 
   describe('using indexed incrementor options', () => {
     beforeEach(() => {
-      [values, initialIndex] = [[1, 10, 100, 1000, 10000], 2];
-      defaultIncrementor = createIncrementor({ values, initialIndex });
+      [values, index] = [[1, 10, 100, 1000, 10000], 2];
+      defaultIncrementor = createIncrementor({ values, index });
       optionsType = 'indexed';
     });
 
@@ -215,13 +232,15 @@ describe('createIncrementor', () => {
     });
 
     it('should throw error if initial index is outside of values array bounds', () => {
-      expect(() => { createIncrementor({ values: [1, 2, 3], initialIndex: -1 }); }).to.throw(ERROR.INCREMENTOR_INDEX_OUT_OF_RANGE);
-      expect(() => { createIncrementor({ values: [1, 2, 3], initialIndex: 3 }); }).to.throw(ERROR.INCREMENTOR_INDEX_OUT_OF_RANGE);
+      expect(() => { createIncrementor({ values: [1, 2, 3], index: -1 }); }).to.throw(ERROR.INCREMENTOR_INDEX_OUT_OF_RANGE);
+      expect(() => { createIncrementor({ values: [1, 2, 3], index: 3 }); }).to.throw(ERROR.INCREMENTOR_INDEX_OUT_OF_RANGE);
     });
     incrementorTests();
 
     it('should set initial index to 0 if omitted', () => {
-      expect(createIncrementor({ values: [42, 43, 44] }).value).to.equal(42);
+      const incrementor = createIncrementor({ values: [42, 43, 44] });
+      expect(incrementor.value).to.equal(42);
+      expect(incrementor.index).to.equal(0);
     });
   });
 });
