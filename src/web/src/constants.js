@@ -51,7 +51,7 @@ export const USER_PARAMETERS = {
       return [
         ['single', 'single'],
         ['spectrum', 'spectrum'],
-        ['highlight', 'highlight'],
+        // ['highlight', 'highlight'],
       ];
     },
     /** @type {ColorOptionId} */ INITIAL: 'single',
