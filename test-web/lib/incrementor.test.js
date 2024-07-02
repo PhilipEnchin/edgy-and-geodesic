@@ -8,7 +8,7 @@ import throwMissingTest from '../support/errors/missingTest.js';
 describe('createIncrementor', () => {
   /** @type {Incrementor} */ let defaultIncrementor;
 
-  /** @type {number} */ let initial;
+  /** @type {number} */ let value;
   /** @type {number}  */ let min;
   /** @type {number}  */ let max;
   /** @type {number}  */ let increment;
@@ -37,8 +37,17 @@ describe('createIncrementor', () => {
       expect(defaultIncrementor).to.have.property('value').that.is.a('number');
     });
 
+    it('should return an object with an index getter function', () => {
+      expect(defaultIncrementor).to.have.property('index'); // Type is tested in tests further down
+    });
+
     it('should not enable setting value directly once created', () => {
       expect(() => { defaultIncrementor.value = 42; }).to.throw();
+    });
+
+    it('should not enable setting index directly once created', () => {
+      expect(() => { defaultIncrementor.index = 42; }).to.throw();
+      expect(() => { defaultIncrementor.index = undefined; }).to.throw();
     });
 
     it('should increment and decrement value', () => {
@@ -103,7 +112,7 @@ describe('createIncrementor', () => {
       /** @type {any[][]} */ const argHistory = [];
       const incrementor = createIncrementor(
         optionsType === 'bound' ? {
-          initial, min, max, increment,
+          value, min, max, increment,
         } : { values, index },
         (...args) => { argHistory.push(args); },
       );
@@ -112,7 +121,7 @@ describe('createIncrementor', () => {
       incrementor.decrement();
 
       if (optionsType === 'bound') {
-        expect(argHistory).to.deep.equal([[initial + increment], [initial]]);
+        expect(argHistory).to.deep.equal([[value + increment], [value]]);
       } else if (optionsType === 'indexed') {
         expect(argHistory).to.deep.equal([[values[index + 1]], [values[index]]]);
       } else throwMissingTest();
@@ -130,59 +139,89 @@ describe('createIncrementor', () => {
         expect(threeToRight).to.equal(values[3]);
       } else throwMissingTest();
     });
+
+    it('should not call callback on update', () => {
+      /** @type {any[][]} */ const argHistory = [];
+      const incrementor = createIncrementor(
+        optionsType === 'bound' ? {
+          value, min, max, increment,
+        } : { values, index },
+        (...args) => { argHistory.push(args); },
+      );
+
+      incrementor.update({});
+      if (optionsType === 'bound') {
+        incrementor.update({
+          min, max, value, increment,
+        });
+      } else if (optionsType === 'indexed') {
+        incrementor.update({ values, index });
+      } else throwMissingTest();
+
+      expect(argHistory).to.have.lengthOf(0);
+    });
+
+    it('should allow chaining on update', () => {
+      const incrementedValue = defaultIncrementor.update({}).increment().value;
+      if (optionsType === 'bound') {
+        expect(incrementedValue).to.equal(value + increment);
+      } else if (optionsType === 'indexed') {
+        expect(incrementedValue).to.equal(values[index + 1]);
+      } else throwMissingTest();
+    });
   };
 
   describe('using bound incrementor options', () => {
     beforeEach(() => {
-      [initial, min, max, increment] = [10, 5, 16, 2];
+      [value, min, max, increment] = [10, 5, 16, 2];
       defaultIncrementor = createIncrementor({
-        initial, min, max, increment,
+        value, min, max, increment,
       });
       optionsType = 'bound';
     });
 
     it('should throw error if increment value is zero or negative', () => {
       expect(() => createIncrementor({
-        initial, min, max, increment: 0,
+        value, min, max, increment: 0,
       })).to.throw(ERROR.INCREMENTOR_INCREMENT_NOT_POSITIVE);
       expect(() => createIncrementor({
-        initial, min, max, increment: -1,
+        value, min, max, increment: -1,
       })).to.throw(ERROR.INCREMENTOR_INCREMENT_NOT_POSITIVE);
     });
 
     it('should throw error if initial value is outside bounds', () => {
       expect(() => createIncrementor({
-        initial: 10000, min, max, increment,
-      })).to.throw(ERROR.INCREMENTOR_INITIAL_OUT_OF_BOUNDS);
+        value: 10000, min, max, increment,
+      })).to.throw(ERROR.INCREMENTOR_VALUE_OUT_OF_BOUNDS);
       expect(() => createIncrementor({
-        initial: -10000, min, max, increment,
-      })).to.throw(ERROR.INCREMENTOR_INITIAL_OUT_OF_BOUNDS);
+        value: -10000, min, max, increment,
+      })).to.throw(ERROR.INCREMENTOR_VALUE_OUT_OF_BOUNDS);
       expect(() => createIncrementor({
-        initial: min, min, max, increment,
+        value: min, min, max, increment,
       })).to.not.throw();
       expect(() => createIncrementor({
-        initial: max, min, max, increment,
+        value: max, min, max, increment,
       })).to.not.throw();
     });
 
     it('should throw error if min is greater than max', () => {
       expect(() => createIncrementor({
-        initial: max, min: max, max, increment,
+        value: max, min: max, max, increment,
       })).to.not.throw();
       expect(() => createIncrementor({
-        initial: min, min, max: min, increment,
+        value: min, min, max: min, increment,
       })).to.not.throw();
       expect(() => createIncrementor({
-        initial: min, min, max: min - 1, increment,
+        value: min, min, max: min - 1, increment,
       })).to.throw(ERROR.INCREMENTOR_MIN_MAX_FLIPPED);
       expect(() => createIncrementor({
-        initial: max, min, max: min - 1, increment,
+        value: max, min, max: min - 1, increment,
       })).to.throw(ERROR.INCREMENTOR_MIN_MAX_FLIPPED);
       expect(() => createIncrementor({
-        initial: max + 0.5, min, max: min - 1, increment,
+        value: max + 0.5, min, max: min - 1, increment,
       })).to.throw(ERROR.INCREMENTOR_MIN_MAX_FLIPPED);
       expect(() => createIncrementor({
-        initial: 100000, min, max: min - 1, increment,
+        value: 100000, min, max: min - 1, increment,
       })).to.throw(ERROR.INCREMENTOR_MIN_MAX_FLIPPED);
     });
     incrementorTests();
@@ -203,20 +242,134 @@ describe('createIncrementor', () => {
     });
 
     it('should set min to -Infinity if omitted', () => {
-      const incrementor = createIncrementor({ initial: 0, max: 10, increment: 10 ** 6 });
+      const incrementor = createIncrementor({ value: 0, max: 10, increment: 10 ** 6 });
       for (let i = 0; i < 10 ** 6; i++) incrementor.decrement();
       expect(incrementor.value).to.equal(-(10 ** 12));
     });
 
     it('should set max to Infinity if omitted', () => {
-      const incrementor = createIncrementor({ initial: 0, min: -10, increment: 10 ** 6 });
+      const incrementor = createIncrementor({ value: 0, min: -10, increment: 10 ** 6 });
       for (let i = 0; i < 10 ** 6; i++) incrementor.increment();
       expect(incrementor.value).to.equal(10 ** 12);
+    });
+
+    it('should set increment to 1 if omitted', () => {
+      const incrementor = createIncrementor({ value: 0, min: -10, max: 10 });
+      expect(incrementor.value).to.equal(0);
+      expect(incrementor.increment().value).to.equal(1);
+    });
+
+    it('should set all values if empty object is passed as per above defaults', () => {
+      const incrementor = createIncrementor({});
+      expect(incrementor.value).to.equal(1);
+      expect(incrementor.increment().value).to.equal(2);
+      for (let i = 0; i < 10 ** 6; i++) incrementor.increment();
+      expect(incrementor.value).to.equal(10 ** 6 + 2);
+      for (let i = 0; i < 2 * 10 ** 6; i++) incrementor.decrement();
+      expect(incrementor.value).to.equal(-(10 ** 6) + 2);
     });
 
     it('should return an index of undefined', () => {
       expect(defaultIncrementor.index).to.be.undefined;
       expect(defaultIncrementor.increment().index).to.be.undefined;
+    });
+
+    it('should update value after update', () => {
+      expect(defaultIncrementor.update({ value: value + 1 }).value).to.equal(value + 1);
+      expect(defaultIncrementor.update({ value: min }).value).to.equal(min);
+      expect(defaultIncrementor.update({ value: max }).value).to.equal(max);
+    });
+
+    it('should increment and decrement to new max and min after update', () => {
+      defaultIncrementor.update({ min: min - 10, max: max + 10 });
+
+      for (let i = 0; i < 1000; i++) defaultIncrementor.increment();
+      expect(defaultIncrementor.value).to.equal(max + 10);
+      for (let i = 0; i < 1000; i++) defaultIncrementor.decrement();
+      expect(defaultIncrementor.value).to.equal(min - 10);
+    });
+
+    it('should increment and decrement by new increment value after update', () => {
+      defaultIncrementor.update({ increment: increment + 1 });
+      expect(defaultIncrementor.increment().value).to.equal(value + increment + 1);
+      expect(defaultIncrementor.decrement().value).to.equal(value);
+    });
+
+    it('should update everything', () => {
+      const checkEverything = (newValue, newMin, newMax, newIncrement) => {
+        expect(defaultIncrementor.value).to.equal(newValue);
+        for (let i = 0; i < 1000; i++) defaultIncrementor.increment();
+        expect(defaultIncrementor.value).to.equal(newMax);
+        expect(defaultIncrementor.decrement().value).to.equal(newMax - newIncrement);
+        for (let i = 0; i < 1000; i++) defaultIncrementor.decrement();
+        expect(defaultIncrementor.value).to.equal(newMin);
+        expect(defaultIncrementor.increment().value).to.equal(newMin + newIncrement);
+      };
+
+      defaultIncrementor.update({
+        value: 150, min: 100, max: 200, increment: 20,
+      });
+      checkEverything(150, 100, 200, 20);
+      defaultIncrementor.update({
+        value: 15, min: 12, max: 21, increment: 1,
+      });
+      checkEverything(15, 12, 21, 1);
+    });
+
+    it('should not change value on update if omitted', () => {
+      defaultIncrementor.update({ min, max, increment });
+      expect(defaultIncrementor.value).to.equal(value);
+    });
+
+    it('should not change range on update if omitted', () => {
+      const checkRange = () => {
+        for (let i = 0; i < 1000; i++) defaultIncrementor.increment();
+        expect(defaultIncrementor.value).to.equal(max);
+        for (let i = 0; i < 1000; i++) defaultIncrementor.decrement();
+        expect(defaultIncrementor.value).to.equal(min);
+      };
+
+      defaultIncrementor.update({ value, increment });
+      checkRange();
+      defaultIncrementor.update({ value, increment, min });
+      checkRange();
+      defaultIncrementor.update({ value, increment, max });
+      checkRange();
+    });
+
+    it('should not change increment value on update if omitted', () => {
+      defaultIncrementor.update({ value, min, max });
+      expect(defaultIncrementor.increment().value).to.equal(value + increment);
+    });
+
+    it('should change value on update to min if entire range is greater than omitted value', () => {
+      defaultIncrementor.update({ increment, min: value + 1000, max: value + 2000 });
+      expect(defaultIncrementor.value).to.equal(value + 1000);
+    });
+
+    it('should change value on update to max if entire range is less than value', () => {
+      defaultIncrementor.update({ increment, min: value - 2000, max: value - 1000 });
+      expect(defaultIncrementor.value).to.equal(value - 1000);
+    });
+
+    it('should throw error on update if increment value is zero or negative', () => {
+      expect(() => { defaultIncrementor.update({ increment: 0 }); }).to.throw(ERROR.INCREMENTOR_INCREMENT_NOT_POSITIVE);
+      expect(() => { defaultIncrementor.update({ increment: -1 }); }).to.throw(ERROR.INCREMENTOR_INCREMENT_NOT_POSITIVE);
+    });
+
+    it('should throw error on update if set value is outside of bounds, with or without new bounds', () => {
+      expect(() => { defaultIncrementor.update({ value: min - 1 }); }).to.throw(ERROR.INCREMENTOR_VALUE_OUT_OF_BOUNDS);
+      expect(() => { defaultIncrementor.update({ value: max + 1 }); }).to.throw(ERROR.INCREMENTOR_VALUE_OUT_OF_BOUNDS);
+      expect(() => { defaultIncrementor.update({ value: min, min: min + 1 }); }).to.throw(ERROR.INCREMENTOR_VALUE_OUT_OF_BOUNDS);
+      expect(() => { defaultIncrementor.update({ value: max, max: max - 1 }); }).to.throw(ERROR.INCREMENTOR_VALUE_OUT_OF_BOUNDS);
+      expect(() => { defaultIncrementor.update({ value: -1, min: 0, max: 100 }); }).to.throw(ERROR.INCREMENTOR_VALUE_OUT_OF_BOUNDS);
+      expect(() => { defaultIncrementor.update({ value: 101, min: 0, max: 100 }); }).to.throw(ERROR.INCREMENTOR_VALUE_OUT_OF_BOUNDS);
+    });
+
+    it('should throw error on update if min is greater than max', () => {
+      expect(() => defaultIncrementor.update({ min: max + 1 })).to.throw(ERROR.INCREMENTOR_MIN_MAX_FLIPPED);
+      expect(() => defaultIncrementor.update({ max: min - 1 })).to.throw(ERROR.INCREMENTOR_MIN_MAX_FLIPPED);
+      expect(() => defaultIncrementor.update({ min: 100, max: 90 })).to.throw(ERROR.INCREMENTOR_MIN_MAX_FLIPPED);
     });
   });
 
@@ -241,6 +394,65 @@ describe('createIncrementor', () => {
       const incrementor = createIncrementor({ values: [42, 43, 44] });
       expect(incrementor.value).to.equal(42);
       expect(incrementor.index).to.equal(0);
+    });
+
+    it('should keep index the same with new values after update', () => {
+      const newValues = [5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18];
+      defaultIncrementor.update({ values: newValues });
+      expect(defaultIncrementor.index).to.equal(index);
+      expect(defaultIncrementor.value).to.equal(newValues[index]);
+    });
+
+    it('should update index', () => {
+      defaultIncrementor.update({ index: index + 1 });
+      expect(defaultIncrementor.index).to.equal(index + 1);
+      expect(defaultIncrementor.value).to.equal(values[index + 1]);
+    });
+
+    it('should update everything', () => {
+      defaultIncrementor.update(({ values: [1, 2, 3], index: 1 }));
+      expect(defaultIncrementor.index).to.equal(1);
+      expect(defaultIncrementor.value).to.equal(2);
+
+      defaultIncrementor.update(({ values: [10, 20, 30, 40, 50, 60, 70], index: 6 }));
+      expect(defaultIncrementor.index).to.equal(6);
+      expect(defaultIncrementor.value).to.equal(70);
+    });
+
+    it('should not change values on update if omitted', () => {
+      defaultIncrementor.update({ index: index + 1 });
+      expect(defaultIncrementor.index).to.equal(index + 1);
+      expect(defaultIncrementor.value).to.equal(values[index + 1]);
+    });
+
+    it('should not change index on update if omitted', () => {
+      defaultIncrementor.update({ values: values.map((n) => n + 1) });
+      expect(defaultIncrementor.index).to.equal(index);
+      expect(defaultIncrementor.value).to.equal(values[index] + 1);
+    });
+
+    it('should throw error if values array is empty on update', () => {
+      expect(() => defaultIncrementor.update({ values: [] })).to.throw(ERROR.INCREMENTOR_VALUES_EMPTY);
+      expect(() => defaultIncrementor.update({ values: [], index: 0 })).to.throw(ERROR.INCREMENTOR_VALUES_EMPTY);
+    });
+
+    it('should throw error if index is outside of values array bounds on updates', () => {
+      expect(() => defaultIncrementor.update({ index: 0 })).to.not.throw(ERROR.INCREMENTOR_INDEX_OUT_OF_RANGE);
+      expect(() => defaultIncrementor.update({ index: -1 })).to.throw(ERROR.INCREMENTOR_INDEX_OUT_OF_RANGE);
+      expect(() => defaultIncrementor.update({ index: 10 ** 10 })).to.throw(ERROR.INCREMENTOR_INDEX_OUT_OF_RANGE);
+      expect(() => defaultIncrementor.update({ index: values.length - 1 })).to.not.throw();
+      expect(() => defaultIncrementor.update({ index: values.length })).to.throw(ERROR.INCREMENTOR_INDEX_OUT_OF_RANGE);
+      expect(() => defaultIncrementor.update({ values: [1], index: -1 })).to.throw(ERROR.INCREMENTOR_INDEX_OUT_OF_RANGE);
+      expect(() => defaultIncrementor.update({ values: [1], index: 1 })).to.throw(ERROR.INCREMENTOR_INDEX_OUT_OF_RANGE);
+    });
+
+    it('should set index to max on update if new values array places current index out of bounds', () => {
+      // Check to make sure this check will test and actual update
+      expect(index).to.be.greaterThan(0);
+
+      defaultIncrementor.update({ values: [1] });
+      expect(defaultIncrementor.index).to.equal(0);
+      expect(defaultIncrementor.value).to.equal(1);
     });
   });
 });

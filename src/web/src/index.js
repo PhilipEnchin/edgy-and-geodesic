@@ -20,10 +20,11 @@ import makePolyhedron from '../../lib/polyhedra/index.js';
 /** @typedef {import('./lib/p5Model.js').ColorOptionId} ColorOptionId */
 /** @typedef {import('./lib/p5Model.js').SingleColorOptions} SingleColorOptions */
 /** @typedef {import('./lib/p5Model.js').SpectrumColorOptions} SpectrumColorOptions */
+/** @typedef {import('./lib/p5Model.js').HighlightColorOptions} HighlightColorOptions */
 
 const s = (sketch) => {
   const rowLocationIncrementor = createIncrementor({
-    initial: UI.MARGIN_TOP - UI.ROW_HEIGHT - UI.PADDING_INTER,
+    value: UI.MARGIN_TOP - UI.ROW_HEIGHT - UI.PADDING_INTER,
     min: -Infinity,
     max: Infinity,
     increment: UI.ROW_HEIGHT + UI.PADDING_INTER,
@@ -82,7 +83,7 @@ const s = (sketch) => {
       sketch,
       'Frequency',
       {
-        initial: FREQUENCY.INITIAL,
+        value: FREQUENCY.INITIAL,
         min: FREQUENCY.MIN,
         max: FREQUENCY.MAX,
         increment: FREQUENCY.INCREMENT,

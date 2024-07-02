@@ -61,8 +61,8 @@ export const POLYHEDRON = { RELATIVE_RADIUS: 0.4, RELATIVE_VERTEX_RADIUS: 0.03, 
 
 export const ERROR = {
   INCREMENTOR_MIN_MAX_FLIPPED: 'Incrementor min must be less than or equal to max',
-  INCREMENTOR_INITIAL_OUT_OF_BOUNDS: 'Initial value must be within bounds',
+  INCREMENTOR_VALUE_OUT_OF_BOUNDS: 'Initial value must be within bounds',
   INCREMENTOR_INCREMENT_NOT_POSITIVE: 'Increment value must be a positive number',
-  INCREMENTOR_VALUES_EMPTY: 'Incrementor values array must not be empty',
+  INCREMENTOR_VALUES_EMPTY: 'Incrementor values must be an array with at least one element',
   INCREMENTOR_INDEX_OUT_OF_RANGE: 'Incrementor index must be withing values array range',
 };

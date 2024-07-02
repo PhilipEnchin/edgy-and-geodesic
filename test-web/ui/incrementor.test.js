@@ -15,7 +15,7 @@ describe('createIncrementorUI', () => {
 
   const { BUTTON_WIDTH, PADDING_INTRA } = INCREMENTOR;
   const { ROW_HEIGHT, TEXT_SIZE } = UI;
-  const [label, initial, min, max, increment, values, initialIndex, x, y] = ['Mabel\'s labels', 6, 0, 10, 2, [1, 10, 100, 1000, 10000], 2, 40, 50];
+  const [label, value, min, max, increment, values, index, x, y] = ['Mabel\'s labels', 6, 0, 10, 2, [1, 10, 100, 1000, 10000], 2, 40, 50];
   let callbackArgs;
   const callback = (...args) => { callbackArgs.push(args); };
 
@@ -34,10 +34,10 @@ describe('createIncrementorUI', () => {
       beforeEach(() => {
         if (optionsType === 'bound') {
           defaultIncrementorUI = createIncrementorUI(mockSketch.reset(), label, {
-            initial, min, max, increment,
+            value, min, max, increment,
           }, x, y, callback);
         } else if (optionsType === 'indexed') {
-          defaultIncrementorUI = createIncrementorUI(mockSketch.reset(), label, { values, initialIndex }, x, y, callback);
+          defaultIncrementorUI = createIncrementorUI(mockSketch.reset(), label, { values, index }, x, y, callback);
         } else throwMissingTest();
 
         [mockMinus, mockPlus] = mockSketch.buttons;
@@ -72,9 +72,9 @@ describe('createIncrementorUI', () => {
 
       it('should create a value span', () => {
         if (optionsType === 'bound') {
-          expect(mockValueSpan.savedArgs).to.deep.equal({ creation: [], html: [[initial]] });
+          expect(mockValueSpan.savedArgs).to.deep.equal({ creation: [], html: [[value]] });
         } else if (optionsType === 'indexed') {
-          expect(mockValueSpan.savedArgs).to.deep.equal({ creation: [], html: [[values[initialIndex]]] });
+          expect(mockValueSpan.savedArgs).to.deep.equal({ creation: [], html: [[values[index]]] });
         } else throwMissingTest();
       });
 
@@ -104,13 +104,13 @@ describe('createIncrementorUI', () => {
         const higher = defaultIncrementorUI.value;
 
         if (optionsType === 'bound') {
-          expect(before).to.equal(initial);
-          expect(lower).to.equal(initial - increment);
-          expect(higher).to.equal(initial + increment);
+          expect(before).to.equal(value);
+          expect(lower).to.equal(value - increment);
+          expect(higher).to.equal(value + increment);
         } else if (optionsType === 'indexed') {
-          expect(before).to.equal(values[initialIndex]);
-          expect(lower).to.equal(values[initialIndex - 1]);
-          expect(higher).to.equal(values[initialIndex + 1]);
+          expect(before).to.equal(values[index]);
+          expect(lower).to.equal(values[index - 1]);
+          expect(higher).to.equal(values[index + 1]);
         } else throwMissingTest();
       });
 
@@ -121,17 +121,17 @@ describe('createIncrementorUI', () => {
 
         if (optionsType === 'bound') {
           expect(mockValueSpan.savedArgs.html).to.deep.equal([
-            [initial],
-            [initial - increment],
-            [initial],
-            [initial + increment],
+            [value],
+            [value - increment],
+            [value],
+            [value + increment],
           ]);
         } else if (optionsType === 'indexed') {
           expect(mockValueSpan.savedArgs.html).to.deep.equal([
-            [values[initialIndex]],
-            [values[initialIndex - 1]],
-            [values[initialIndex]],
-            [values[initialIndex + 1]],
+            [values[index]],
+            [values[index - 1]],
+            [values[index]],
+            [values[index + 1]],
           ]);
         } else throwMissingTest();
       });
@@ -142,15 +142,15 @@ describe('createIncrementorUI', () => {
         mockMinus.press();
         if (optionsType === 'bound') {
           expect(callbackArgs).to.deep.equal([
-            [initial + increment],
-            [initial],
-            [initial - increment],
+            [value + increment],
+            [value],
+            [value - increment],
           ]);
         } else if (optionsType === 'indexed') {
           expect(callbackArgs).to.deep.equal([
-            [values[initialIndex + 1]],
-            [values[initialIndex]],
-            [values[initialIndex - 1]],
+            [values[index + 1]],
+            [values[index]],
+            [values[index - 1]],
           ]);
         } else throwMissingTest();
       });
