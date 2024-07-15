@@ -28,7 +28,6 @@
     "lint:dev": "nodemon -x npm run lint",
     "spellcheck": "cspell \"**\" --no-progress --no-summary",
     "spellcheck:dev": "nodemon -x npm run spellcheck",
-    "start": "nodemon .",
     "start-web": "cd src/web && npm start",
     "test": "c8 --100 --include src/lib mocha --recursive test/",
     "test:dev": "nodemon -x 'npm run test -- --reporter min'",

@@ -60,7 +60,7 @@ export const HELP_TEXT = [
   '  -r, --radius <value>       Center-to-vertex radius of final sphere',
   '  -m, --minLength <value>    Minimum vertex to vertex length of final polyhedron',
   '  -M, --maxLength <value>    Maximum vertex to vertex length of final polyhedron',
-  '  -F, --fullOutput           Display every edge (default: display only summary',
+  '  -F, --fullOutput           Display every edge (default: display only summary)',
   '  -h, --help                 Display this!',
 ].join('\n');
 
